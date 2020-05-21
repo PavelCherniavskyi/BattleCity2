@@ -1,0 +1,7 @@
+find_program(CACHE_BINARY ccache)
+if(CACHE_BINARY)
+    message(STATUS "ccache is enabled")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CACHE_BINARY})
+else()
+    message(WARNING "ccache is NOT enabled")
+endif()
