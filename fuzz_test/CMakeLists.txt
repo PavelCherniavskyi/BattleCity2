@@ -3,8 +3,8 @@
 #
 
 add_executable(fuzz_tester fuzz_tester.cpp)
-target_link_libraries(fuzz_tester PRIVATE project_options project_warnings CONAN_PKG::fmt -coverage -fsanitize=address,leak,undefined)
-target_compile_options(fuzz_tester PRIVATE -fsanitize=address,leak,undefined)
+target_link_libraries(fuzz_tester PRIVATE project_options project_warnings CONAN_PKG::fmt --coverage -fsanitize=fuzzer,address,leak,undefined)
+target_compile_options(fuzz_tester PRIVATE -fsanitize=fuzzer,address,leak,undefined)
 
 # Allow short runs during automated testing to see if something new breaks
 set(FUZZ_RUNTIME

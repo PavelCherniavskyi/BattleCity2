@@ -11,36 +11,30 @@
 #include <SFML/Graphics/CircleShape.hpp>
 
 static constexpr auto USAGE =
-        R"(Naval Fate.
+  R"(Battle City v2.0
    Usage:
-          naval_fate ship new <name>...
-          naval_fate ship <name> move <x> <y> [--speed=<kn>]
-          naval_fate ship shoot <x> <y>
-          naval_fate mine (set|remove) <x> <y> [--moored | --drifting]
-          naval_fate (-h | --help)
-          naval_fate --version
+          BattleCity [options]
    Options:
           -h --help     Show this screen.
           --version     Show version.
-          --speed=<kn>  Speed in knots [default: 10].
-          --moored      Moored (anchored) mine.
-          --drifting    Drifting mine.
+          -t --test     Test option.
 )";
 
-int main([[maybe_unused]]int argc, [[maybe_unused]]const char **argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
-//   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-//                                                              { std::next(argv), std::next(argv, argc) },
-//                                                              true,// show help if requested
-//                                                              "Naval Fate 2.0");// version string
-//
-//   for (auto const &arg : args) {
-//      std::cout << arg.first << arg.second << std::endl;
-//   }
+   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
+     { std::next(argv), std::next(argv, argc) },
+     true,// show help if requested
+     "Battle City v2.0");// version string
 
+   for (auto const &arg : args) {
+      std::cout << arg.first << arg.second << std::endl;
+   }
+
+   long test = args["--test"].asLong();
 
    //Use the default logger (stdout, multi-threaded, colored)
-   spdlog::info("Hello, {}!", "World");
+   spdlog::info("Hello, {}! Text: {}", "World", test);
 
    fmt::print("Hello, from {}\n", "{fmt}");
 
@@ -64,7 +58,7 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]const char **argv)
 
       ImGui::SFML::Update(window, deltaClock.restart());
 
-//    ImGui::ShowDemoWindow();
+      //    ImGui::ShowDemoWindow();
 
       ImGui::Begin("Hello, world!");
       ImGui::Button("Look at this pretty button");
