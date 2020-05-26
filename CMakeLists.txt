@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(CMAKE_C_COMPILER /usr/bin/clang-10)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++-10)
-
 # Set the project name to your project name, my project isn't very descriptive
 project(BattleCity)
 
@@ -26,14 +23,9 @@ set_project_warnings(project_warnings)
 include(cmake/Sanitizers.cmake)
 enable_sanitizers(project_options)
 
-# enable doxygen
-include(cmake/Doxygen.cmake)
-enable_doxygen()
-
 # allow for static analysis options
 include(cmake/StaticAnalyzers.cmake)
 
-option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
 option(ENABLE_TESTING "Enable Test Builds" ON)
 option(ENABLE_FUZZING "Enable Fuzzing Builds" ON)
 
