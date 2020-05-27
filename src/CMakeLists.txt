@@ -1,5 +1,3 @@
-option(CPP_STARTER_USE_IMGUI "Enable compilation of ImGui sample" OFF)
-
 # Generic test that uses conan libs
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(
