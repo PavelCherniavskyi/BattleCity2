@@ -11,21 +11,18 @@
 #include <SFML/Graphics/CircleShape.hpp>
 
 static constexpr auto USAGE =
-  R"(Battle City v2.0
+  R"(Battle_City_v2.0
    Usage:
-          BattleCity [options]
+      BattleCity [options]
    Options:
-          -h --help     Show this screen.
-          --version     Show version.
-          -t --test     Test option.
+      -h --help     Show this screen.
+      --version     Show version.
+      -t --test     Test option.
 )";
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
-   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-     { std::next(argv), std::next(argv, argc) },
-     true,// show help if requested
-     "Battle City v2.0");// version string
+   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,{ std::next(argv), std::next(argv, argc) },true,"v2.0");
 
    for (auto const &arg : args) {
       std::cout << arg.first << arg.second << std::endl;

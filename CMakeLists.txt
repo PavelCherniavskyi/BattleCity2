@@ -39,10 +39,12 @@ run_conan()
 if(ENABLE_TESTING)
     enable_testing()
     add_subdirectory(test)
+    message(===> "Tests are enabled")
 endif()
 
 if(ENABLE_FUZZING)
     add_subdirectory(fuzz_test)
+    message(===> "Fuzz tests are enabled")
 endif()
 
 add_subdirectory(src)
