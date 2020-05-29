@@ -12,12 +12,16 @@
 
 static constexpr auto USAGE =
   R"(Battle_City_v2.0
-   Usage:
-      BattleCity [options]
-   Options:
+  Usage:
+      BattleCity
+      BattleCity -t <x>
+      BattleCity -h | --help
+      BattleCity --version
+
+  Options:
       -h --help     Show this screen.
+      -t            Test option.
       --version     Show version.
-      -t --test     Test option.
 )";
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
@@ -25,10 +29,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
    std::map<std::string, docopt::value> args = docopt::docopt(USAGE,{ std::next(argv), std::next(argv, argc) },true,"v2.0");
 
    for (auto const &arg : args) {
-      std::cout << arg.first << arg.second << std::endl;
+      std::cout << arg.first << " : " << arg.second << std::endl;
    }
 
-   long test = args["--test"].asLong();
+   long test;
+   if(args["-t"].asBool())
+   {
+      test = args["<x>"].asLong();
+   }
+
 
    //Use the default logger (stdout, multi-threaded, colored)
    spdlog::info("Hello, {}! Text: {}", "World", test);
