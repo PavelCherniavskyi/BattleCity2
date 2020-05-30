@@ -1,4 +1,4 @@
-AccessModifierOffset: -2
+AccessModifierOffset: -3
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
@@ -44,8 +44,8 @@ ColumnLimit: 0
 CommentPragmas: '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ConstructorInitializerIndentWidth: 2
-ContinuationIndentWidth: 2
+ConstructorInitializerIndentWidth: 3
+ContinuationIndentWidth: 3
 Cpp11BracedListStyle: false
 DerivePointerAlignment: false
 DisableFormat: false

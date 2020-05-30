@@ -1,5 +1,5 @@
 # Generic test that uses conan libs
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp private/Game.cpp)
 target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
