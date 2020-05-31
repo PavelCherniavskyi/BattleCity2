@@ -12,6 +12,11 @@ class Game
 public:
    Game();
    int32 Run();
+   void handleInput(int argc, const char **argv);
+
+private:
+    sf::RenderWindow mMainWindow;
+   long mTestOption;
 };
 
 
