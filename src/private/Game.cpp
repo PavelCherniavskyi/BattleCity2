@@ -4,10 +4,8 @@
 
 #include <imgui-SFML.h>
 #include <imgui.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Window/Event.hpp>
 #include <spdlog/spdlog.h>
+#include <fmt/format.h>
 #include <map>
 #include <docopt/docopt.h>
 #include "../Game.hpp"
@@ -28,57 +26,165 @@ static constexpr auto OPTIONS_USAGE =
 
 static constexpr auto SCREEN_WIDTH = 1280U;
 static constexpr auto SCREEN_HEIGHT = 760U;
-static constexpr auto FRAME_RATE_LIMIT = 60U;
 static constexpr auto GAME_TITLE = "Battle_City_v2.0";
+static const sf::Time TimePerFrame = sf::seconds(1.f/60.f);
+static const float PlayerSpeed = 1000.f;
+
 
 Game::Game()
    : mMainWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), GAME_TITLE)
    , mTestOption(0)
-{}
-
-int32 Game::Run()
+   , mTexture()
+   , mPlayer()
+   , mFont()
+   , mStatisticsText()
+   , mStatisticsUpdateTime()
+   , mStatisticsNumFrames(0)
+   , mIsMovingUp(false)
+   , mIsMovingDown(false)
+   , mIsMovingRight(false)
+   , mIsMovingLeft(false)
 {
-   ImGui::SFML::Init(mMainWindow);
-   mMainWindow.setFramerateLimit(FRAME_RATE_LIMIT);
-
-   sf::Clock deltaClock;
-   while (mMainWindow.isOpen()) {
-      sf::Event event{};
-      while (mMainWindow.pollEvent(event)) {
-         ImGui::SFML::ProcessEvent(event);
-
-         if (event.type == sf::Event::Closed) {
-            mMainWindow.close();
-         }
-      }
-
-      ImGui::SFML::Update(mMainWindow, deltaClock.restart());
-
-      //    ImGui::ShowDemoWindow();
-
-      ImGui::Begin("Hello, world!");
-      ImGui::Button("Look at this pretty button");
-      ImGui::End();
-
-      mMainWindow.clear();
-      //      window.draw(shape);
-      ImGui::SFML::Render(mMainWindow);
-      mMainWindow.display();
+   //TODO: create resource manager to assert not in constructor and provide relative path
+   if(!mTexture.loadFromFile("/home/pavel/Projects/BattleCity_v2.0/media/Textures/SpriteSheet.png"))
+   {
+      spdlog::critical("texture loading failed");
+      assert(false);
+   }
+   if(!mFont.loadFromFile("/home/pavel/Projects/BattleCity_v2.0/media/Sansation.ttf"))
+   {
+      spdlog::critical("font loading failed");
+      assert(false);
    }
 
-   ImGui::SFML::Shutdown();
-   return 0;
+   mPlayer.setTexture(mTexture);
+   mPlayer.setTextureRect(sf::IntRect(1, 2, 13, 13));
+   mPlayer.setPosition(100.f, 100.f);
+
+
+   mStatisticsText.setFont(mFont);
+   mStatisticsText.setPosition(5.f, 5.f);
+   mStatisticsText.setCharacterSize(10);
+   mStatisticsText.setStyle(sf::Text::Regular);
+}
+
+void Game::run()
+{
+   sf::Clock clock;
+   sf::Time timeSinceLastUpdate = sf::Time::Zero;
+   while (mMainWindow.isOpen())
+   {
+      sf::Time elapsedTime = clock.restart();
+      timeSinceLastUpdate += elapsedTime;
+      while (timeSinceLastUpdate > TimePerFrame)
+      {
+         timeSinceLastUpdate -= TimePerFrame;
+
+         processEvents();
+         update(TimePerFrame);
+      }
+
+      updateStatistics(elapsedTime);
+      render();
+   }
 }
 
 void Game::handleInput(int argc, const char **argv)
 {
    std::map<std::string, docopt::value> args = docopt::docopt(OPTIONS_USAGE, { std::next(argv), std::next(argv, argc) }, true, "v2.0");
 
-   if (args["-t"].asBool()) {
+   if (args["-t"].asBool())
+   {
       mTestOption = args["<x>"].asLong();
-   } else {
-      spdlog::info("mTestOption is empty");
    }
 
    spdlog::info("Hello, mTestOption: {}", mTestOption);
+}
+
+void Game::processEvents()
+{
+   sf::Event event;
+   while (mMainWindow.pollEvent(event))
+   {
+      switch (event.type)
+      {
+      case sf::Event::KeyPressed:
+         handlePlayerInput(event.key.code, true);
+         break;
+      case sf::Event::KeyReleased:
+         handlePlayerInput(event.key.code, false);
+         break;
+      case sf::Event::Closed:
+         mMainWindow.close();
+         break;
+      default:
+         break;
+      }
+   }
+}
+
+void Game::update(sf::Time elapsedTime)
+{
+   sf::Vector2f movement(0.f, 0.f);
+   if (mIsMovingUp)
+   {
+      movement.y -= PlayerSpeed;
+   }
+   if (mIsMovingDown)
+   {
+      movement.y += PlayerSpeed;
+   }
+   if (mIsMovingLeft)
+   {
+      movement.x -= PlayerSpeed;
+   }
+   if (mIsMovingRight)
+   {
+      movement.x += PlayerSpeed;
+   }
+
+   mPlayer.move(movement * elapsedTime.asSeconds());
+}
+
+void Game::render()
+{
+   mMainWindow.clear();
+   mMainWindow.draw(mPlayer);
+   mMainWindow.draw(mStatisticsText);
+   mMainWindow.display();
+}
+
+void Game::updateStatistics(sf::Time elapsedTime)
+{
+   mStatisticsUpdateTime += elapsedTime;
+   mStatisticsNumFrames += 1;
+
+   if (mStatisticsUpdateTime >= sf::seconds(1.0f))
+   {
+      mStatisticsText.setString(fmt::format("Frames / Second = {}\nTime / Update = {}us", mStatisticsNumFrames, static_cast<u_int64_t>(mStatisticsUpdateTime.asMicroseconds()) / mStatisticsNumFrames));
+
+      mStatisticsUpdateTime -= sf::seconds(1.0f);
+      mStatisticsNumFrames = 0;
+   }
+}
+
+void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed)
+{
+   spdlog::info("Key:{} is {}", key, (isPressed ? "pressed" : "released"));
+   if (key == sf::Keyboard::W)
+   {
+      mIsMovingUp = isPressed;
+   }
+   else if (key == sf::Keyboard::S)
+   {
+      mIsMovingDown = isPressed;
+   }
+   else if (key == sf::Keyboard::A)
+   {
+      mIsMovingLeft = isPressed;
+   }
+   else if (key == sf::Keyboard::D)
+   {
+      mIsMovingRight = isPressed;
+   }
 }
