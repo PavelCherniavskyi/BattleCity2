@@ -1,5 +1,9 @@
 # Generic test that uses conan libs
-add_executable(${PROJECT_NAME} main.cpp private/Game.cpp ResourceHolder.hpp)
+add_executable(${PROJECT_NAME}
+        main.cpp
+        private/Game.cpp
+        private/SpriteHolder.cpp
+        )
 target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE

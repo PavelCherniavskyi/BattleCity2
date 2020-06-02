@@ -28,44 +28,27 @@ static constexpr auto OPTIONS_USAGE =
 static constexpr auto SCREEN_WIDTH = 1280U;
 static constexpr auto SCREEN_HEIGHT = 760U;
 static constexpr auto GAME_TITLE = "Battle_City_v2.0";
-static const sf::Time TimePerFrame = sf::seconds(1.f/60.f);
-static const float PlayerSpeed = 1000.f;
+static constexpr auto cPlayerSpeed = 500.F;
+static constexpr auto cSecondsInMinute = 60.F;
+static constexpr auto cTextSize = 10U;
 
 
 Game::Game()
    : mMainWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), GAME_TITLE)
    , mTestOption(0)
-   , mTexture()
-   , mPlayer()
-   , mFont()
-   , mStatisticsText()
-   , mStatisticsUpdateTime()
    , mStatisticsNumFrames(0)
+   , mTimePerFrame(sf::seconds(1.F / cSecondsInMinute))
    , mIsMovingUp(false)
    , mIsMovingDown(false)
    , mIsMovingRight(false)
    , mIsMovingLeft(false)
 {
-   //TODO: create resource manager and abort not in constructor
-   if(!mTexture.loadFromFile(fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR)))
-   {
-      spdlog::critical("texture loading failed");
-      abort();
-   }
-   if(!mFont.loadFromFile(fmt::format("{}/media/Sansation.ttf", CMAKE_SOURCE_DIR)))
-   {
-      spdlog::critical("font loading failed");
-      abort();
-   }
-
-   mPlayer.setTexture(mTexture);
-   mPlayer.setTextureRect(sf::IntRect(1, 2, 13, 13));
-   mPlayer.setPosition(100.f, 100.f);
-
+   //TODO: create resource manager for Font and not assert in constructor
+   assert(mFont.loadFromFile(fmt::format("{}/media/Sansation.ttf", CMAKE_SOURCE_DIR)));
 
    mStatisticsText.setFont(mFont);
-   mStatisticsText.setPosition(5.f, 5.f);
-   mStatisticsText.setCharacterSize(10);
+   mStatisticsText.setPosition(5.F, 5.F);
+   mStatisticsText.setCharacterSize(cTextSize);
    mStatisticsText.setStyle(sf::Text::Regular);
 }
 
@@ -77,12 +60,12 @@ void Game::run()
    {
       sf::Time elapsedTime = clock.restart();
       timeSinceLastUpdate += elapsedTime;
-      while (timeSinceLastUpdate > TimePerFrame)
+      while (timeSinceLastUpdate > mTimePerFrame)
       {
-         timeSinceLastUpdate -= TimePerFrame;
+         timeSinceLastUpdate -= mTimePerFrame;
 
          processEvents();
-         update(TimePerFrame);
+         update(mTimePerFrame);
       }
 
       updateStatistics(elapsedTime);
@@ -104,16 +87,17 @@ void Game::handleInput(int argc, const char **argv)
 
 void Game::processEvents()
 {
-   sf::Event event;
+   sf::Event event{};
    while (mMainWindow.pollEvent(event))
    {
+      auto key = event.key;
       switch (event.type)
       {
       case sf::Event::KeyPressed:
-         handlePlayerInput(event.key.code, true);
+         handlePlayerInput(key.code, true);
          break;
       case sf::Event::KeyReleased:
-         handlePlayerInput(event.key.code, false);
+         handlePlayerInput(key.code, false);
          break;
       case sf::Event::Closed:
          mMainWindow.close();
@@ -126,22 +110,22 @@ void Game::processEvents()
 
 void Game::update(sf::Time elapsedTime)
 {
-   sf::Vector2f movement(0.f, 0.f);
+   sf::Vector2f movement(0.F, 0.F);
    if (mIsMovingUp)
    {
-      movement.y -= PlayerSpeed;
+      movement.y -= cPlayerSpeed;
    }
    if (mIsMovingDown)
    {
-      movement.y += PlayerSpeed;
+      movement.y += cPlayerSpeed;
    }
    if (mIsMovingLeft)
    {
-      movement.x -= PlayerSpeed;
+      movement.x -= cPlayerSpeed;
    }
    if (mIsMovingRight)
    {
-      movement.x += PlayerSpeed;
+      movement.x += cPlayerSpeed;
    }
 
    mPlayer.move(movement * elapsedTime.asSeconds());
@@ -160,11 +144,11 @@ void Game::updateStatistics(sf::Time elapsedTime)
    mStatisticsUpdateTime += elapsedTime;
    mStatisticsNumFrames += 1;
 
-   if (mStatisticsUpdateTime >= sf::seconds(1.0f))
+   if (mStatisticsUpdateTime >= sf::seconds(1.F))
    {
       mStatisticsText.setString(fmt::format("Frames / Second = {}\nTime / Update = {}us", mStatisticsNumFrames, static_cast<u_int64_t>(mStatisticsUpdateTime.asMicroseconds()) / mStatisticsNumFrames));
 
-      mStatisticsUpdateTime -= sf::seconds(1.0f);
+      mStatisticsUpdateTime -= sf::seconds(1.F);
       mStatisticsNumFrames = 0;
    }
 }
@@ -188,4 +172,11 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed)
    {
       mIsMovingRight = isPressed;
    }
+}
+void Game::init()
+{
+   mSpriteHolder.init();
+
+   mPlayer = mSpriteHolder.getSprite(SpriteId::MAIN_TANK1);
+   mPlayer.setPosition(100.F, 100.F);
 }

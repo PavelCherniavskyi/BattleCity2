@@ -8,6 +8,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <stb.h>
+#include "SpriteHolder.hpp"
 
 class Game
 {
@@ -20,18 +21,19 @@ public:
    void render();
    void updateStatistics(sf::Time elapsedTime);
    void handlePlayerInput(sf::Keyboard::Key key, bool isPressed);
+   void init();
 
 private:
    sf::RenderWindow mMainWindow;
    long mTestOption;
 
-   sf::Texture mTexture;
-   sf::Sprite mPlayer;
+   SpriteHolder mSpriteHolder;
+   sf::Sprite mPlayer; // Should be a class player.
    sf::Font mFont;
    sf::Text mStatisticsText;
    sf::Time mStatisticsUpdateTime;
-
    std::size_t mStatisticsNumFrames;
+   const sf::Time mTimePerFrame;
    bool mIsMovingUp;
    bool mIsMovingDown;
    bool mIsMovingRight;
