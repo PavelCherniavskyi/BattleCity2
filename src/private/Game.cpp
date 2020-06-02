@@ -9,6 +9,7 @@
 #include <map>
 #include <docopt/docopt.h>
 #include "../Game.hpp"
+#include "config.h"
 
 static constexpr auto OPTIONS_USAGE =
    R"(Battle_City_v2.0
@@ -45,16 +46,16 @@ Game::Game()
    , mIsMovingRight(false)
    , mIsMovingLeft(false)
 {
-   //TODO: create resource manager to assert not in constructor and provide relative path
-   if(!mTexture.loadFromFile("/home/pavel/Projects/BattleCity_v2.0/media/Textures/SpriteSheet.png"))
+   //TODO: create resource manager and abort not in constructor
+   if(!mTexture.loadFromFile(fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR)))
    {
       spdlog::critical("texture loading failed");
-      assert(false);
+      abort();
    }
-   if(!mFont.loadFromFile("/home/pavel/Projects/BattleCity_v2.0/media/Sansation.ttf"))
+   if(!mFont.loadFromFile(fmt::format("{}/media/Sansation.ttf", CMAKE_SOURCE_DIR)))
    {
       spdlog::critical("font loading failed");
-      assert(false);
+      abort();
    }
 
    mPlayer.setTexture(mTexture);

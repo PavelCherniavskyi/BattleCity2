@@ -48,3 +48,5 @@ if(ENABLE_FUZZING)
 endif()
 
 add_subdirectory(src)
+
+configure_file (config.h.in config.h @ONLY)

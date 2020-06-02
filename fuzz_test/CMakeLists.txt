@@ -5,6 +5,7 @@
 add_executable(fuzz_tester fuzz_tester.cpp)
 target_link_libraries(fuzz_tester PRIVATE project_options project_warnings CONAN_PKG::fmt --coverage -fsanitize=fuzzer,address,leak,undefined)
 target_compile_options(fuzz_tester PRIVATE -fsanitize=fuzzer,address,leak,undefined)
+target_include_directories(fuzz_tester PUBLIC "${PROJECT_BINARY_DIR}") #for access config.h
 
 # Allow short runs during automated testing to see if something new breaks
 set(FUZZ_RUNTIME

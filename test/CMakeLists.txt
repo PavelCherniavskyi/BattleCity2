@@ -12,6 +12,7 @@ target_link_libraries(catch_main PRIVATE project_options)
 
 add_executable(tests tests.cpp)
 target_link_libraries(tests PRIVATE project_warnings project_options catch_main)
+target_include_directories(tests PUBLIC "${PROJECT_BINARY_DIR}") #for access config.h
 
 
 # automatically discover tests that are defined in catch based test files you
