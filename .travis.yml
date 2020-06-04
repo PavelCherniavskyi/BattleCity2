@@ -2,6 +2,7 @@ language: cpp
 
 before_install:
   - sudo apt-get update
+  - pip install --user --upgrade pip
 
 install:
   - sudo apt-get install llvm-9
@@ -12,6 +13,7 @@ jobs:
     - os: linux
       dist: bionic
       compiler: clang
+      services: xvfb
       env:
         - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
       addons:
@@ -26,11 +28,13 @@ jobs:
 
 before_script:
   - eval "${MATRIX_EVAL}"
+  - "export DISPLAY=:99.0"
 
 script:
-  - cmake -DENABLE_COVERAGE=ON -DENABLE_FUZZING=ON -DENABLE_TESTING=ON -DENABLE_SANITIZER_ADDRESS=ON -DENABLE_SANITIZER_LEAK=ON -DENABLE_SANITIZER_UNDEFINED_BEHAVIOR=ON .
+  - mkdir build && cd build
+  - cmake -DENABLE_COVERAGE=ON -DENABLE_FUZZING=ON -DENABLE_TESTING=ON ..
   - cmake --build . -- -j4
-  - ctest -j4
+  - ctest --output-on-failure -j4
 
 after_script:
   - allgcnoFiles=$(find . -name "*.gcno")

@@ -175,6 +175,7 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed)
 }
 void Game::init()
 {
+   //spdlog::info("Function: {}, File: {}, Line: {}", __FUNCTION__, __FILE__, __LINE__);
    mSpriteHolder.init();
 
    mPlayer = mSpriteHolder.getSprite(SpriteId::MAIN_TANK1);

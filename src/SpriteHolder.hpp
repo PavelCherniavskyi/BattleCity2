@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include "ResourceHolder.hpp"
+#include "Enums.hpp"
 
 class SpriteHolder
 {
@@ -16,7 +17,7 @@ public:
    void init();
    sf::Sprite getSprite(SpriteId sprite);
 private:
-   ResourceHolder<Textures, sf::Texture> mResourceHolder;
+   ResourceHolder<Texture, sf::Texture> mResourceHolder;
 };
 
 

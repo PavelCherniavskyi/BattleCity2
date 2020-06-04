@@ -10,17 +10,6 @@
 #include <utility>
 #include <spdlog/spdlog.h>
 
-enum class SpriteId
-{
-   MAIN_TANK1 = 0,
-   MAIN_TANK2
-};
-
-enum class Textures
-{
-   MAIN_SHEET = 0
-};
-
 template<typename Identifier, typename Resource>
 class ResourceHolder
 {

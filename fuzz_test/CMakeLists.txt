@@ -9,7 +9,7 @@ target_include_directories(fuzz_tester PUBLIC "${PROJECT_BINARY_DIR}") #for acce
 
 # Allow short runs during automated testing to see if something new breaks
 set(FUZZ_RUNTIME
-        10
+        1
         CACHE STRING "Number of seconds to run fuzz tests during ctest run"
         )# Default of 10 seconds
 

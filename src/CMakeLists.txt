@@ -3,7 +3,7 @@ add_executable(${PROJECT_NAME}
         main.cpp
         private/Game.cpp
         private/SpriteHolder.cpp
-        )
+        private/Enums.cpp)
 target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE

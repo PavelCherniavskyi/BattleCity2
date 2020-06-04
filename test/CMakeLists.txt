@@ -13,6 +13,7 @@ target_link_libraries(catch_main PRIVATE project_options)
 add_executable(tests
         tests.cpp
         "${CMAKE_SOURCE_DIR}/src/private/SpriteHolder.cpp"
+        "${CMAKE_SOURCE_DIR}/src/private/Enums.cpp"
         )
 target_link_libraries(tests PRIVATE
         project_warnings

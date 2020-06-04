@@ -23,13 +23,13 @@ BraceWrapping:
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: false
-  AfterObjCDeclaration: false
+  AfterObjCDeclaration: true
   AfterStruct: true
   AfterUnion: false
   BeforeCatch: false
   BeforeElse: false
   IndentBraces: false
-  SplitEmptyFunction: false
+  SplitEmptyFunction: true
   SplitEmptyNamespace: true
   SplitEmptyRecord: true
 BreakAfterJavaFieldAnnotations: true

@@ -4,6 +4,9 @@
 
 #include "../SpriteHolder.hpp"
 #include "config.h"
+#include "../SpriteCoords.hpp"
+
+constexpr auto SCALE_FACTOR = 2.F;
 
 SpriteHolder::SpriteHolder()
    : mResourceHolder()
@@ -13,20 +16,21 @@ SpriteHolder::SpriteHolder()
 sf::Sprite SpriteHolder::getSprite(SpriteId spriteId)
 {
    sf::Sprite sprite;
-   sprite.setTexture(mResourceHolder.get(Textures::MAIN_SHEET));
+   sprite.setTexture(mResourceHolder.get(Texture::MAIN_SHEET));
 
-   switch (spriteId)
+   const auto& it = SpriteCoords.find(spriteId);
+   if (it != SpriteCoords.end())
    {
-   case SpriteId::MAIN_TANK1:
-      sprite.setTextureRect(sf::IntRect(1, 2, 13, 13));
-      break;
-   case SpriteId::MAIN_TANK2:
-      break;
+      sprite.setTextureRect(SpriteCoords.at(spriteId));
+   } else
+   {
+      spdlog::warn("Sprite coords for: {}, not found", spriteIdtoString(spriteId));
    }
 
+   sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
    return sprite;
 }
 void SpriteHolder::init()
 {
-   mResourceHolder.load(Textures::MAIN_SHEET, fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR));
+   mResourceHolder.load(Texture::MAIN_SHEET, fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR));
 }
