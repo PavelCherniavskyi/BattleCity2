@@ -1,12 +1,12 @@
 language: cpp
 
 before_install:
-  - sudo apt-get update
-  - pip install --user --upgrade pip
+  - sudo apt update
 
 install:
-  - sudo apt-get install llvm-9
-  - pip install conan cmake
+  - sudo apt install clang llvm-9 python3-dev python3-pip cmake
+  - pip install --user --upgrade pip
+  - pip install conan
   - conan config set general.revisions_enabled=1
 
 jobs:
