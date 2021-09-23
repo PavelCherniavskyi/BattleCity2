@@ -8,4 +8,4 @@ sudo apt install cmake build-essential python3-pip libgl-dev xorg-dev libx11-xcb
 pip install conan
 ```
 
-[![Build Status](https://travis-ci.org/PavelCherniavskyi/BattleCity_v2.0.svg?branch=master)](https://travis-ci.org/PavelCherniavskyi/BattleCity_v2.0) [![codecov](https://codecov.io/gh/PavelCherniavskyi/BattleCity_v2.0/branch/master/graph/badge.svg)](https://codecov.io/gh/PavelCherniavskyi/BattleCity_v2.0) [![Documentation](https://codedocs.xyz/PavelCherniavskyi/BattleCity_v2.0.svg)](https://codedocs.xyz/PavelCherniavskyi/BattleCity_v2.0/)
+[![Build Status](https://app.travis-ci.com/PavelCherniavskyi/BattleCity2.svg?branch=master)](https://app.travis-ci.com/PavelCherniavskyi/BattleCity2) [![codecov](https://codecov.io/gh/PavelCherniavskyi/BattleCity2/branch/master/graph/badge.svg)](https://codecov.io/gh/PavelCherniavskyi/BattleCity2) [![Documentation](https://codedocs.xyz/PavelCherniavskyi/BattleCity2.svg)](https://codedocs.xyz/PavelCherniavskyi/BattleCity2/)

@@ -7,6 +7,7 @@ before_install:
 install:
   - sudo apt-get install llvm-9
   - pip install conan cmake
+  - conan config set general.revisions_enabled=1
 
 jobs:
   include:
