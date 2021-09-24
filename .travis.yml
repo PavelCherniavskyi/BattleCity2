@@ -4,9 +4,9 @@ before_install:
   - sudo apt update
 
 install:
-  - sudo apt install clang llvm-9 python3-dev python3-pip cmake
+  - sudo apt install clang llvm-9 python3-dev python3-pip
   - pip install --user --upgrade pip
-  - pip install conan
+  - pip install conan cmake
   - conan config set general.revisions_enabled=1
 
 jobs:
