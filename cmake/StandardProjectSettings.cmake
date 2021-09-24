@@ -12,4 +12,15 @@ endif()
 # Generate compile_commands.json to make it easier to work with clang based
 # tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+# set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# see the time for compilation
+#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+#set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CMAKE_COMMAND} -E time")
+#add_compile_options(-ftime-report)
+
+# displays a warning when trying to use an unsuitable pch file
+#add_compile_options(-Winvalid-pch)
+
+# displays the path and name of pch header files as they are connected
+#add_compile_options(-H)

@@ -31,8 +31,6 @@ option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
 target_precompile_headers(project_options INTERFACE <vector> <string> <map> <utility>)
 
-set(CONAN_EXTRA_REQUIRES ${CONAN_EXTRA_REQUIRES} imgui-sfml/2.1@bincrafters/stable)
-
 include(cmake/Conan.cmake)
 run_conan()
 
@@ -40,11 +38,6 @@ if(ENABLE_TESTING)
     enable_testing()
     add_subdirectory(test)
     message(===> "Tests are enabled")
-endif()
-
-if(ENABLE_FUZZING)
-    add_subdirectory(fuzz_test)
-    message(===> "Fuzz tests are enabled")
 endif()
 
 add_subdirectory(src)

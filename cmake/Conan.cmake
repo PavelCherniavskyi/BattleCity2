@@ -1,3 +1,5 @@
+set(CONAN_EXTRA_REQUIRES ${CONAN_EXTRA_REQUIRES} imgui-sfml/2.1@bincrafters/stable)
+
 macro(run_conan)
     # Download automatically, you can also just copy the conan.cmake file
     if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
@@ -15,11 +17,10 @@ macro(run_conan)
     conan_cmake_run(
             REQUIRES
             ${CONAN_EXTRA_REQUIRES}
-            ${CONAN_EXTRA_OPTIONS}
-            gtest/1.8.1
-            docopt.cpp/0.6.2
-            fmt/6.2.1
-            spdlog/1.5.0
+            gtest/cci.20210126
+            docopt.cpp/0.6.3
+            fmt/8.0.1
+            spdlog/1.9.2
             OPTIONS
             BASIC_SETUP
             CMAKE_TARGETS # individual targets to link to
