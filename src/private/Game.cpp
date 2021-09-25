@@ -4,15 +4,12 @@
 
 #include <imgui-SFML.h>
 #include <imgui.h>
-#include <spdlog/spdlog.h>
 #include <fmt/format.h>
-#include <map>
-#include <docopt/docopt.h>
 #include "../Game.hpp"
 #include "config.h"
 
 static constexpr auto OPTIONS_USAGE =
-   R"(Battle_City_v2.0
+   R"(Battle_City_2
   Usage:
       BattleCity
       BattleCity -t <x>
@@ -27,15 +24,18 @@ static constexpr auto OPTIONS_USAGE =
 
 static constexpr auto SCREEN_WIDTH = 1280U;
 static constexpr auto SCREEN_HEIGHT = 760U;
-static constexpr auto GAME_TITLE = "Battle_City_v2.0";
-static constexpr auto cPlayerSpeed = 500.F;
+static constexpr auto GAME_TITLE = "Battle_City_2";
+static constexpr auto cPlayerSpeed = 100.F;
 static constexpr auto cSecondsInMinute = 60.F;
 static constexpr auto cTextSize = 10U;
 
 
-Game::Game()
+Game::Game(std::unique_ptr<InputHandler> aInputHandler)
    : mMainWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), GAME_TITLE)
-   , mTestOption(0)
+   , mInputHandler(std::move(aInputHandler))
+   , mFontHolder()
+   , mSpriteHolder()
+   , mPlayer(mSpriteHolder, ESpriteId::MAIN_TANK1)
    , mStatisticsNumFrames(0)
    , mTimePerFrame(sf::seconds(1.F / cSecondsInMinute))
    , mIsMovingUp(false)
@@ -43,141 +43,131 @@ Game::Game()
    , mIsMovingRight(false)
    , mIsMovingLeft(false)
 {
-   //TODO: create resource manager for Font and not assert in constructor
-   assert(mFont.loadFromFile(fmt::format("{}/media/Sansation.ttf", CMAKE_SOURCE_DIR)));
-
-   mStatisticsText.setFont(mFont);
-   mStatisticsText.setPosition(5.F, 5.F);
-   mStatisticsText.setCharacterSize(cTextSize);
-   mStatisticsText.setStyle(sf::Text::Regular);
 }
 
 void Game::run()
 {
-   sf::Clock clock;
-   sf::Time timeSinceLastUpdate = sf::Time::Zero;
-   while (mMainWindow.isOpen())
-   {
-      sf::Time elapsedTime = clock.restart();
-      timeSinceLastUpdate += elapsedTime;
-      while (timeSinceLastUpdate > mTimePerFrame)
-      {
-         timeSinceLastUpdate -= mTimePerFrame;
+  sf::Clock clock;
+  sf::Time timeSinceLastUpdate = sf::Time::Zero;
+  while (mMainWindow.isOpen())
+  {
+    sf::Time elapsedTime = clock.restart();
+    timeSinceLastUpdate += elapsedTime;
+    while (timeSinceLastUpdate > mTimePerFrame)
+    {
+      timeSinceLastUpdate -= mTimePerFrame;
 
-         processEvents();
-         update(mTimePerFrame);
-      }
+      processEvents();
+      update(mTimePerFrame);
+    }
 
-      updateStatistics(elapsedTime);
-      render();
-   }
-}
-
-void Game::handleInput(int argc, const char **argv)
-{
-   std::map<std::string, docopt::value> args = docopt::docopt(OPTIONS_USAGE, { std::next(argv), std::next(argv, argc) }, true, "v2.0");
-
-   if (args["-t"].asBool())
-   {
-      mTestOption = args["<x>"].asLong();
-   }
-
-   spdlog::info("Hello, mTestOption: {}", mTestOption);
+    updateStatistics(elapsedTime);
+    render();
+  }
 }
 
 void Game::processEvents()
 {
-   sf::Event event{};
-   while (mMainWindow.pollEvent(event))
-   {
-      auto key = event.key;
-      switch (event.type)
-      {
-      case sf::Event::KeyPressed:
-         handlePlayerInput(key.code, true);
-         break;
-      case sf::Event::KeyReleased:
-         handlePlayerInput(key.code, false);
-         break;
-      case sf::Event::Closed:
-         mMainWindow.close();
-         break;
-      default:
-         break;
-      }
-   }
+  sf::Event event{};
+  while (mMainWindow.pollEvent(event))
+  {
+    auto key = event.key;
+    switch (event.type)
+    {
+    case sf::Event::KeyPressed:
+      handlePlayerInput(key.code, true);
+      break;
+    case sf::Event::KeyReleased:
+      handlePlayerInput(key.code, false);
+      break;
+    case sf::Event::Closed:
+      mMainWindow.close();
+      break;
+    default:
+      break;
+    }
+  }
 }
 
 void Game::update(sf::Time elapsedTime)
 {
-   sf::Vector2f movement(0.F, 0.F);
-   if (mIsMovingUp)
-   {
-      movement.y -= cPlayerSpeed;
-   }
-   if (mIsMovingDown)
-   {
-      movement.y += cPlayerSpeed;
-   }
-   if (mIsMovingLeft)
-   {
-      movement.x -= cPlayerSpeed;
-   }
-   if (mIsMovingRight)
-   {
-      movement.x += cPlayerSpeed;
-   }
+  sf::Vector2f movement(0.F, 0.F);
+  if (mIsMovingUp)
+  {
+    movement.y -= cPlayerSpeed;
+  }
+  if (mIsMovingDown)
+  {
+    movement.y += cPlayerSpeed;
+  }
+  if (mIsMovingLeft)
+  {
+    movement.x -= cPlayerSpeed;
+  }
+  if (mIsMovingRight)
+  {
+    movement.x += cPlayerSpeed;
+  }
 
-   mPlayer.move(movement * elapsedTime.asSeconds());
+  mPlayer.Move(movement * elapsedTime.asSeconds());
 }
 
 void Game::render()
 {
-   mMainWindow.clear();
-   mMainWindow.draw(mPlayer);
-   mMainWindow.draw(mStatisticsText);
-   mMainWindow.display();
+  mMainWindow.clear();
+  mPlayer.Draw(mMainWindow);
+  mMainWindow.draw(mStatisticsText);
+  mMainWindow.display();
 }
 
 void Game::updateStatistics(sf::Time elapsedTime)
 {
-   mStatisticsUpdateTime += elapsedTime;
-   mStatisticsNumFrames += 1;
+  mStatisticsUpdateTime += elapsedTime;
+  mStatisticsNumFrames += 1;
 
-   if (mStatisticsUpdateTime >= sf::seconds(1.F))
-   {
-      mStatisticsText.setString(fmt::format("Frames / Second = {}\nTime / Update = {}us", mStatisticsNumFrames, static_cast<u_int64_t>(mStatisticsUpdateTime.asMicroseconds()) / mStatisticsNumFrames));
+  if (mStatisticsUpdateTime >= sf::seconds(1.F))
+  {
+    mStatisticsText.setString(fmt::format("Frames / Second = {}\nTime / Update = {}us", mStatisticsNumFrames, static_cast<u_int64_t>(mStatisticsUpdateTime.asMicroseconds()) / mStatisticsNumFrames));
 
-      mStatisticsUpdateTime -= sf::seconds(1.F);
-      mStatisticsNumFrames = 0;
-   }
+    mStatisticsUpdateTime -= sf::seconds(1.F);
+    mStatisticsNumFrames = 0;
+  }
 }
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed)
 {
-   spdlog::info("Key:{} is {}", key, (isPressed ? "pressed" : "released"));
-   if (key == sf::Keyboard::W)
-   {
-      mIsMovingUp = isPressed;
-   }
-   else if (key == sf::Keyboard::S)
-   {
-      mIsMovingDown = isPressed;
-   }
-   else if (key == sf::Keyboard::A)
-   {
-      mIsMovingLeft = isPressed;
-   }
-   else if (key == sf::Keyboard::D)
-   {
-      mIsMovingRight = isPressed;
-   }
+  spdlog::info("Key:{} is {}", key, (isPressed ? "pressed" : "released"));
+  if (key == sf::Keyboard::W)
+  {
+    mIsMovingUp = isPressed;
+  }
+  else if (key == sf::Keyboard::S)
+  {
+    mIsMovingDown = isPressed;
+  }
+  else if (key == sf::Keyboard::A)
+  {
+    mIsMovingLeft = isPressed;
+  }
+  else if (key == sf::Keyboard::D)
+  {
+    mIsMovingRight = isPressed;
+  }
 }
 void Game::init()
 {
-   //spdlog::info("Function: {}, File: {}, Line: {}", __FUNCTION__, __FILE__, __LINE__);
-   mSpriteHolder.init();
+  // spdlog::info("Function: {}, File: {}, Line: {}", __FUNCTION__, __FILE__, __LINE__);
+  mSpriteHolder.init();
+  mFontHolder.init();
+  mPlayer.Init();
 
-   mPlayer = mSpriteHolder.getSprite(SpriteId::MAIN_TANK1);
-   mPlayer.setPosition(100.F, 100.F);
+  auto fontPtr = mFontHolder.getFont(EFont::SANSATION);
+  if(fontPtr)
+  {
+    mStatisticsText.setFont(*fontPtr);
+    mStatisticsText.setPosition(5.F, 5.F);
+    mStatisticsText.setCharacterSize(cTextSize);
+    mStatisticsText.setStyle(sf::Text::Regular);
+  }
+  
 }

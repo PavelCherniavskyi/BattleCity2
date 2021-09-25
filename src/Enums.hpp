@@ -1,20 +1,14 @@
 #ifndef BATTLECITY_ENUMS_HPP
 #define BATTLECITY_ENUMS_HPP
 
-enum class SpriteId
-{
-   UNKNOWN = -1,
-   MAIN_TANK1 = 0,
-   MAIN_TANK2
-};
+#include "include/enum.h"
 
-enum class Texture
-{
-   UNKNOWN = -1,
-   MAIN_SHEET = 0
-};
+BETTER_ENUM(ESpriteId, int, UNKNOWN, MAIN_TANK1, MAIN_TANK2)
 
-const char* spriteIdtoString(SpriteId spr);
-const char* texturetoString(Texture txt);
+BETTER_ENUM(ETexture, int, UNKNOWN, MAIN_SHEET)
+
+BETTER_ENUM(EFont, int, SANSATION)
+
+BETTER_ENUM(EInputOption, int, TEST)
 
 #endif// BATTLECITY_ENUMS_HPP

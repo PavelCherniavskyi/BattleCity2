@@ -1,4 +1,4 @@
-AccessModifierOffset: -3
+AccessModifierOffset: -2
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
@@ -8,7 +8,7 @@ AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
@@ -25,9 +25,9 @@ BraceWrapping:
   AfterNamespace: false
   AfterObjCDeclaration: true
   AfterStruct: true
-  AfterUnion: false
-  BeforeCatch: false
-  BeforeElse: false
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
   IndentBraces: false
   SplitEmptyFunction: true
   SplitEmptyNamespace: true
@@ -63,7 +63,7 @@ IncludeCategories:
     Regex: .*
 IncludeIsMainRegex: (Test)?$
 IndentCaseLabels: false
-IndentWidth: 3
+IndentWidth: 2
 IndentWrappedFunctionNames: true
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
@@ -85,12 +85,12 @@ SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 0
+SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: true
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: Auto
+Standard: c++17
 TabWidth: 2
 UseTab: Never

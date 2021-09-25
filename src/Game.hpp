@@ -9,36 +9,38 @@
 #include <SFML/Graphics.hpp>
 #include <stb.h>
 #include "SpriteHolder.hpp"
+#include "Player.hpp"
+#include "InputHandler.hpp"
+#include "FontHolder.hpp"
 
 class Game
 {
 public:
-   Game();
-   void run();
-   void handleInput(int argc, const char **argv);
-   void processEvents();
-   void update(sf::Time elapsedTime);
-   void render();
-   void updateStatistics(sf::Time elapsedTime);
-   void handlePlayerInput(sf::Keyboard::Key key, bool isPressed);
-   void init();
+  Game(std::unique_ptr<InputHandler> aInputHandler);
+  void run();
+  void processEvents();
+  void update(sf::Time aElapsedTime);
+  void render();
+  void updateStatistics(sf::Time aElapsedTime);
+  void handlePlayerInput(sf::Keyboard::Key aKey, bool aIsPressed);
+  void init();
+
 
 private:
-   sf::RenderWindow mMainWindow;
-   long mTestOption;
-
-   SpriteHolder mSpriteHolder;
-   sf::Sprite mPlayer; // Should be a class player.
-   sf::Font mFont;
-   sf::Text mStatisticsText;
-   sf::Time mStatisticsUpdateTime;
-   std::size_t mStatisticsNumFrames;
-   const sf::Time mTimePerFrame;
-   bool mIsMovingUp;
-   bool mIsMovingDown;
-   bool mIsMovingRight;
-   bool mIsMovingLeft;
+  sf::RenderWindow mMainWindow;
+  std::unique_ptr<InputHandler> mInputHandler;
+  FontHolder mFontHolder;
+  SpriteHolder mSpriteHolder;
+  Player mPlayer; // Should be a class player.
+  sf::Text mStatisticsText;
+  sf::Time mStatisticsUpdateTime;
+  std::size_t mStatisticsNumFrames;
+  const sf::Time mTimePerFrame;
+  bool mIsMovingUp;
+  bool mIsMovingDown;
+  bool mIsMovingRight;
+  bool mIsMovingLeft;
 };
 
 
-#endif// BATTLECITY_GAME_HPP
+#endif // BATTLECITY_GAME_HPP

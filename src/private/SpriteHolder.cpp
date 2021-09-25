@@ -6,31 +6,37 @@
 #include "config.h"
 #include "../SpriteCoords.hpp"
 
-constexpr auto SCALE_FACTOR = 2.F;
+constexpr auto KScaleFactor = 2.F;
 
 SpriteHolder::SpriteHolder()
    : mResourceHolder()
 {
 }
 
-sf::Sprite SpriteHolder::getSprite(SpriteId spriteId)
+std::unique_ptr<sf::Sprite> SpriteHolder::getSprite(ESpriteId aSpriteId) const
 {
-   sf::Sprite sprite;
-   sprite.setTexture(mResourceHolder.get(Texture::MAIN_SHEET));
+  sf::Sprite sprite;
+  auto mainSheet = mResourceHolder.get(ETexture::MAIN_SHEET);
+  if (mainSheet)
+  {
+    sprite.setTexture(*mainSheet);
+  }
 
-   const auto& it = SpriteCoords.find(spriteId);
-   if (it != SpriteCoords.end())
-   {
-      sprite.setTextureRect(SpriteCoords.at(spriteId));
-   } else
-   {
-      spdlog::warn("Sprite coords for: {}, not found", spriteIdtoString(spriteId));
-   }
 
-   sprite.setScale(SCALE_FACTOR, SCALE_FACTOR);
-   return sprite;
+  const auto it = KSpriteCoords.find(aSpriteId);
+  if (it != KSpriteCoords.end())
+  {
+    sprite.setTextureRect(KSpriteCoords.at(aSpriteId));
+  }
+  else
+  {
+    spdlog::error("Sprite coords for: {}, not found", aSpriteId._to_string());
+  }
+
+  sprite.setScale(KScaleFactor, KScaleFactor);
+  return std::make_unique<sf::Sprite>(sprite);
 }
 void SpriteHolder::init()
 {
-   mResourceHolder.load(Texture::MAIN_SHEET, fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR));
+  mResourceHolder.load(ETexture::MAIN_SHEET, fmt::format("{}/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR));
 }

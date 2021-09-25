@@ -15,9 +15,9 @@ class SpriteHolder
 public:
    SpriteHolder();
    void init();
-   sf::Sprite getSprite(SpriteId sprite);
+   std::unique_ptr<sf::Sprite> getSprite(ESpriteId aSpriteId) const;
 private:
-   ResourceHolder<Texture, sf::Texture> mResourceHolder;
+   ResourceHolder<ETexture, sf::Texture> mResourceHolder;
 };
 
 

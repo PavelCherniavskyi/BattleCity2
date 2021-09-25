@@ -18,9 +18,9 @@ macro(run_conan)
             REQUIRES
             ${CONAN_EXTRA_REQUIRES}
             gtest/cci.20210126
-            docopt.cpp/0.6.3
             fmt/8.0.1
             spdlog/1.9.2
+            boost/1.77.0
             OPTIONS
             BASIC_SETUP
             CMAKE_TARGETS # individual targets to link to
