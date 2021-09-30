@@ -1,11 +1,17 @@
 # Generic test that uses conan libs
 add_executable(${PROJECT_NAME}
         main.cpp
+        private/Animation.cpp
+        private/Bonus.cpp
+        private/Bullet.cpp
+        private/Entity.cpp
         private/Game.cpp
-        private/SpriteHolder.cpp
+        private/Map.cpp
         private/Player.cpp
+        private/ResourceHolder.cpp
+        private/RightPanel.cpp
+        private/Tank.cpp
         private/InputHandler.cpp
-        private/FontHolder.cpp
 )
 target_link_libraries(
         ${PROJECT_NAME}

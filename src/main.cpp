@@ -1,5 +1,5 @@
 #include <spdlog/spdlog.h>
-#include "Game.hpp"
+#include "Game.h"
 #include "InputHandler.hpp"
 
 int main(int argc, const char **argv)
@@ -12,8 +12,10 @@ int main(int argc, const char **argv)
       return 0;
    }
 
-   Game game(std::make_unique<InputHandler>(inputHandler));
-   game.init();
+   spdlog::info("before game");
+   Game game;
+   spdlog::info("game");
+   game.Init();
    game.run();
 
    return 0;
