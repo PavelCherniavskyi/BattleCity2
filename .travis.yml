@@ -8,14 +8,11 @@ install:
   - sudo pip install --user --upgrade pip
   - sudo pip install conan cmake
   - conan config set general.revisions_enabled=1
-  - sudo apt install software-properties-common
-  - sudo add-apt-repository ppa:deadsnakes/ppa -y
-  - sudo apt update
-  - sudo apt install python3.8
   - python --version
   - python3 --version
   - pip --version
   - pip3 --version
+  - cmake --version
 
 jobs:
   include:
