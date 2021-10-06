@@ -15,7 +15,7 @@ Map::~Map()
 	}
 }
 
-char Map0::lvl_0_Map[HEIGHT_MAP][WIDTH_MAP] = {
+char Map0::lvl_0_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000",
 	"0                          0",
 	"0                          0",
@@ -54,8 +54,8 @@ char Map0::lvl_0_Map[HEIGHT_MAP][WIDTH_MAP] = {
 Map0::Map0()
 {
 	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < HEIGHT_MAP; i++)
-	for (size_t j = 0; j < WIDTH_MAP; j++){
+	for (size_t i = 0; i < kHeightMap; i++)
+	for (size_t j = 0; j < kWidthMap; j++){
 		if (lvl_0_Map[i][j] == '0'){
 			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
 			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
@@ -124,7 +124,7 @@ Map0::Map0()
 }
 
 
-char Map1::lvl_1_Map[HEIGHT_MAP][WIDTH_MAP] = {
+char Map1::lvl_1_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000",
 	"0                          0",
 	"0                          0",
@@ -163,8 +163,8 @@ char Map1::lvl_1_Map[HEIGHT_MAP][WIDTH_MAP] = {
 Map1::Map1() 
 {
 	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < HEIGHT_MAP; i++)
-	for (size_t j = 0; j < WIDTH_MAP; j++){
+	for (size_t i = 0; i < kHeightMap; i++)
+	for (size_t j = 0; j < kWidthMap; j++){
 		if (lvl_1_Map[i][j] == '0'){
 			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
 			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
@@ -208,7 +208,7 @@ Map1::Map1()
 }
 
 
-char Map2::lvl_2_Map[HEIGHT_MAP][WIDTH_MAP] = {
+char Map2::lvl_2_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000",
 	"0      22      22          0",
 	"0      22      22          0",
@@ -243,8 +243,8 @@ char Map2::lvl_2_Map[HEIGHT_MAP][WIDTH_MAP] = {
 Map2::Map2()
 {
 	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < HEIGHT_MAP; i++)
-	for (size_t j = 0; j < WIDTH_MAP; j++){
+	for (size_t i = 0; i < kHeightMap; i++)
+	for (size_t j = 0; j < kWidthMap; j++){
 		if (lvl_2_Map[i][j] == '0'){
 			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
 			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
@@ -300,7 +300,7 @@ Map2::Map2()
 	//std::cout << "Map Created" << std::endl;
 }
 
-char Map3::lvl_3_Map[HEIGHT_MAP][WIDTH_MAP] = {
+char Map3::lvl_3_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000",
 	"0        11      11        0",
 	"0        11      11        0",
@@ -339,8 +339,8 @@ char Map3::lvl_3_Map[HEIGHT_MAP][WIDTH_MAP] = {
 Map3::Map3()
 {
 	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < HEIGHT_MAP; i++)
-	for (size_t j = 0; j < WIDTH_MAP; j++){
+	for (size_t i = 0; i < kHeightMap; i++)
+	for (size_t j = 0; j < kWidthMap; j++){
 		if (lvl_3_Map[i][j] == '0'){
 			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
 			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
@@ -396,7 +396,7 @@ Map3::Map3()
 	//std::cout << "Map Created" << std::endl;
 }
 
-char Map4::lvl_4_Map[HEIGHT_MAP][WIDTH_MAP] = {
+char Map4::lvl_4_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000",
 	"0        1111              0",
 	"0        1111              0",
@@ -435,8 +435,8 @@ char Map4::lvl_4_Map[HEIGHT_MAP][WIDTH_MAP] = {
 Map4::Map4()
 {
 	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < HEIGHT_MAP; i++)
-	for (size_t j = 0; j < WIDTH_MAP; j++){
+	for (size_t i = 0; i < kHeightMap; i++)
+	for (size_t j = 0; j < kWidthMap; j++){
 		if (lvl_4_Map[i][j] == '0'){
 			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
 			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));

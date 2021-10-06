@@ -6,7 +6,7 @@
 class InputHandler
 {
 public:
-  int Parse(int argc, const char **argv);
+  int Parse(int argc, char **argv);
   std::string GetOption(EInputOption aOption) const;
 private:
   std::map<EInputOption, std::string> mOptions;

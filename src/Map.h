@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity.h"
-
+#include "Definitions.hpp"
 
 struct Node{
 	Node(sf::FloatRect r, sf::Sprite* s) : rect(r), sprite(s){}
@@ -20,7 +20,7 @@ public:
 	
 protected:
 	std::multimap<Textures::ID, Node>					lvl;
-	ResourceHolder&										resourses;
+	TexturesHolder&										resourses;
 
 
 };
@@ -30,7 +30,7 @@ class Map0 : public Map
 public:
 	Map0();
 private:
-	static char											lvl_0_Map[HEIGHT_MAP][WIDTH_MAP];
+	static char											lvl_0_Map[kHeightMap][kWidthMap];
 };
 
 class Map1 : public Map
@@ -38,7 +38,7 @@ class Map1 : public Map
 public:
 														Map1();
 private:
-	static char											lvl_1_Map[HEIGHT_MAP][WIDTH_MAP];
+	static char											lvl_1_Map[kHeightMap][kWidthMap];
 };
 
 class Map2 : public Map
@@ -46,7 +46,7 @@ class Map2 : public Map
 public:
 														Map2();
 private:
-	static char											lvl_2_Map[HEIGHT_MAP][WIDTH_MAP];
+	static char											lvl_2_Map[kHeightMap][kWidthMap];
 };
 
 class Map3 : public Map
@@ -54,7 +54,7 @@ class Map3 : public Map
 public:
 														Map3();
 private:
-	static char											lvl_3_Map[HEIGHT_MAP][WIDTH_MAP];
+	static char											lvl_3_Map[kHeightMap][kWidthMap];
 };
 
 class Map4 : public Map
@@ -62,5 +62,5 @@ class Map4 : public Map
 public:
 	Map4();
 private:
-	static char											lvl_4_Map[HEIGHT_MAP][WIDTH_MAP];
+	static char											lvl_4_Map[kHeightMap][kWidthMap];
 };

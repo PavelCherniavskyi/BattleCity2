@@ -3,14 +3,14 @@
 
 #include <SFML/Graphics/Font.hpp>
 #include "ResourceHolder.hpp"
-#include "Enums.hpp"
+#include "../Enums.hpp"
 
 class FontHolder
 {
 public:
   FontHolder();
-  void init();
-  std::shared_ptr<sf::Font> getFont(EFont aFont) const;
+  void Init();
+  std::shared_ptr<sf::Font> GetFont(EFont aFont) const;
 
 private:
   ResourceHolder<EFont, sf::Font> mResourceHolder;

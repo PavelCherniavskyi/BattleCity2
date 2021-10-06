@@ -1,5 +1,5 @@
 #include "../RightPanel.h"
-
+#include "../Definitions.hpp"
 
 RightPanel::RightPanel(size_t liv, size_t quant, size_t levl, size_t mis)
    : resourses(getRes())
@@ -9,7 +9,6 @@ RightPanel::RightPanel(size_t liv, size_t quant, size_t levl, size_t mis)
    , tanksQuantity(quant)
 
 {
-	spdlog::info("RightPanel::RightPanel currentMissles:{}", currentMissles);
 }
 
 RightPanel::~RightPanel()
@@ -78,9 +77,9 @@ void RightPanel::resetIcons()
     tankIcons.clear();
   }
   bool set = true;
-  float X1 = (WIDTH_SCREEN + WIDTH_RIGHT_PANEL) - 20;
-  float X2 = (WIDTH_SCREEN + WIDTH_RIGHT_PANEL) - 4;
-  float Y = HEIGHT_SCREEN - 400;
+  float X1 = (kWidthScreen + kWidthRightPanel) - 20;
+  float X2 = (kWidthScreen + kWidthRightPanel) - 4;
+  float Y = kHeightScreen - 400;
   for (size_t i = 0; i < tanksQuantity; i++)
   {
     sf::Sprite spr(resourses.getTexturePtr(Textures::TankIcon)[0]);

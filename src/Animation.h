@@ -3,7 +3,7 @@
 
 #include "Entity.h"
 #include "Category.h"
-#include "ResourceHolder.h"
+#include "ResourceHolders/TexturesHolder.h"
 
 
 class Animation : public Resourses
@@ -18,7 +18,7 @@ public:
 
 protected:
 
-	ResourceHolder&								resourses;
+	TexturesHolder&								resourses;
 	static sf::Clock							clockForTimeOfLiving;
 	static sf::Clock							clockForDraw;
 	sf::Sprite*									spr;

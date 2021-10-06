@@ -1,9 +1,9 @@
-#include "../ResourceHolder.h"
+#include "../TexturesHolder.h"
 #include "config.h"
 
-void ResourceHolder::Init()
+void TexturesHolder::Init()
 {
-    const std::string path = fmt::format("{}/src/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR);
+  const std::string path = fmt::format("{}/src/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR);
 
 	// Player tank
 	sf::IntRect PlayerTankRect[2] = { { 1, 2, 13, 13 }, { 17, 2, 13, 13 } };
@@ -94,7 +94,7 @@ void ResourceHolder::Init()
 	//std::cout << "ResourceHolder Created!" << std::endl;
 }
 
-void ResourceHolder::loadTexture(Textures::ID id, const std::string& filename, sf::IntRect* rect, size_t count)
+void TexturesHolder::loadTexture(Textures::ID id, const std::string& filename, sf::IntRect* rect, size_t count)
 {
 	sf::Texture * temp = new sf::Texture[count];
 	while (count != 0){
@@ -105,7 +105,7 @@ void ResourceHolder::loadTexture(Textures::ID id, const std::string& filename, s
 	mResourceMap.insert(std::make_pair(id, temp));
 }
 
-ResourceHolder::~ResourceHolder()
+TexturesHolder::~TexturesHolder()
 {
 	for (auto itr = mResourceMap.begin(); itr != mResourceMap.end(); itr++){
 		delete[] itr->second;

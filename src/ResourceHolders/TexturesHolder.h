@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Category.h"
+#include "../Category.h"
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
 
-class ResourceHolder
+class TexturesHolder
 {
 public:
   void Init();
-  virtual ~ResourceHolder();
+  virtual ~TexturesHolder();
   sf::Texture *getTexturePtr(Textures::ID id) { return mResourceMap.find(id)->second; }
 
 private:

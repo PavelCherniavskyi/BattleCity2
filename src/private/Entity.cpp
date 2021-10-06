@@ -1,6 +1,6 @@
 #include "../Entity.h"
 
-std::unique_ptr<ResourceHolder> Resourses::res = std::make_unique<ResourceHolder>();
+std::unique_ptr<TexturesHolder> Resourses::mTextures = std::make_unique<TexturesHolder>();
 
 Eagle::Eagle() : spritesCount(2)
 {

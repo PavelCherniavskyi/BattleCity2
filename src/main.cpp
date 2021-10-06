@@ -1,10 +1,12 @@
 #include <spdlog/spdlog.h>
 #include "Game.h"
 #include "InputHandler.hpp"
+#include <array>
+#include <string>
 
-int main(int argc, const char **argv)
+int main(int argc, char ** argv)
 {
-   spdlog::set_pattern("[%H:%M:%S.%e][%^-%L-%$][t:%t]%@: %v");
+   spdlog::set_pattern("[%^-%L-%$][%S.%e][%s:%# %!] %v");
 
    InputHandler inputHandler;
    if(inputHandler.Parse(argc, argv) == -1)
@@ -12,9 +14,7 @@ int main(int argc, const char **argv)
       return 0;
    }
 
-   spdlog::info("before game");
-   Game game;
-   spdlog::info("game");
+   Game game(std::make_unique<InputHandler>(inputHandler));
    game.Init();
    game.run();
 

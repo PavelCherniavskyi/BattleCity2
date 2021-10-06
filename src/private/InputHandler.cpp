@@ -4,7 +4,7 @@
 
 namespace po = boost::program_options;
 
-int InputHandler::Parse(int argc, const char **argv)
+int InputHandler::Parse(int argc, char **argv)
 {
   po::options_description desc("Options");
   desc.add_options()
@@ -24,7 +24,7 @@ int InputHandler::Parse(int argc, const char **argv)
 
   if (vm.count("test"))
   {
-    mOptions.insert(std::make_pair(EInputOption::TEST, vm["test"].as<std::string>()));
+    mOptions.insert({EInputOption::TEST, vm["test"].as<std::string>()});
   }
 
   return 0;
@@ -32,11 +32,11 @@ int InputHandler::Parse(int argc, const char **argv)
 
 std::string InputHandler::GetOption(EInputOption aOption) const
 {
-  const auto it = mOptions.find(aOption);
-  if(it != mOptions.end())
+  auto it = mOptions.find(aOption);
+  if(it == mOptions.end())
   {
-    return it->second;
+    SPDLOG_WARN("option {} is not found", aOption._to_string());
+    return std::string();
   }
-  
-  return std::string();
+  return it->second;
 }

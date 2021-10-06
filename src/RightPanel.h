@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ResourceHolder.h"
+#include "ResourceHolders/TexturesHolder.h"
 #include "Entity.h"
 #include <vector>
 
@@ -31,7 +31,7 @@ private:
   void setNumbers(windows, size_t);
 
 private:
-  ResourceHolder &resourses;
+  TexturesHolder &resourses;
   sf::Sprite panel;
   std::vector<sf::Sprite> tankIcons;
   sf::Sprite numbers[10];

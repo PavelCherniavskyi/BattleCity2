@@ -1,27 +1,26 @@
 #pragma once
 #include <iostream>
 
-
-#include "Entity.h"
-#include "Tank.h"
-#include "Map.h"
-#include "Bullet.h"
-#include "Player.h"
-#include "Category.h"
 #include "Animation.h"
-
+#include "Bullet.h"
+#include "Category.h"
+#include "Entity.h"
+#include "InputHandler.hpp"
+#include "Map.h"
+#include "Player.h"
+#include "ResourceHolders/TextHolder.hpp"
+#include "Tank.h"
 
 class Game
 {
 public:
-  Game();
+  Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
   ~Game();
   void run();
   void Init();
-  sf::Time getTimePerFrame() { return TimePerFrame; }
 
 private:
-  void handleInput(sf::Time TimePerFrame);
+  void handleInput(sf::Time aTimePerFrame);
   void update(sf::Time elapsedTime);
   void render();
   bool intersection(Category::Type category);
@@ -34,10 +33,8 @@ private:
 
 private:
   sf::RenderWindow mWindow;
-  const sf::Time TimePerFrame;
-  bool isPaused;
-  sf::Font mFont;
-  std::map<TextHolder::text, sf::Text> texts;
+  bool mIsPaused;
+  TextHolder mTextHolder;
   sf::Time mStatisticsUpdateTime;
   std::size_t mStatisticsNumFrames;
   std::multimap<Category::Type, Entity *> entities;
@@ -50,4 +47,5 @@ private:
   const size_t enemyTanksQuantity;
   bool mIsMoving;
   RightPanel panel;
+  std::unique_ptr<InputHandler> mInputHandlerUPtr;
 };

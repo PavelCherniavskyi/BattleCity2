@@ -1,12 +1,5 @@
 #pragma once
 
-
-const size_t HEIGHT_MAP = 28;
-const size_t WIDTH_MAP = 29;
-const int WIDTH_SCREEN = 440;
-const int HEIGHT_SCREEN = 445;
-const size_t WIDTH_RIGHT_PANEL = 25;
-
 namespace Category
 {
 	enum Type
@@ -17,17 +10,6 @@ namespace Category
 		Bullet,
 		SuperBullet,
 		Bonus
-	};
-}
-
-namespace TextHolder
-{
-	enum text{
-		nextlvl,
-		gameover,
-		win,
-		pause,
-		mStatistics
 	};
 }
 

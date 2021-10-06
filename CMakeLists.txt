@@ -29,7 +29,7 @@ include(cmake/StaticAnalyzers.cmake)
 option(ENABLE_TESTING "Enable Test Builds" ON)
 option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
-target_precompile_headers(project_options INTERFACE <vector> <string> <map> <utility> <memory> <variant> <spdlog/spdlog.h>)
+target_precompile_headers(project_options INTERFACE <vector> <string> <map> <utility> <memory> <variant> <spdlog/spdlog.h> <array> <unordered_map>)
 
 include(cmake/Conan.cmake)
 run_conan()

@@ -1,16 +1,16 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "ResourceHolder.h"
+#include "ResourceHolders/TexturesHolder.h"
 
 class Resourses
 {
 public:
-  static void Init() { res->Init(); };
-  static ResourceHolder &getRes() { return *res; }
+  static void Init() { mTextures->Init(); };
+  static TexturesHolder &getRes() { return *mTextures; }
 
 private:
-  static std::unique_ptr<ResourceHolder> res;
+  static std::unique_ptr<TexturesHolder> mTextures;
 };
 
 
@@ -59,7 +59,7 @@ protected:
   bool moving;
   sf::Vector2f velocity;
   float speed;
-  ResourceHolder &resourses;
+  TexturesHolder &resourses;
   int HP;
 };
 

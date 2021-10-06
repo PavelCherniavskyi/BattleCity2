@@ -8,10 +8,13 @@ add_executable(${PROJECT_NAME}
         private/Game.cpp
         private/Map.cpp
         private/Player.cpp
-        private/ResourceHolder.cpp
+        ResourceHolders/private/TexturesHolder.cpp
         private/RightPanel.cpp
         private/Tank.cpp
         private/InputHandler.cpp
+        ResourceHolders/private/FontHolder.cpp
+        ResourceHolders/private/TextHolder.cpp
+        ResourceHolders/private/SpriteHolder.cpp
 )
 target_link_libraries(
         ${PROJECT_NAME}

@@ -21,7 +21,7 @@ public:
 protected:
 	sf::Sprite*									spr;
 	Textures::ID								type;
-	ResourceHolder&								resourses;
+	TexturesHolder&								resourses;
 };
 
 class BonusStar : public BaseBonus
