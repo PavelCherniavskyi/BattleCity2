@@ -6,7 +6,7 @@ before_install:
 install:
   - DEPS_DIR="${HOME}/deps"
   - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-  
+
   - sudo apt install clang llvm-9 python3-dev python3-pip python-pip
   - sudo pip install --user --upgrade pip
   - sudo pip install conan
@@ -19,8 +19,8 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - CMAKE_URL="https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.tar.gz"
-    mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+  - mkdir -p cmake 
+    travis_retry wget --no-check-certificate "https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C cmake
     export PATH=${DEPS_DIR}/cmake/bin:${PATH}
   - cmake --version
 
