@@ -19,7 +19,7 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - mkdir -p cmake 
+  - mkdir -p cmake && cd cmake
   - travis_retry wget --no-check-certificate "https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C cmake
   - export PATH=${DEPS_DIR}/cmake/bin:${PATH}
   - cmake --version
