@@ -35,6 +35,10 @@ jobs:
       env:
         - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
       addons:
+        snaps:
+          name: cmake
+          confinement: classic
+          channel: 3.18/candidate
         apt:
           sources:
             - llvm-toolchain-trusty
