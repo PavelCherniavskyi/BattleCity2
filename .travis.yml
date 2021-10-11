@@ -4,9 +4,6 @@ before_install:
   - sudo apt update
 
 install:
-  - DEPS_DIR="${HOME}/deps"
-  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-
   - sudo apt install clang llvm-9 python3-dev python3-pip python-pip
   - sudo pip install --user --upgrade pip
   - sudo pip install conan
@@ -20,8 +17,14 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
+  - ls -la /usr/local/cmake-3.12.4/bin
+  - ls -la /snap/bin/
   - /usr/local/cmake-3.12.4/bin/cmake --version
   - /snap/bin/cmake --version
+  - sudo rm /usr/local/cmake-3.12.4/bin/cmake
+  - sudo ln -s /snap/bin/cmake /usr/local/cmake-3.12.4/bin/cmake
+  - cmake --version
+  - echo ${PATH}
 
 jobs:
   include:
