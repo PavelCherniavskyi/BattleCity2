@@ -24,10 +24,10 @@ install:
   - chmod 764 cmake-3.20.0-linux-x86_64.tar.gz
   - tar -xvf cmake-3.20.0-linux-x86_64.tar.gz --strip-components=1
   - ls -la bin
-  - ls -la /usr/bin | grep "cmake"
+  - sudo ls -la /usr/bin | grep "cmake"
   - sudo rm /usr/bin/cmake
-  - ln -s ${DEPS_DIR}/cmake/bin/cmake /usr/bin/cmake
-  - ls -la /usr/bin | grep "cmake"
+  - sudo ln -s ${DEPS_DIR}/cmake/bin/cmake /usr/bin/cmake
+  - sudo ls -la /usr/bin | grep "cmake"
   - cd ${DEPS_DIR}
   - cmake --version
 
