@@ -5,7 +5,6 @@ before_install:
 
 install:
   - sudo apt install clang llvm-9 python3-dev python3-pip python-pip
-  - pip install -r requirements.txt
   - sudo pip install --user --upgrade pip
   - sudo pip3 install --user --upgrade pip
   - sudo pip install conan
@@ -14,12 +13,6 @@ install:
   - python3 --version
   - pip --version
   - pip3 --version
-  
-
-  ############################################################################
-  # Install a recent CMake
-  ############################################################################
-  - cmake --version
   - export PATH=/snap/bin:${PATH}
   - cmake --version
 
