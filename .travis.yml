@@ -12,19 +12,14 @@ install:
   - python3 --version
   - pip --version
   - pip3 --version
-  - cmake --version
+  
 
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - ls -la /usr/local/cmake-3.12.4/bin
-  - ls -la /snap/bin/
-  - /usr/local/cmake-3.12.4/bin/cmake --version
-  - /snap/bin/cmake --version
-  - sudo rm /usr/local/cmake-3.12.4/bin/cmake
-  - sudo ln -s /snap/bin/cmake /usr/local/cmake-3.12.4/bin/cmake
   - cmake --version
-  - echo ${PATH}
+  - export PATH=/snap/bin:${PATH}
+  - cmake --version
 
 jobs:
   include:
