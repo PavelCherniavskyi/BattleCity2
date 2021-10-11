@@ -20,8 +20,6 @@ install:
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - /usr/local/cmake --version
-  - /usr/share/cmake --version
   - /usr/local/cmake-3.12.4/bin/cmake --version
   - /snap/bin/cmake --version
 
