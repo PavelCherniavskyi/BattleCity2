@@ -15,22 +15,15 @@ install:
   - python3 --version
   - pip --version
   - pip3 --version
+  - cmake --version
 
   ############################################################################
   # Install a recent CMake
   ############################################################################
-  - mkdir -p cmake && cd cmake
-  - travis_retry wget --no-check-certificate "https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.tar.gz"
-  - chmod 764 cmake-3.20.0-linux-x86_64.tar.gz
-  - tar -xvf cmake-3.20.0-linux-x86_64.tar.gz --strip-components=1
-  - ls -la bin
-  - whereis cmake
-  - cmake --version
-  - sudo rm /usr/bin/cmake
-  - sudo ln -s ${DEPS_DIR}/cmake/bin/cmake /usr/bin/cmake
-  - sudo ls -la /usr/bin | grep "cmake"
-  - cd ${DEPS_DIR}
-  - cmake --version
+  - /usr/local/cmake --version
+  - /usr/share/cmake --version
+  - /usr/local/cmake-3.12.4/bin/cmake --version
+  - /snap/bin/cmake --version
 
 jobs:
   include:
