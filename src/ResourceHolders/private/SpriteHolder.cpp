@@ -7,18 +7,15 @@
 
 constexpr auto KScaleFactor = 2.F;
 
-SpriteHolder::SpriteHolder()
-   : mSpriteHolder()
-   , mTextureHolder()
-{
-}
+ResourceHolder<EImage, std::vector<sf::Sprite>> SpriteHolder::mSpriteHolder;
+ResourceHolder<EImage, std::vector<sf::Texture>> SpriteHolder::mTextureHolder;
 
-std::shared_ptr<std::vector<sf::Sprite>> SpriteHolder::GetSprite(EImage aImage) const
+std::shared_ptr<std::vector<sf::Sprite>> SpriteHolder::GetSprite(EImage aImage)
 {
   return mSpriteHolder.Get(aImage);
 }
 
-std::shared_ptr<std::vector<sf::Texture>> SpriteHolder::GetTexture(EImage aImage) const
+std::shared_ptr<std::vector<sf::Texture>> SpriteHolder::GetTexture(EImage aImage)
 {
 	return mTextureHolder.Get(aImage);
 }
@@ -82,7 +79,7 @@ void SpriteHolder::Init()
 	// Collisions
 	std::vector<sf::IntRect> BulletCollision = { { 256, 128, 16, 16 }, { 272, 128, 16, 16 } };
 	mTextureHolder.LoadFromFile(EImage::BULLETCOLLISION, path, BulletCollision);
-	insert(EImage::BULLETCOLLISION, mTextureHolder.Get(EImage::ENEMY_40));
+	insert(EImage::BULLETCOLLISION, mTextureHolder.Get(EImage::BULLETCOLLISION));
 	std::vector<sf::IntRect> TankCollision = { { 256, 128, 16, 16 }, { 272, 128, 16, 16 }, { 288, 128, 16, 16 } };
 	mTextureHolder.LoadFromFile(EImage::TANKCOLLISION, path, TankCollision);
 	insert(EImage::TANKCOLLISION, mTextureHolder.Get(EImage::TANKCOLLISION));
@@ -92,6 +89,11 @@ void SpriteHolder::Init()
 	std::vector<sf::IntRect> EagleCollision = { { 304, 128, 32, 32 }, { 336, 128, 32, 32 } };
 	mTextureHolder.LoadFromFile(EImage::EAGLECOLLISION, path, EagleCollision);
 	insert(EImage::EAGLECOLLISION, mTextureHolder.Get(EImage::EAGLECOLLISION));
+
+	// Eagle
+	std::vector<sf::IntRect> Eagle = { { 304, 32, 16, 16 }, { 320, 32, 16, 16 } };
+	mTextureHolder.LoadFromFile(EImage::EAGLE, path, Eagle);
+	insert(EImage::EAGLE, mTextureHolder.Get(EImage::EAGLE));
 
 	// Right panel
 	std::vector<sf::IntRect> RightPanel = { { 375, 0, 26, 245 } };
@@ -104,37 +106,21 @@ void SpriteHolder::Init()
 	insert(EImage::TANKICON, mTextureHolder.Get(EImage::TANKICON));
 
 	// Digits
-	std::vector<sf::IntRect> Digit_0 = { { 328, 183, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_0, path, Digit_0);
-	insert(EImage::DIGIT_0, mTextureHolder.Get(EImage::DIGIT_0));
-	std::vector<sf::IntRect> Digit_1 = { { 337, 183, 7, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_1, path, Digit_1);
-	insert(EImage::DIGIT_1, mTextureHolder.Get(EImage::DIGIT_1));
-	std::vector<sf::IntRect> Digit_2 = { { 344, 183, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_2, path, Digit_2);
-	insert(EImage::DIGIT_2, mTextureHolder.Get(EImage::DIGIT_2));
-	std::vector<sf::IntRect> Digit_3 = { { 352, 183, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_3, path, Digit_3);
-	insert(EImage::DIGIT_3, mTextureHolder.Get(EImage::DIGIT_3));
-	std::vector<sf::IntRect> Digit_4 = { { 360, 183, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_4, path, Digit_4);
-	insert(EImage::DIGIT_4, mTextureHolder.Get(EImage::DIGIT_4));
-	std::vector<sf::IntRect> Digit_5 = { { 328, 191, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_5, path, Digit_5);
-	insert(EImage::DIGIT_5, mTextureHolder.Get(EImage::DIGIT_5));
-	std::vector<sf::IntRect> Digit_6 = { { 336, 191, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_6, path, Digit_6);
-	insert(EImage::DIGIT_6, mTextureHolder.Get(EImage::DIGIT_6));
-	std::vector<sf::IntRect> Digit_7 = { { 344, 191, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_7, path, Digit_7);
-	insert(EImage::DIGIT_7, mTextureHolder.Get(EImage::DIGIT_7));
-	std::vector<sf::IntRect> Digit_8 = { { 352, 191, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_8, path, Digit_8);
-	insert(EImage::DIGIT_8, mTextureHolder.Get(EImage::DIGIT_8));
-	std::vector<sf::IntRect> Digit_9 = { { 360, 191, 8, 9 } };
-	mTextureHolder.LoadFromFile(EImage::DIGIT_9, path, Digit_9);
-	insert(EImage::DIGIT_9, mTextureHolder.Get(EImage::DIGIT_9));
-
+	std::vector<sf::IntRect> Digits = { 
+		{ 328, 183, 8, 9 },
+		{ 337, 183, 7, 9 },
+		{ 344, 183, 8, 9 },
+		{ 352, 183, 8, 9 },
+		{ 360, 183, 8, 9 },
+		{ 328, 191, 8, 9 },
+		{ 336, 191, 8, 9 },
+		{ 344, 191, 8, 9 },
+		{ 352, 191, 8, 9 },
+		{ 360, 191, 8, 9 }
+	};
+	mTextureHolder.LoadFromFile(EImage::DIGITS, path, Digits);
+	insert(EImage::DIGITS, mTextureHolder.Get(EImage::DIGITS));
+	
 	// Appearance
 	std::vector<sf::IntRect> Apperance = { { 256, 96, 16, 16 }, { 272, 96, 16, 16 }, { 288, 96, 16, 16 }, { 304, 96, 16, 16 } };
 	mTextureHolder.LoadFromFile(EImage::APPERANCE, path, Apperance);

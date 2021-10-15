@@ -1,93 +1,107 @@
-#include "../Player.h"
+#include "../Player.hpp"
+#include "../Eagle.hpp"
 
-Player::Player(std::multimap<Category::Type, Entity*>& ent,
-               std::multimap<Textures::ID, Animation*>& a, Gamestates& g,
-               std::queue<Entity*>& et, std::queue<Map*>& map, RightPanel& pan,
-               std::multimap<Textures::ID, BaseBonus*>& bon)
-    : entities(ent),
-      animations(a),
-      gameStage(g),
-      enemyTanks(et),
-      spawnEnemyTanksTime(2),
-      mapSequence(map),
-      panel(pan),
-      enemyTanksOnFieldNumber(4),
-      bonuses(bon) {}
-
-void Player::initialPlayer() {
-  playerTank = new Tank(Category::PlayerTank, Textures::T_10);
-  entities.insert(std::make_pair(Category::PlayerTank, playerTank));
+Player::Player(std::multimap<ECategory, std::shared_ptr<Entity>>& ent,
+  std::multimap<EImage, Animation*>& a,
+  EGamestates& g,
+  std::queue<std::shared_ptr<Entity>>& et,
+  std::queue<Map*>& map,
+  RightPanel& pan,
+  std::multimap<EImage, BaseBonus*>& bon)
+  : entities(ent)
+  , animations(a)
+  , gameStage(g)
+  , enemyTanks(et)
+  , spawnEnemyTanksTime(2)
+  , mapSequence(map)
+  , panel(pan)
+  , enemyTanksOnFieldNumber(4)
+  , bonuses(bon)
+{
 }
 
-void Player::handleEvent(const sf::Event& event, sf::Time) {
-  if (event.type == sf::Event::KeyPressed) {
-    auto found = mKeyBinding.find(event.key.code);
-    if (found != mKeyBinding.end() && !isRealtimeAction(found->second)) {
-      auto itrPlayer = entities.find(Category::PlayerTank);
-      if (itrPlayer != entities.end()) {
-        Tank* tank = dynamic_cast<Tank*>(itrPlayer->second);
-        if (tank->canIdoFire()) {
-          mFireBinding[found->second].get()->bulletAction(tank);
-          panel.setCurrentMissles(tank->superClipSize());
-        }
+void Player::initialPlayer()
+{
+  playerTank = new PlayerTank();
+  entities.insert(std::make_pair(ECategory::PLAYERTANK, playerTank));
+}
 
-        // std::cout << "mActionBinding_FIRE - DONE" << std::endl;
+void Player::handleEvent(const sf::Event& event, sf::Time)
+{
+  if (event.type == sf::Event::KeyPressed)
+  {
+    auto found = mKeyBinding.find(event.key.code);
+    if (found != mKeyBinding.end() && !isRealtimeAction(found->second))
+    {
+      auto itrPlayer = entities.find(ECategory::PLAYERTANK);
+      if (itrPlayer != entities.end())
+      {
+        if (itrPlayer->second->CanIDoFire())
+        {
+          mFireBinding[found->second].get()->bulletAction(itrPlayer->second);
+          panel.SetCurrentMissles(itrPlayer->second->GetSuperClipSize());
+        }
       }
     }
   }
 }
 
-void Player::handleRealtimeInput(sf::Time TimePerFrame) {
-  auto itrPlayer = entities.find(Category::PlayerTank);
-  if (itrPlayer != entities.end()) {
-    for (auto pair : mKeyBinding) {
-      if (sf::Keyboard::isKeyPressed(pair.first) &&
-          isRealtimeAction(pair.second)) {
-        mActionBinding[pair.second].get()->tankAction(TimePerFrame,
-                                                      itrPlayer->second, false);
-        if (isIntersectsPlayerTank()) {
-          mActionBinding[pair.second].get()->tankAction(
-              TimePerFrame, itrPlayer->second, true);
+void Player::handleRealtimeInput(sf::Time TimePerFrame)
+{
+  auto itrPlayer = entities.find(ECategory::PLAYERTANK);
+  if (itrPlayer != entities.end())
+  {
+    for (auto pair : mKeyBinding)
+    {
+      if (sf::Keyboard::isKeyPressed(pair.first) && isRealtimeAction(pair.second))
+      {
+        mActionBinding[pair.second].get()->tankAction(TimePerFrame, itrPlayer->second, false);
+        if (isIntersectsPlayerTank())
+        {
+          mActionBinding[pair.second].get()->tankAction(TimePerFrame, itrPlayer->second, true);
         }
-        itrPlayer->second->setIsMoving(true);
+        itrPlayer->second->SetIsMoving(true);
         break;
       }
-      itrPlayer->second->setIsMoving(false);
+      itrPlayer->second->SetIsMoving(false);
     }
   }
 }
 
-void Player::handleBonusEvents(sf::Time) {
+void Player::handleBonusEvents(sf::Time)
+{
   static sf::Clock clock;
   static sf::Vector2f spawnPos;
-  static float bonusSpawnTime = 20.f;  // for initial start
+  static float bonusSpawnTime = 20.f; // for initial start
   int bonusSwitch;
   sf::Time time = clock.getElapsedTime();
   BaseBonus* bonus = nullptr;
 
-  if (time.asSeconds() > bonusSpawnTime) {
+  if (time.asSeconds() > bonusSpawnTime)
+  {
     spawnPos.x = static_cast<float>(rand() % (kWidthScreen - 75) + 25);
     spawnPos.y = static_cast<float>(rand() % (kHeightScreen - 75) + 25);
     bonusSwitch = rand() % 3 + 1;
 
-    switch (bonusSwitch) {
-      case 1:
-        bonus = new BonusStar(Textures::BonusStar);
-        bonus->setPosition(spawnPos.x, spawnPos.y);
-        bonuses.insert(std::make_pair(Textures::BonusStar, bonus));
-        break;
-      case 2:
-        bonus = new BonusMissle(Textures::BonusMissle);
-        bonus->setPosition(spawnPos.x, spawnPos.y);
-        bonuses.insert(std::make_pair(Textures::BonusMissle, bonus));
-        break;
-      case 3:
-        bonus = new BonusLife(Textures::BonusLife);
-        bonus->setPosition(spawnPos.x, spawnPos.y);
-        bonuses.insert(std::make_pair(Textures::BonusLife, bonus));
-        break;
-      default:
-        break;
+    switch (bonusSwitch)
+    {
+    case 1:
+      bonus = new BonusStar();
+      bonus->SetPosition(spawnPos.x, spawnPos.y);
+      bonuses.insert(std::make_pair(EImage::BONUSSTAR, bonus));
+      break;
+    case 2:
+      bonus = new BonusMissle();
+      bonus->SetPosition(spawnPos.x, spawnPos.y);
+      bonuses.insert(std::make_pair(EImage::BONUSMISSLE, bonus));
+      break;
+    case 3:
+      bonus = new BonusLife();
+      bonus->SetPosition(spawnPos.x, spawnPos.y);
+      bonuses.insert(std::make_pair(EImage::BONUSLIFE, bonus));
+      break;
+    default:
+      break;
     }
 
     bonusSpawnTime = static_cast<float>(rand() % 30 + 20);
@@ -98,55 +112,71 @@ void Player::handleBonusEvents(sf::Time) {
   isIntersectsBonus();
 }
 
-void Player::handleAnimation(sf::FloatRect rect, Textures::ID tex) {
+void Player::handleAnimation(sf::FloatRect rect, EImage tex)
+{
   Animation* anim = nullptr;
-  if (tex == Textures::BulletCollision) {
-    // std::cout << "Textures::BulletCollision" << std::endl;
+  if (tex == +EImage::BULLETCOLLISION)
+  {
     anim = new BulletCollision();
-  } else if (tex == Textures::TankCollision) {
-    // std::cout << "Textures::TankCollision" << std::endl;
+  }
+  else if (tex == +EImage::TANKCOLLISION)
+  {
     anim = new TankCollision();
-  } else if (tex == Textures::SuperBulletCollision) {
-    // std::cout << "Textures::SuperBulletCollision" << std::endl;
+  }
+  else if (tex == +EImage::SUPERBULLETCOLLISION)
+  {
     anim = new SuperBulletCollision();
-  } else if (tex == Textures::EagleCollision) {
-    // std::cout << "Textures::EagleCollision" << std::endl;
+  }
+  else if (tex == +EImage::EAGLECOLLISION)
+  {
     anim = new EagleCollision();
   }
 
-  anim->bang(rect);
+  anim->Bang(rect);
   animations.insert(std::make_pair(tex, anim));
 }
 
-void Player::handleEnemyTanks(Entity* entity) {
+void Player::handleEnemyTanks(std::shared_ptr<Entity> entity)
+{
   int choice(std::rand() % 4);
-  if (choice == 0) {
-    entity->setVelocity(0.f, +100.f * entity->getSpeed());
-    entity->rotate(Entity::Down);
-  } else if (choice == 1) {
-    entity->setVelocity(0.f, -100.f * entity->getSpeed());
-    entity->rotate(Entity::Up);
-  } else if (choice == 2) {
-    entity->setVelocity(+100 * entity->getSpeed(), 0.f);
-    entity->rotate(Entity::Right);
-  } else if (choice == 3) {
-    entity->setVelocity(-100 * entity->getSpeed(), 0.f);
-    entity->rotate(Entity::Left);
+  if (choice == 0)
+  {
+    entity->SetVelocity({0.f, +100.f * entity->GetSpeed()});
+    entity->Rotate(EActions::DOWN);
+  }
+  else if (choice == 1)
+  {
+    entity->SetVelocity({0.f, -100.f * entity->GetSpeed()});
+    entity->Rotate(EActions::UP);
+  }
+  else if (choice == 2)
+  {
+    entity->SetVelocity({+100 * entity->GetSpeed(), 0.f});
+    entity->Rotate(EActions::RIGHT);
+  }
+  else if (choice == 3)
+  {
+    entity->SetVelocity({-100 * entity->GetSpeed(), 0.f});
+    entity->Rotate(EActions::LEFT);
   }
 }
 
-void Player::handleEnemySpawn(sf::Time) {
+void Player::handleEnemySpawn(sf::Time)
+{
   static sf::Clock clock;
-  static float spawn = 0.f;  // for initial start
+  static float spawn = 0.f; // for initial start
   sf::Time time = clock.getElapsedTime();
 
-  if (time.asSeconds() > spawn) {
-    if (!enemyTanks.empty()) {
-      if (entities.count(Category::EnemyTank) < enemyTanksOnFieldNumber) {
-        if (handleEnemyApperanceEffect()) {
-          entities.insert(
-              std::make_pair(Category::EnemyTank, enemyTanks.front()));
-          panel.popIcon();
+  if (time.asSeconds() > spawn)
+  {
+    if (!enemyTanks.empty())
+    {
+      if (entities.count(ECategory::ENEMYTANK) < enemyTanksOnFieldNumber)
+      {
+        if (handleEnemyApperanceEffect())
+        {
+          entities.insert(std::make_pair(ECategory::ENEMYTANK, enemyTanks.front()));
+          panel.PopIcon();
           enemyTanks.pop();
           clock.restart();
           spawn = spawnEnemyTanksTime;
@@ -156,19 +186,24 @@ void Player::handleEnemySpawn(sf::Time) {
   }
 }
 
-bool Player::handleEnemyApperanceEffect() {
+bool Player::handleEnemyApperanceEffect()
+{
   static bool doOnce = true;
   static Apperance* anim = nullptr;
-  if (doOnce) {
+  if (doOnce)
+  {
     // std::cout << "handleEnemyApperanceEffect1" << std::endl;
-    sf::FloatRect rect = enemyTanks.front()->getGlobalBounds();
+    sf::FloatRect rect = enemyTanks.front()->GetGlobalBounds();
     anim = new Apperance;
-    anim->bang(rect);
-    animations.insert(std::make_pair(Textures::Apperance, anim));
+    anim->Bang(rect);
+    animations.insert(std::make_pair(EImage::APPERANCE, anim));
     doOnce = false;
-  } else {
+  }
+  else
+  {
     // std::cout << "handleEnemyApperanceEffect2" << std::endl;
-    if (!anim->isAlife()) {
+    if (!anim->IsAlife())
+    {
       doOnce = true;
       return true;
     }
@@ -179,114 +214,117 @@ bool Player::handleEnemyApperanceEffect() {
   return false;
 }
 
-void Player::handleEnemyFire(sf::Time, Entity* entity) {
-  Tank* tank = dynamic_cast<Tank*>(entity);
-  if (tank->canEnemyDoFire()) {
-    if (tank->getType() == Textures::Enemy_40) {
-      mFireBinding[Player::SuperFire].get()->bulletAction(tank);
-      // std::cout << "SuperFire" << std::endl;
-    } else {
-      mFireBinding[Player::Fire].get()->bulletAction(tank);
+void Player::handleEnemyFire(sf::Time, std::shared_ptr<Entity> entity)
+{
+  if (entity->CanIDoFire())
+  {
+    if (entity->GetType() == +EImage::ENEMY_40)
+    {
+      mFireBinding[EActions::SUPERFIRE].get()->bulletAction(entity);
+    }
+    else
+    {
+      mFireBinding[EActions::FIRE].get()->bulletAction(entity);
     }
   }
 }
 
-void Player::BulletControl::bulletAction(Entity* entity) {
-  Tank* tank = dynamic_cast<Tank*>(entity);
-  if (type == Category::Bullet) {
-    entities.insert(std::make_pair(
-        Category::Bullet, tank->doFire(Category::Bullet, Textures::None)));
-  } else if (type == Category::SuperBullet) {
-    // std::cout << "bulletAction1" << std::endl;
-    if (tank->getType() == Textures::T_10) {
-      if (tank->superClipSize() != 0) {
-        entities.insert(std::make_pair(
-            Category::SuperBullet,
-            tank->doFire(Category::SuperBullet, Textures::T_10)));
+void Player::BulletControl::bulletAction(std::shared_ptr<Entity> entity)
+{
+  if (type == +ECategory::BULLET)
+  {
+    entities.insert(std::make_pair(ECategory::BULLET, entity->DoFire(ECategory::BULLET)));
+  }
+  else if (type == +ECategory::SUPERBULLET)
+  {
+    if (entity->GetType() == +EImage::T_10)
+    {
+      if (entity->GetSuperClipSize() != 0)
+      {
+        entities.insert(std::make_pair(ECategory::SUPERBULLET, entity->DoFire(ECategory::SUPERBULLET)));
       }
-    } else if (tank->getType() == Textures::Enemy_40) {
-      // std::cout << "bulletAction2" << std::endl;
-      entities.insert(std::make_pair(
-          Category::SuperBullet,
-          tank->doFire(Category::SuperBullet, Textures::Enemy_40)));
+    }
+    else if (entity->GetType() == +EImage::ENEMY_40)
+    {
+      entities.insert(std::make_pair(ECategory::SUPERBULLET, entity->DoFire(ECategory::SUPERBULLET)));
     }
   }
 }
 
-void Player::initializeActions() {
+void Player::initializeActions()
+{
   float playerStepMove = 100.f;
 
-  mActionBinding[MoveLeft] = std::unique_ptr<TankControl>(
-      new TankControl(-playerStepMove, 0.f, Entity::Left));
-  mActionBinding[MoveRight] = std::unique_ptr<TankControl>(
-      new TankControl(+playerStepMove, 0.f, Entity::Right));
-  mActionBinding[MoveUp] = std::unique_ptr<TankControl>(
-      new TankControl(0.f, -playerStepMove, Entity::Up));
-  mActionBinding[MoveDown] = std::unique_ptr<TankControl>(
-      new TankControl(0.f, +playerStepMove, Entity::Down));
-  mFireBinding[Fire] = std::unique_ptr<BulletControl>(
-      new BulletControl(entities, Category::Bullet));
-  mFireBinding[SuperFire] = std::unique_ptr<BulletControl>(
-      new BulletControl(entities, Category::SuperBullet));
+  mActionBinding[EActions::LEFT] = std::make_unique<TankControl>(-playerStepMove, 0.f, EActions::LEFT);
+  mActionBinding[EActions::RIGHT] = std::make_unique<TankControl>(+playerStepMove, 0.f, EActions::RIGHT);
+  mActionBinding[EActions::UP] = std::make_unique<TankControl>(0.f, -playerStepMove, EActions::UP);
+  mActionBinding[EActions::DOWN] = std::make_unique<TankControl>(0.f, +playerStepMove, EActions::DOWN);
+  mFireBinding[EActions::FIRE] = std::make_unique<BulletControl>(entities, ECategory::BULLET);
+  mFireBinding[EActions::SUPERFIRE] = std::make_unique<BulletControl>(entities, ECategory::SUPERBULLET);
 }
 
-void Player::initializeObjects() {
-  retBullet = entities.equal_range(Category::Bullet);
-  retSuperBullet = entities.equal_range(Category::SuperBullet);
-  retEnemy = entities.equal_range(Category::EnemyTank);
-  retEagle = entities.equal_range(Category::Eagle);
-  retWall_1 = mapSequence.front()->getMap().equal_range(Textures::Wall_1);
-  retWall_2 = mapSequence.front()->getMap().equal_range(Textures::Wall_2);
-  retMainWall = mapSequence.front()->getMap().equal_range(Textures::MainWall);
-  retWaterWall = mapSequence.front()->getMap().equal_range(Textures::WaterWall);
+void Player::initializeObjects()
+{
+  retBullet = entities.equal_range(ECategory::BULLET);
+  retSuperBullet = entities.equal_range(ECategory::SUPERBULLET);
+  retEnemy = entities.equal_range(ECategory::ENEMYTANK);
+  retEagle = entities.equal_range(ECategory::EAGLE);
+  retWall_1 = mapSequence.front()->GetMap().equal_range(EImage::WALL_1);
+  retWall_2 = mapSequence.front()->GetMap().equal_range(EImage::WALL_2);
+  retMainWall = mapSequence.front()->GetMap().equal_range(EImage::MAINWALL);
+  retWaterWall = mapSequence.front()->GetMap().equal_range(EImage::WATERWALL);
 }
 
-bool Player::isRealtimeAction(Action action) {
-  switch (action) {
-    case MoveLeft:
-    case MoveRight:
-    case MoveDown:
-    case MoveUp:
-      return true;
+bool Player::isRealtimeAction(EActions action)
+{
+  switch (action)
+  {
+  case +EActions::LEFT:
+  case +EActions::RIGHT:
+  case +EActions::UP:
+  case +EActions::DOWN: 
+    return true;
 
-    default:
-      return false;
+  default:
+    return false;
   }
 }
 
-void Player::TankControl::tankAction(sf::Time time, Entity* entity, bool back) {
-  // std::cout << velocity.x << ' ' << velocity.y << std::endl;
-  if (!back) {
-    entity->setVelocity(velocity * entity->getSpeed());
-    entity->update((velocity * entity->getSpeed()) * time.asSeconds());
-    entity->rotate(side);
-  } else {
-    // std::cout << "Collision!!!" << std::endl;
-    entity->updateBack((velocity * entity->getSpeed()) * time.asSeconds());
+void Player::TankControl::tankAction(sf::Time time, std::shared_ptr<Entity> entity, bool back)
+{
+  if (!back)
+  {
+    entity->SetVelocity(velocity * entity->GetSpeed());
+    entity->Update((velocity * entity->GetSpeed()) * time.asSeconds());
+    entity->Rotate(side);
+  }
+  else
+  {
+    entity->UpdateBack((velocity * entity->GetSpeed()) * time.asSeconds());
   }
 }
 
-bool Player::myIntersection(sf::FloatRect obj1, sf::FloatRect obj2) {
-  if (obj1.left + obj1.width >= obj2.left &&
-      obj1.top + obj1.height >= obj2.top &&
-      obj1.left <= obj2.left + obj2.width && obj1.top <= obj2.top + obj2.width)
+bool Player::myIntersection(sf::FloatRect obj1, sf::FloatRect obj2)
+{
+  if (obj1.left + obj1.width >= obj2.left && obj1.top + obj1.height >= obj2.top && obj1.left <= obj2.left + obj2.width
+      && obj1.top <= obj2.top + obj2.width)
     return true;
   else
     return false;
 }
 
-bool Player::isIntersectsBullet() {
+bool Player::isIntersectsBullet()
+{
   initializeObjects();
   // Bullet vs Wall_1
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-       ++itrBullet) {
-    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++) {
-      if (myIntersection(itrBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrBullet->second->getGlobalBounds(),
-                        Textures::BulletCollision);
-        itrBullet->second->~Entity();
-        mapSequence.front()->getMap().erase(itrMap);
+  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+  {
+    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+    {
+      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+        mapSequence.front()->GetMap().erase(itrMap);
         entities.erase(itrBullet);
         initializeObjects();
         return true;
@@ -294,31 +332,27 @@ bool Player::isIntersectsBullet() {
     }
   }
   // Bullet vs Wall_2
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-       ++itrBullet) {
-    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++) {
-      if (myIntersection(itrBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrBullet->second->getGlobalBounds(),
-                        Textures::BulletCollision);
-        itrBullet->second->~Entity();
+  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+  {
+    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
+    {
+      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
-        // std::cout << "WallCrashed!!!" << std::endl;
         initializeObjects();
         return true;
       }
     }
   }
   // Bullet vs MainWall
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-       ++itrBullet) {
-    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second;
-         itrMap++) {
-      if (myIntersection(itrBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrBullet->second->getGlobalBounds(),
-                        Textures::BulletCollision);
-        itrBullet->second->~Entity();
+  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+  {
+    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
+    {
+      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
         initializeObjects();
         return true;
@@ -327,22 +361,20 @@ bool Player::isIntersectsBullet() {
   }
 
   // Bullet vs EnemyTank
-  for (auto itrTank = retEnemy.first; itrTank != retEnemy.second; ++itrTank) {
-    for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-         ++itrBullet) {
-      if (myIntersection(itrTank->second->getGlobalBounds(),
-                         itrBullet->second->getGlobalBounds())) {
-        handleAnimation(itrBullet->second->getGlobalBounds(),
-                        Textures::BulletCollision);
-        itrBullet->second->~Entity();
+  for (auto itrTank = retEnemy.first; itrTank != retEnemy.second; ++itrTank)
+  {
+    for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+    {
+      if (myIntersection(itrTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+      {
+        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
-        itrTank->second->kill();
+        itrTank->second->Kill();
         initializeObjects();
         // std::cout << playerTank->second->getHP() << std::endl;
-        if (!itrTank->second->isAlife()) {
-          handleAnimation(itrTank->second->getGlobalBounds(),
-                          Textures::TankCollision);
-          itrTank->second->~Entity();
+        if (!itrTank->second->IsAlife())
+        {
+          handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
           entities.erase(itrTank);
           initializeObjects();
         }
@@ -352,33 +384,34 @@ bool Player::isIntersectsBullet() {
   }
 
   // Bullet vs PlayerTank
-  auto lplayerTank = entities.find(Category::PlayerTank);
-  if (lplayerTank != entities.end()) {
-    for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-         ++itrBullet) {
-      if (myIntersection(lplayerTank->second->getGlobalBounds(),
-                         itrBullet->second->getGlobalBounds())) {
-        handleAnimation(itrBullet->second->getGlobalBounds(),
-                        Textures::BulletCollision);
-        itrBullet->second->~Entity();
+  auto lplayerTank = entities.find(ECategory::PLAYERTANK);
+  if (lplayerTank != entities.end())
+  {
+    for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+    {
+      if (myIntersection(lplayerTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+      {
+        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
-        lplayerTank->second->kill();
+        lplayerTank->second->Kill();
         initializeObjects();
         // std::cout << lplayerTank->second->getHP() << std::endl;
-        if (!lplayerTank->second->isAlife()) {
-          handleAnimation(lplayerTank->second->getGlobalBounds(),
-                          Textures::TankCollision);
-          lplayerTank->second->~Entity();
+        if (!lplayerTank->second->IsAlife())
+        {
+          handleAnimation(lplayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
           entities.erase(lplayerTank);
-          gameStage = Gamestates::gameOver;
+          gameStage = EGamestates::GAME_OVER;
           initializeObjects();
-        } else {
-          auto lives = lplayerTank->second->getHP();
-          if (lives < 0) {
+        }
+        else
+        {
+          auto lives = lplayerTank->second->GetHP();
+          if (lives < 0)
+          {
             lives = 0;
           }
 
-          panel.setCurrentLives(static_cast<std::size_t>(lives));
+          panel.SetCurrentLives(static_cast<std::size_t>(lives));
         }
         // std::cout << "TankCollision!!!" << std::endl;
 
@@ -388,19 +421,16 @@ bool Player::isIntersectsBullet() {
   }
 
   // Bullet vs Eagle
-  auto eagle = entities.find(Category::Eagle);
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second;
-       ++itrBullet) {
-    if (myIntersection(eagle->second->getGlobalBounds(),
-                       itrBullet->second->getGlobalBounds())) {
-      handleAnimation(itrBullet->second->getGlobalBounds(),
-                      Textures::BulletCollision);
-      handleAnimation(eagle->second->getGlobalBounds(),
-                      Textures::EagleCollision);
-      eagle->second->kill();
-      itrBullet->second->~Entity();
+  auto eagle = entities.find(ECategory::EAGLE);
+  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+  {
+    if (myIntersection(eagle->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+    {
+      handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      eagle->second->Kill();
       entities.erase(itrBullet);
-      gameStage = Gamestates::gameOver;
+      gameStage = EGamestates::GAME_OVER;
       // std::cout << "TankCollision!!!" << std::endl;
       initializeObjects();
       return true;
@@ -410,54 +440,48 @@ bool Player::isIntersectsBullet() {
   return false;
 }
 
-bool Player::isIntersectsSuperBullet() {
+bool Player::isIntersectsSuperBullet()
+{
   initializeObjects();
   // SuperBullet vs Wall_1
-  for (auto itrSuperBullet = retSuperBullet.first;
-       itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++) {
-      if (myIntersection(itrSuperBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                        Textures::SuperBulletCollision);
-        itrSuperBullet->second->~Entity();
-        mapSequence.front()->getMap().erase(itrMap);
+  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+  {
+    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+    {
+      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mapSequence.front()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
-        // std::cout << "WallCrashed!!!" << std::endl;
         initializeObjects();
         return true;
       }
     }
   }
   // SuperBullet vs Wall_2
-  for (auto itrSuperBullet = retSuperBullet.first;
-       itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++) {
-      if (myIntersection(itrSuperBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                        Textures::SuperBulletCollision);
-        itrSuperBullet->second->~Entity();
-        mapSequence.front()->getMap().erase(itrMap);
+  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+  {
+    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
+    {
+      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mapSequence.front()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
-        // std::cout << "WallCrashed!!!" << std::endl;
         initializeObjects();
         return true;
       }
     }
   }
   // SuperBullet vs MainWall
-  for (auto itrSuperBullet = retSuperBullet.first;
-       itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second;
-         itrMap++) {
-      if (myIntersection(itrSuperBullet->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
-        handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                        Textures::SuperBulletCollision);
-        itrSuperBullet->second->~Entity();
+  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+  {
+    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
+    {
+      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
+        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         entities.erase(itrSuperBullet);
-        // std::cout << "WallStop!!!" << std::endl;
         initializeObjects();
         return true;
       }
@@ -465,17 +489,14 @@ bool Player::isIntersectsSuperBullet() {
   }
 
   // SuperBullet vs EnemyTank
-  for (auto itrTank = retEnemy.first; itrTank != retEnemy.second; ++itrTank) {
-    for (auto itrSuperBullet = retSuperBullet.first;
-         itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-      if (myIntersection(itrTank->second->getGlobalBounds(),
-                         itrSuperBullet->second->getGlobalBounds())) {
-        handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                        Textures::SuperBulletCollision);
-        handleAnimation(itrTank->second->getGlobalBounds(),
-                        Textures::TankCollision);
-        itrSuperBullet->second->~Entity();
-        itrTank->second->~Entity();
+  for (auto itrTank = retEnemy.first; itrTank != retEnemy.second; ++itrTank)
+  {
+    for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+    {
+      if (myIntersection(itrTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+      {
+        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
         entities.erase(itrSuperBullet);
         entities.erase(itrTank);
         // std::cout << "TankCollision!!!" << std::endl;
@@ -486,22 +507,19 @@ bool Player::isIntersectsSuperBullet() {
   }
 
   // SuperBullet vs PlayerTank
-  auto lplayerTank = entities.find(Category::PlayerTank);
-  if (lplayerTank != entities.end()) {
-    for (auto itrSuperBullet = retSuperBullet.first;
-         itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-      if (myIntersection(lplayerTank->second->getGlobalBounds(),
-                         itrSuperBullet->second->getGlobalBounds())) {
-        handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                        Textures::SuperBulletCollision);
-        handleAnimation(lplayerTank->second->getGlobalBounds(),
-                        Textures::TankCollision);
-        itrSuperBullet->second->~Entity();
-        lplayerTank->second->~Entity();
+  auto lplayerTank = entities.find(ECategory::PLAYERTANK);
+  if (lplayerTank != entities.end())
+  {
+    for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+    {
+      if (myIntersection(lplayerTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+      {
+        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        handleAnimation(lplayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
         entities.erase(itrSuperBullet);
         entities.erase(lplayerTank);
-        panel.setCurrentLives(0);
-        gameStage = Gamestates::gameOver;
+        panel.SetCurrentLives(0);
+        gameStage = EGamestates::GAME_OVER;
         initializeObjects();
         // std::cout << lplayerTank->second->getHP() << std::endl;
         return true;
@@ -510,19 +528,16 @@ bool Player::isIntersectsSuperBullet() {
   }
 
   // SuperBullet vs Eagle
-  auto eagle = entities.find(Category::Eagle);
-  for (auto itrSuperBullet = retSuperBullet.first;
-       itrSuperBullet != retSuperBullet.second; ++itrSuperBullet) {
-    if (myIntersection(eagle->second->getGlobalBounds(),
-                       itrSuperBullet->second->getGlobalBounds())) {
-      handleAnimation(itrSuperBullet->second->getGlobalBounds(),
-                      Textures::SuperBulletCollision);
-      handleAnimation(eagle->second->getGlobalBounds(),
-                      Textures::EagleCollision);
-      eagle->second->kill();
-      itrSuperBullet->second->~Entity();
+  auto eagle = entities.find(ECategory::EAGLE);
+  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+  {
+    if (myIntersection(eagle->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+    {
+      handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      eagle->second->Kill();
       entities.erase(itrSuperBullet);
-      gameStage = Gamestates::gameOver;
+      gameStage = EGamestates::GAME_OVER;
       // std::cout << "TankCollision!!!" << std::endl;
       initializeObjects();
       return true;
@@ -532,50 +547,53 @@ bool Player::isIntersectsSuperBullet() {
   return false;
 }
 
-bool Player::isIntersectsEnemy() {
+bool Player::isIntersectsEnemy()
+{
   initializeObjects();
 
   // EnemyTank vs Wall_1
-  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-       ++itrEnemyTank) {
-    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++) {
-      if (myIntersection(itrEnemyTank->second->getGlobalBounds(),
-                         itrMap->second.rect)) { // Collision!
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+  {
+    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+    {
+      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      { // Collision!
         return true;
       }
     }
   }
 
   // EnemyTank vs Wall_2
-  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-       ++itrEnemyTank) {
-    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++) {
-      if (myIntersection(itrEnemyTank->second->getGlobalBounds(),
-                         itrMap->second.rect)) { // Collision!
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+  {
+    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
+    {
+      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      { // Collision!
         return true;
       }
     }
   }
 
   // EnemyTank vs MainWall
-  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-       ++itrEnemyTank) {
-    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second;
-         itrMap++) {
-      if (myIntersection(itrEnemyTank->second->getGlobalBounds(),
-                         itrMap->second.rect)) {  // Collision!
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+  {
+    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
+    {
+      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      { // Collision!
         return true;
       }
     }
   }
 
   // EnemyTank vs WaterWall
-  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-       ++itrEnemyTank) {
-    for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second;
-         itrMap++) {
-      if (myIntersection(itrEnemyTank->second->getGlobalBounds(),
-                         itrMap->second.rect)) {
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+  {
+    for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
+    {
+      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      {
         // std::cout << "Collision!!!" << std::endl;
         return true;
       }
@@ -583,15 +601,14 @@ bool Player::isIntersectsEnemy() {
   }
 
   // EnemyTank vs Eagle
-  auto eagle = entities.find(Category::Eagle);
-  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-       ++itrEnemyTank) {
-    if (myIntersection(eagle->second->getGlobalBounds(),
-                       itrEnemyTank->second->getGlobalBounds())) {
-      handleAnimation(eagle->second->getGlobalBounds(),
-                      Textures::EagleCollision);
-      eagle->second->kill();
-      gameStage = Gamestates::gameOver;
+  auto eagle = entities.find(ECategory::EAGLE);
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+  {
+    if (myIntersection(eagle->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
+    {
+      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      eagle->second->Kill();
+      gameStage = EGamestates::GAME_OVER;
       return true;
     }
   }
@@ -599,42 +616,46 @@ bool Player::isIntersectsEnemy() {
   return false;
 }
 
-bool Player::isIntersectsBonus() {
+bool Player::isIntersectsBonus()
+{
   initializeObjects();
-  auto retPlayerTank = entities.find(Category::PlayerTank);
+  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
 
   // PlayerTank vs StarBonus
-  for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++) {
-    if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                       itrBonus->second->getGlobalBounds())) {
-      Tank* tank = dynamic_cast<Tank*>(retPlayerTank->second);
+  for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
+  {
+    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
+    {
       BaseBonus* bonus = itrBonus->second;
-      if (bonus->getType() == Textures::BonusStar) {
-        tank->setBulletSpeed(tank->getBulletSpeed() +
-                             static_cast<float>(bonus->getPack()));
+      if (bonus->GetType() == +EImage::BONUSSTAR)
+      {
+        retPlayerTank->second->SetBulletSpeed(retPlayerTank->second->GetBulletSpeed() + static_cast<float>(bonus->GetPackSize()));
         bonus->~BaseBonus();
         bonuses.erase(itrBonus);
-      } else if (bonus->getType() == Textures::BonusMissle) {
-        SPDLOG_INFO("Player::isIntersectsBonus getPack size: {}",
-                    bonus->getPack());
-        tank->superClipLoad(bonus->getPack());
+      }
+      else if (bonus->GetType() == +EImage::BONUSMISSLE)
+      {
+        SPDLOG_INFO("Player::isIntersectsBonus getPack size: {}", bonus->GetPackSize());
+        retPlayerTank->second->SuperClipLoad(bonus->GetPackSize());
         bonus->~BaseBonus();
         bonuses.erase(itrBonus);
-        panel.setCurrentMissles(tank->superClipSize());
-      } else if (bonus->getType() == Textures::BonusLife) {
-        retPlayerTank->second->setHP(retPlayerTank->second->getHP() +
-                                     static_cast<int>(bonus->getPack()));
+        panel.SetCurrentMissles(retPlayerTank->second->GetSuperClipSize());
+      }
+      else if (bonus->GetType() == +EImage::BONUSLIFE)
+      {
+        retPlayerTank->second->SetHP(retPlayerTank->second->GetHP() + static_cast<int>(bonus->GetPackSize()));
         bonus->~BaseBonus();
         bonuses.erase(itrBonus);
-        auto lives = retPlayerTank->second->getHP();
-        if (lives < 0) {
+        auto lives = retPlayerTank->second->GetHP();
+        if (lives < 0)
+        {
           lives = 0;
         }
 
-        panel.setCurrentLives(static_cast<std::size_t>(lives));
+        panel.SetCurrentLives(static_cast<std::size_t>(lives));
       }
 
-      // panel.setCurrentMissles(tank->superClipSize());
+      // panel.setCurrentMissles(tank->GetSuperClipSize());
       return true;
     }
   }
@@ -642,43 +663,46 @@ bool Player::isIntersectsBonus() {
   return false;
 }
 
-bool Player::isIntersectsPlayerTank() {
+bool Player::isIntersectsPlayerTank()
+{
   // PlayerTank vs Wall_1
-  auto retPlayerTank = entities.find(Category::PlayerTank);
+  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
   initializeObjects();
 
-  for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++) {
-    if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                       itrMap->second.rect)) {
+  for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+  {
+    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    {
       // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
 
   // PlayerTank vs Wall_2
-  for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++) {
-    if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                       itrMap->second.rect)) {
+  for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
+  {
+    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    {
       // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
 
   // PlayerTank vs MainWall
-  for (auto itrMap = retMainWall.first; itrMap != retMainWall.second;
-       itrMap++) {
-    if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                       itrMap->second.rect)) {
+  for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
+  {
+    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    {
       // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
 
   // PlayerTank vs WaterWall
-  for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second;
-       itrMap++) {
-    if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                       itrMap->second.rect)) {
+  for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
+  {
+    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    {
       // std::cout << "Collision!!!" << std::endl;
       return true;
     }
@@ -687,29 +711,23 @@ bool Player::isIntersectsPlayerTank() {
   return false;
 }
 
-void Player::isIntersectsOthers() {
+void Player::isIntersectsOthers()
+{
   initializeObjects();
   // EnemyTank vs PlayerTank
-  auto retPlayerTank = entities.find(Category::PlayerTank);
-  if (retPlayerTank != entities.end()) {
-    for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second;
-         ++itrEnemyTank) {
-      if (myIntersection(retPlayerTank->second->getGlobalBounds(),
-                         itrEnemyTank->second->getGlobalBounds())) {
-        // std::cout << "isIntersectsOthers1" << std::endl;
-        handleAnimation(itrEnemyTank->second->getGlobalBounds(),
-                        Textures::TankCollision);
-        handleAnimation(retPlayerTank->second->getGlobalBounds(),
-                        Textures::TankCollision);
-        // std::cout << "isIntersectsOthers2" << std::endl;
-        itrEnemyTank->second->~Entity();
-        retPlayerTank->second->~Entity();
-        // std::cout << "isIntersectsOthers3" << std::endl;
+  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
+  if (retPlayerTank != entities.end())
+  {
+    for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+    {
+      if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
+      {
+        handleAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
+        handleAnimation(retPlayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
         entities.erase(itrEnemyTank);
         entities.erase(retPlayerTank);
-        // std::cout << "isIntersectsOthers4" << std::endl;
-        panel.setCurrentLives(0);
-        gameStage = Gamestates::gameOver;
+        panel.SetCurrentLives(0);
+        gameStage = EGamestates::GAME_OVER;
         initializeObjects();
         break;
       }
@@ -717,22 +735,23 @@ void Player::isIntersectsOthers() {
   }
 }
 
-void Player::Init() {
-  mKeyBinding[sf::Keyboard::Left] = MoveLeft;
-  mKeyBinding[sf::Keyboard::Right] = MoveRight;
-  mKeyBinding[sf::Keyboard::Up] = MoveUp;
-  mKeyBinding[sf::Keyboard::Down] = MoveDown;
-  mKeyBinding[sf::Keyboard::Space] = Fire;
-  mKeyBinding[sf::Keyboard::LControl] = SuperFire;
-  mKeyBinding[sf::Keyboard::P] = Pause;
+void Player::Init()
+{
+  mKeyBinding[sf::Keyboard::Left] = EActions::LEFT;
+  mKeyBinding[sf::Keyboard::Right] = EActions::RIGHT;
+  mKeyBinding[sf::Keyboard::Up] = EActions::UP;
+  mKeyBinding[sf::Keyboard::Down] = EActions::DOWN;
+  mKeyBinding[sf::Keyboard::Space] = EActions::FIRE;
+  mKeyBinding[sf::Keyboard::LControl] = EActions::SUPERFIRE;
+  mKeyBinding[sf::Keyboard::P] = EActions::PAUSE;
 
-  Eagle* eagle = new Eagle();
+  auto eagle = new Eagle();
 
   mapSequence.push(new Map1());
   mapSequence.push(new Map2());
   mapSequence.push(new Map3());
   mapSequence.push(new Map4());
-  entities.insert(std::make_pair(Category::Eagle, eagle));
+  entities.insert(std::make_pair(ECategory::EAGLE, eagle));
 
   initialPlayer();
   initializeActions();

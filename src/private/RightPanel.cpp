@@ -1,146 +1,176 @@
-#include "../RightPanel.h"
+#include "../RightPanel.hpp"
 #include "../Definitions.hpp"
+#include "../ResourceHolders/SpriteHolder.hpp"
 
-RightPanel::RightPanel(size_t liv, size_t quant, size_t levl, size_t mis)
-   : resourses(getRes())
-   , currentLives(liv)
-   , currentLvl(levl)
-   , currentMissles(mis)
-   , tanksQuantity(quant)
+constexpr auto kNumbersSize = 10u;
+constexpr auto kNumbersScale = 2.f;
+constexpr auto kPanelWindosDigitSize = 2u;
 
+RightPanel::RightPanel(size_t aLives, size_t aLevel, size_t aMissles, size_t aTanks)
+  : mPanel()
+  , mTankIcons()
+  , mNumbers(kNumbersSize)
+  , mLife(kPanelWindosDigitSize)
+  , mMissle(kPanelWindosDigitSize)
+  , mLevel(kPanelWindosDigitSize)
+  , mCurrentLives(aLives)
+  , mCurrentLvl(aLevel)
+  , mCurrentMissles(aMissles)
+  , mTanksQuantity(aTanks)
 {
 }
 
-RightPanel::~RightPanel()
+bool RightPanel::Init()
 {
-}
-
-void RightPanel::Init()
-{
-  panel.setTexture(resourses.getTexturePtr(Textures::RightPanel)[0]);
-  panel.setScale(2, 2);
-  panel.setPosition(440, 0);
-
-  resetIcons();
-
-  numbers[0].setTexture(resourses.getTexturePtr(Textures::Digit_0)[0]);
-  numbers[1].setTexture(resourses.getTexturePtr(Textures::Digit_1)[0]);
-  numbers[2].setTexture(resourses.getTexturePtr(Textures::Digit_2)[0]);
-  numbers[3].setTexture(resourses.getTexturePtr(Textures::Digit_3)[0]);
-  numbers[4].setTexture(resourses.getTexturePtr(Textures::Digit_4)[0]);
-  numbers[5].setTexture(resourses.getTexturePtr(Textures::Digit_5)[0]);
-  numbers[6].setTexture(resourses.getTexturePtr(Textures::Digit_6)[0]);
-  numbers[7].setTexture(resourses.getTexturePtr(Textures::Digit_7)[0]);
-  numbers[8].setTexture(resourses.getTexturePtr(Textures::Digit_8)[0]);
-  numbers[9].setTexture(resourses.getTexturePtr(Textures::Digit_9)[0]);
-
-  for (size_t i = 0; i < 10; i++)
+  auto rightPanelSprite = SpriteHolder::GetSprite(EImage::RIGHTPANEL);
+  if (!rightPanelSprite || rightPanelSprite->empty())
   {
-    numbers[i].setScale(2, 2);
+    SPDLOG_ERROR("Sprite is not loaded or empty");
+    return false;
   }
 
-  setNumbers(lives, currentLives);
-  setNumbers(lvl, currentLvl);
-  setNumbers(missles, currentMissles);
+  mPanel = rightPanelSprite->at(0);
+  mPanel.setScale(2, 2);
+  mPanel.setPosition(440, 0);
+
+  auto numbers = SpriteHolder::GetSprite(EImage::DIGITS);
+  if (!numbers || numbers->size() != kNumbersSize)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mNumbers = *numbers;
+
+  for (size_t i = 0; i < kNumbersSize; ++i)
+  {
+    mNumbers[i].setScale(kNumbersScale, kNumbersScale);
+  }
+
+  ResetIcons();
+
+  setNumbers(EPanelWindow::LIVES, mCurrentLives);
+  setNumbers(EPanelWindow::LEVEL, mCurrentLvl);
+  setNumbers(EPanelWindow::MISSLES, mCurrentMissles);
+
+  return true;
 }
 
-void RightPanel::draw(sf::RenderWindow &window)
+void RightPanel::Draw(sf::RenderWindow& window)
 {
-  window.draw(panel);
+  window.draw(mPanel);
 
-  for (auto itr = tankIcons.begin(); itr != tankIcons.end(); itr++)
+  for (const auto& tank : mTankIcons)
   {
-    window.draw(*itr);
+    window.draw(tank);
   }
-  for (size_t i = 0; i < 2; i++)
-  {
-    window.draw(life[i]);
-    window.draw(level[i]);
-    window.draw(missle[i]);
-  }
-}
 
-void RightPanel::popIcon()
-{
-  if (!tankIcons.empty())
+  for (size_t i = 0; i < kPanelWindosDigitSize; i++)
   {
-    auto itr = tankIcons.begin();
-    tankIcons.erase(itr);
+    window.draw(mLife[i]);
+    window.draw(mLevel[i]);
+    window.draw(mMissle[i]);
   }
 }
 
-void RightPanel::resetIcons()
+void RightPanel::PopIcon()
 {
-  // std::cout << "resetIcons" << std::endl;
-  if (!tankIcons.empty())
+  if (!mTankIcons.empty())
   {
-    tankIcons.clear();
+    mTankIcons.erase(mTankIcons.begin());
   }
+}
+
+void RightPanel::ResetIcons()
+{
+  auto sprite = SpriteHolder::GetSprite(EImage::TANKICON);
+  if (!sprite || sprite->empty())
+  {
+    SPDLOG_ERROR("Sprite is empty");
+    return;
+  }
+
   bool set = true;
   float X1 = (kWidthScreen + kWidthRightPanel) - 20;
   float X2 = (kWidthScreen + kWidthRightPanel) - 4;
   float Y = kHeightScreen - 400;
-  for (size_t i = 0; i < tanksQuantity; i++)
+
+  mTankIcons.clear();
+
+  for (size_t i = 0; i < mTanksQuantity; i++)
   {
-    sf::Sprite spr(resourses.getTexturePtr(Textures::TankIcon)[0]);
-    spr.setScale(2, 2);
+    sf::Sprite spite = sprite->at(0);
+    spite.setScale(2, 2);
     if (set)
     {
-      spr.setPosition(X1, Y);
+      spite.setPosition(X1, Y);
       set = false;
     }
     else
     {
-      spr.setPosition(X2, Y);
+      spite.setPosition(X2, Y);
       set = true;
       Y += 16;
     }
-    tankIcons.push_back(spr);
+    mTankIcons.emplace_back(spite);
   }
 }
 
-void RightPanel::setCurrentLives(size_t liv)
+void RightPanel::SetCurrentLives(size_t aLives)
 {
-  setNumbers(windows::lives, liv);
+  setNumbers(EPanelWindow::LIVES, aLives);
 }
-void RightPanel::setCurrentMissles(size_t mis)
+void RightPanel::SetCurrentMissles(size_t aMissles)
 {
-  setNumbers(windows::missles, mis);
+  setNumbers(EPanelWindow::MISSLES, aMissles);
 }
-void RightPanel::setCurrentLvl(size_t l)
+void RightPanel::IncrementCurrentLvl()
 {
-  setNumbers(windows::lvl, currentLvl += l);
+  setNumbers(EPanelWindow::LEVEL, mCurrentLvl += 1);
 }
 
-void RightPanel::setNumbers(windows win, size_t number)
+size_t RightPanel::GetCurrentLvl() const
 {
+  return mCurrentLvl;
+}
 
-  size_t first = number / 10;
-  size_t second = number % 10;
-
-  sf::Sprite spr1(numbers[first]);
-  sf::Sprite spr2(numbers[second]);
-
-
-  switch (win)
+void RightPanel::setNumbersHelper(sf::Sprite& aFirstNumber,
+  sf::Sprite& aSecondNumber,
+  const sf::Vector2f& aFirstCoords,
+  const sf::Vector2f& aSecondCoords,
+  std::vector<sf::Sprite>& aTarget)
+{
+  if (aTarget.size() < kPanelWindosDigitSize)
   {
-  case RightPanel::lives:
-    spr1.setPosition(454, 288);
-    spr2.setPosition(470, 288);
-    life[0] = spr1;
-    life[1] = spr2;
+    SPDLOG_ERROR("Sprite size is incorrect");
+    return;
+  }
+
+  aFirstNumber.setPosition(aFirstCoords);
+  aSecondNumber.setPosition(aSecondCoords);
+  aTarget[0] = aFirstNumber;
+  aTarget[1] = aSecondNumber;
+}
+
+void RightPanel::setNumbers(EPanelWindow aWindow, size_t aNumber)
+{
+  if (mNumbers.size() < kNumbersSize)
+  {
+    SPDLOG_ERROR("Sprite size is incorrect");
+    return;
+  }
+  size_t first = aNumber / 10;
+  size_t second = aNumber % 10;
+
+  switch (aWindow)
+  {
+  case +EPanelWindow::LIVES:
+    setNumbersHelper(mNumbers[first], mNumbers[second], { 454, 288 }, { 470, 288 }, mLife);
     break;
-  case RightPanel::lvl:
-    spr1.setPosition(444, 400);
-    spr2.setPosition(460, 400);
-    level[0] = spr1;
-    level[1] = spr2;
+  case +EPanelWindow::LEVEL:
+    setNumbersHelper(mNumbers[first], mNumbers[second], { 444, 400 }, { 460, 400 }, mLevel);
     break;
-  case RightPanel::missles:
-    spr1.setPosition(454, 336);
-    spr2.setPosition(470, 336);
-    missle[0] = spr1;
-    missle[1] = spr2;
+  case +EPanelWindow::MISSLES:
+    setNumbersHelper(mNumbers[first], mNumbers[second], { 454, 336 }, { 470, 336 }, mMissle);
     break;
   default:
     break;

@@ -1,82 +1,102 @@
-#include "../Bonus.h"
+#include "../Bonus.hpp"
+#include "../ResourceHolders/SpriteHolder.hpp"
 
-BaseBonus::~BaseBonus(){}
+constexpr size_t kBonusSpriteSize = 1u;
+constexpr size_t kBonusMisslePackSize = 5u;
+constexpr size_t kBonusLifePackSize = 1u;
+constexpr size_t kBonusStarPackSize = 1u;
 
-BonusStar::BonusStar(Textures::ID t) 
+bool setInit(const std::shared_ptr<BaseBonus> aBaseBonusPtr, const float aScale)
 {
-	spr = new sf::Sprite(resourses.getTexturePtr(Textures::BonusStar)[0]);
+  std::shared_ptr<std::vector<sf::Sprite>> spritesPtr;
 
-	spr->setScale(2.f, 2.f);
-	//spr->setOrigin(spr->getTextureRect().height / 2.f, spr->getTextureRect().width / 2.f);
-	type = t;
-	pack = 1;
+  if (aBaseBonusPtr && (spritesPtr = SpriteHolder::GetSprite(aBaseBonusPtr->mType))
+      && spritesPtr->size() == kBonusSpriteSize)
+  {
+    aBaseBonusPtr->mSprite = spritesPtr->at(0);
+    aBaseBonusPtr->mSprite.setScale(aScale, aScale);
+  }
+  else
+  {
+    SPDLOG_WARN("Empty pointer or sprite size doesn't match");
+    return false;
+  }
 
-	//std::cout << "BonusStar created!" << std::endl;
+  return true;
 }
 
-BonusStar::~BonusStar()
+BaseBonus::BaseBonus(EImage aType, size_t aPackSize)
+  : mSprite()
+  , mType(aType)
+  , mPackSize(aPackSize)
 {
-	delete spr;
-	//std::cout << "BonusStar deleted" << std::endl;
 }
 
-BonusMissle::BonusMissle(Textures::ID t)
+void BaseBonus::Draw(sf::RenderWindow& window) const
 {
-	spr = new sf::Sprite(resourses.getTexturePtr(Textures::BonusMissle)[0]);
-
-	spr->setScale(2.f, 2.f);
-	//spr->setOrigin(spr->getTextureRect().height / 2.f, spr->getTextureRect().width / 2.f);
-	type = t;
-	pack = 5;
-
-	//std::cout << "BonusStar created!" << std::endl;
+  window.draw(mSprite);
 }
 
-BonusMissle::~BonusMissle()
+void BaseBonus::Update(const sf::Vector2f& vector)
 {
-	delete spr;
-	//std::cout << "BonusStar deleted" << std::endl;
+  mSprite.move(vector);
 }
 
-BonusLife::BonusLife(Textures::ID t)
+sf::FloatRect BaseBonus::GetGlobalBounds() const
 {
-	spr = new sf::Sprite(resourses.getTexturePtr(Textures::BonusLife)[0]);
-
-	spr->setScale(2.f, 2.f);
-	//spr->setOrigin(spr->getTextureRect().height / 2.f, spr->getTextureRect().width / 2.f);
-	type = t;
-	pack = 1;
-
-	//std::cout << "BonusStar created!" << std::endl;
+  return mSprite.getGlobalBounds();
 }
 
-BonusLife::~BonusLife()
+sf::FloatRect BaseBonus::GetLocalBounds() const
 {
-	delete spr;
-	//std::cout << "BonusStar deleted" << std::endl;
+  return mSprite.getLocalBounds();
 }
 
-void BaseBonus::draw(sf::RenderWindow & window)
+void BaseBonus::SetPosition(const float x, const float y)
 {
-	window.draw(*spr);
+  mSprite.setPosition(x, y);
 }
 
-void BaseBonus::update(const sf::Vector2f vector)
+const sf::Sprite& BaseBonus::GetSprite() const
 {
-	spr->move(vector);
+  return mSprite;
+}
+size_t BaseBonus::GetPackSize() const
+{
+  return mPackSize;
 }
 
-sf::FloatRect BaseBonus::getGlobalBounds()
+EImage BaseBonus::GetType() const
 {
-	return spr->getGlobalBounds();
+  return mType;
 }
 
-sf::FloatRect	BaseBonus::getLocalBounds()
+BonusStar::BonusStar()
+  : BaseBonus(EImage::BONUSSTAR, kBonusStarPackSize)
 {
-	return spr->getLocalBounds();
 }
 
-void BaseBonus::setPosition(float x, float y)
+bool BonusStar::Init()
 {
-	spr->setPosition(x, y);
+	return setInit(shared_from_this(), 2.f);
+}
+
+BonusMissle::BonusMissle()
+  : BaseBonus(EImage::BONUSMISSLE, kBonusMisslePackSize)
+{
+}
+
+bool BonusMissle::Init()
+{
+  return setInit(shared_from_this(), 2.f);
+}
+
+BonusLife::BonusLife()
+  : BaseBonus(EImage::BONUSLIFE, kBonusLifePackSize)
+{
+}
+
+bool BonusLife::Init()
+{
+  return setInit(shared_from_this(), 2.f);
 }

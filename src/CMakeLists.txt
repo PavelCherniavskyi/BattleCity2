@@ -4,11 +4,11 @@ add_executable(${PROJECT_NAME}
         private/Animation.cpp
         private/Bonus.cpp
         private/Bullet.cpp
+        private/Eagle.cpp
         private/Entity.cpp
         private/Game.cpp
         private/Map.cpp
         private/Player.cpp
-        ResourceHolders/private/TexturesHolder.cpp
         private/RightPanel.cpp
         private/Tank.cpp
         private/InputHandler.cpp

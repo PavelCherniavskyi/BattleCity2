@@ -1,125 +1,98 @@
-#include "../Tank.h"
+#include "../Tank.hpp"
 #include "../Definitions.hpp"
+#include "../ResourceHolders/SpriteHolder.hpp"
 
+constexpr auto kNumbersCount = 10u;
+constexpr auto kNumbersScale = 1.f;
 
-Tank::Tank(Category::Type cat, Textures::ID aType)
-  : spritesCount(2)
-  , category(cat)
-  , type(aType)
+constexpr auto kTankSpritesCount = 2u;
+
+constexpr auto kPlayerTankSuperBulletClipSize = 5u;
+const auto kPlayerTankVelosity = sf::Vector2f(0.f, -100.f);
+constexpr auto kPlayerTankBulletFrequency = 0.4f;
+constexpr auto kPlayerBulletSpeed = 2.f;
+constexpr auto kPlayerTankHP = 2;
+constexpr auto kPlayerTankSpeed = 1.f;
+
+const std::vector<sf::Vector2f> kEnemySpawnPos{ 
+  { 32, 32 },
+  { (kWidthScreen + kWidthRightPanel - 14) / 2, 32 },
+  { kWidthScreen - 23, 33 }
+};
+
+constexpr auto kEnemy_10TankSpeed = 1.f;
+constexpr auto kEnemy_10BulletSpeed = 2.f;
+constexpr auto kEnemy_10TankHP = 0;
+constexpr auto kEnemy_10TankBulletFrequency = 1.f;
+constexpr auto kEnemy_10TankScale = 1.9f;
+
+constexpr auto kEnemy_20TankSpeed = 1.7f;
+constexpr auto kEnemy_20BulletSpeed = 2.f;
+constexpr auto kEnemy_20TankHP = 0;
+constexpr auto kEnemy_20TankBulletFrequency = 1.f;
+constexpr auto kEnemy_20TankScale = 1.8f;
+
+constexpr auto kEnemy_30TankSpeed = 1.2f;
+constexpr auto kEnemy_30BulletSpeed = 4.f;
+constexpr auto kEnemy_30TankHP = 1;
+constexpr auto kEnemy_30TankBulletFrequency = 1.f;
+constexpr auto kEnemy_30TankScale = 1.7f;
+
+constexpr auto kEnemy_40TankSpeed = 1.f;
+constexpr auto kEnemy_40BulletSpeed = 2.f;
+constexpr auto kEnemy_40TankHP = 3;
+constexpr auto kEnemy_40TankBulletFrequency = 1.f;
+constexpr auto kEnemy_40TankScale = 1.8f;
+
+std::shared_ptr<BulletBase> setupBullet(std::shared_ptr<BulletBase> aBullet, std::shared_ptr<BaseTank> aBaseTank)
 {
-  spr = new sf::Sprite[spritesCount];
-
-
-  if (category == Category::PlayerTank)
+  if (!aBullet || !aBaseTank)
   {
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setTexture(resourses.getTexturePtr(Textures::T_10)[i]);
-    for (size_t i = 0; i < 5; i++)
-    { // initial superClip size
-      superBulletClip.push(std::unique_ptr<SuperBullet>(new SuperBullet()));
-    }
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setScale(1.9f, 1.9f);
-
-    setInitialPosition();
-    setVelocity(0.f, -100.f);
-    setBulltFrequency(0.4f);
-    setSpeed(1.f);
-    bulletSpeed = 2;
-    HP = 2;
-  }
-  if (category == Category::EnemyTank)
-  {
-    sf::Vector2f spawnPos[3] = { { 32, 32 }, { (kWidthScreen + kWidthRightPanel - 14) / 2, 32 }, { kWidthScreen - 23, 33 } };
-    int spawn(rand() % 3);
-
-
-    if (type == Textures::Enemy_10)
-    {
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setTexture(resourses.getTexturePtr(Textures::Enemy_10)[i]);
-      setSpeed(1.f);
-      bulletSpeed = 2;
-      HP = 0;
-      setBulltFrequency(1.f);
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setScale(1.9f, 1.9f);
-    }
-    else if (type == Textures::Enemy_20)
-    {
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setTexture(resourses.getTexturePtr(Textures::Enemy_20)[i]);
-      setSpeed(1.7f);
-      bulletSpeed = 2;
-      HP = 0;
-      setBulltFrequency(1.f);
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setScale(1.8f, 1.8f);
-    }
-    else if (type == Textures::Enemy_30)
-    {
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setTexture(resourses.getTexturePtr(Textures::Enemy_30)[i]);
-      setSpeed(1.2f);
-      bulletSpeed = 4;
-      setBulltFrequency(1.f);
-      HP = 1;
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setScale(1.7f, 1.7f);
-    }
-    else if (type == Textures::Enemy_40)
-    {
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setTexture(resourses.getTexturePtr(Textures::Enemy_40)[i]);
-      setSpeed(1.f);
-      bulletSpeed = 2;
-      setBulltFrequency(1.f);
-      HP = 3;
-      for (size_t i = 0; i < spritesCount; i++) spr[i].setScale(1.8f, 1.8f);
-    }
-
-
-    for (size_t i = 0; i < spritesCount; i++)
-    {
-      spr[i].setPosition(spawnPos[spawn]);
-    }
-    setIsMoving(true);
-    setVelocity(0.f, +100.f * getSpeed());
-    rotate(Entity::Down);
+    return nullptr;
   }
 
+  aBullet->SetSpeed(aBaseTank->GetBulletSpeed());
+  sf::Vector2f entVelocity = aBaseTank->GetVelocity() / aBaseTank->GetSpeed();
+  aBullet->SetVelocity(entVelocity * aBaseTank->GetBulletSpeed());
 
-  for (size_t i = 0; i < spritesCount; i++) spr[i].setOrigin(spr[i].getLocalBounds().height / 2.f, spr[i].getLocalBounds().width / 2.f);
+  if (entVelocity.y < 0)
+  { // Up
+    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width / 2 + 1,
+      aBaseTank->GetGlobalBounds().top - 10 });
+    aBullet->Rotate(EActions::UP);
+  }
+  else if (entVelocity.y > 0)
+  { // Down
+    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width / 2 - 1,
+      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height + 10 });
+    aBullet->Rotate(EActions::DOWN);
+  }
+  else if (entVelocity.x < 0)
+  { // Left
+    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left - 10,
+      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height / 2 - 1 });
+    aBullet->Rotate(EActions::LEFT);
+  }
+  else if (entVelocity.x > 0)
+  { // Right
+    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width + 10,
+      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height / 2 + 1 });
+    aBullet->Rotate(EActions::RIGHT);
+  }
 
-
-  canIdoFire(); // for initial clock start
-  textInitial();
+  return aBullet;
 }
 
-void Tank::setInitialPosition()
+BaseTank::BaseTank(ECategory aCategory, EImage aType)
+  : mCategory(aCategory)
+  , mType(aType)
 {
-  for (size_t i = 0; i < spritesCount; i++)
-  {
-    spr[i].setPosition(175.f, 418.f);
-  }
 }
 
-void Tank::textInitial()
-{
-  numbers[0].setTexture(resourses.getTexturePtr(Textures::Digit_0)[0]);
-  numbers[1].setTexture(resourses.getTexturePtr(Textures::Digit_1)[0]);
-  numbers[2].setTexture(resourses.getTexturePtr(Textures::Digit_2)[0]);
-  numbers[3].setTexture(resourses.getTexturePtr(Textures::Digit_3)[0]);
-  numbers[4].setTexture(resourses.getTexturePtr(Textures::Digit_4)[0]);
-  numbers[5].setTexture(resourses.getTexturePtr(Textures::Digit_5)[0]);
-  numbers[6].setTexture(resourses.getTexturePtr(Textures::Digit_6)[0]);
-  numbers[7].setTexture(resourses.getTexturePtr(Textures::Digit_7)[0]);
-  numbers[8].setTexture(resourses.getTexturePtr(Textures::Digit_8)[0]);
-  numbers[9].setTexture(resourses.getTexturePtr(Textures::Digit_9)[0]);
-
-  for (size_t i = 0; i < 10; i++)
-  {
-    numbers[i].setScale(1, 1);
-  }
-}
-
-bool Tank::canIdoFire()
+bool PlayerTank::CanIDoFire() const
 {
   static sf::Clock clock;
-  sf::Time time = clock.getElapsedTime();
-
-  if (time.asSeconds() > bulletFrequency)
+  if (clock.getElapsedTime().asSeconds() > mBulletFrequency)
   {
     clock.restart();
     return true;
@@ -127,13 +100,22 @@ bool Tank::canIdoFire()
   return false;
 }
 
-bool Tank::canEnemyDoFire()
+void BaseTank::SetBulletSpeed(const float aSpeed)
+{
+  mBulletSpeed = aSpeed;
+}
+
+float BaseTank::GetBulletSpeed() const
+{
+  return mBulletSpeed;
+}
+
+bool EnemyBaseTank::CanIDoFire() const
 {
   static sf::Clock clock;
-  sf::Time time = clock.getElapsedTime();
-  static float fireRange = 1; // initial value
+  static float fireRange = 1;
 
-  if (time.asSeconds() > fireRange)
+  if (clock.getElapsedTime().asSeconds() > fireRange)
   {
     fireRange = static_cast<float>(rand() % 20 + 10);
     fireRange /= 10;
@@ -143,169 +125,379 @@ bool Tank::canEnemyDoFire()
   return false;
 }
 
-BulletBase *Tank::doFire(Category::Type aCategory, Textures::ID aType)
+std::shared_ptr<BulletBase> BaseTank::DoFire(ECategory aCategory)
 {
-  BulletBase *bullet = nullptr;
+  std::shared_ptr<BulletBase> bullet(nullptr);
 
-  if (aType == Textures::T_10)
+  if (aCategory == +ECategory::BULLET)
   {
-    if (aCategory == Category::SuperBullet)
-    {
-      bullet = superBulletClip.front().release();
-      superBulletClip.pop();
-    }
-    else if (aCategory == Category::Bullet)
-    {
-      bullet = new SimpleBullet();
-    }
+    bullet = std::make_unique<SimpleBullet>();
   }
-  else if (aType == Textures::Enemy_40)
+  else if(aCategory == +ECategory::SUPERBULLET && !mSuperBulletClip.empty())
   {
-    bullet = new SuperBullet();
-  }
-  else
-  {
-    bullet = new SimpleBullet();
+    bullet = std::move(mSuperBulletClip.front());
+    mSuperBulletClip.pop();
   }
 
-
-  bullet->setSpeed(bulletSpeed);
-
-  sf::Vector2f entVelocity = getVelocity() / getSpeed();
-  // std::cout << getVelocity().x << ' ' << getVelocity().y << std::endl;
-
-  bullet->setVelocity(entVelocity * bulletSpeed);
-  if (entVelocity.y < 0)
-  { // Up
-    bullet->setPosition(getGlobalBounds().left + getGlobalBounds().width / 2 + 1, getGlobalBounds().top - 10);
-    bullet->rotate(Entity::Up);
-  }
-  if (entVelocity.y > 0)
-  { // Down
-    bullet->setPosition(getGlobalBounds().left + getGlobalBounds().width / 2 - 1, getGlobalBounds().top + getGlobalBounds().height + 10);
-    bullet->rotate(Entity::Down);
-  }
-  if (entVelocity.x < 0)
-  { // Left
-    bullet->setPosition(getGlobalBounds().left - 10, getGlobalBounds().top + getGlobalBounds().height / 2 - 1);
-    bullet->rotate(Entity::Left);
-  }
-  if (entVelocity.x > 0)
-  { // Right
-    bullet->setPosition(getGlobalBounds().left + getGlobalBounds().width + 10, getGlobalBounds().top + getGlobalBounds().height / 2 + 1);
-    bullet->rotate(Entity::Right);
-  }
-
-  /*std::cout << bullet->getSpeed() << std::endl;
-  std::cout << getSpeed() << std::endl;*/
-
-  return bullet;
+  return setupBullet(std::move(bullet), shared_from_this());
 }
 
-void Tank::draw(sf::RenderWindow &window)
+void BaseTank::SetBulletFrequency(const float aBulletFrequency)
 {
-  if (isMoving())
+  mBulletFrequency = aBulletFrequency;
+}
+
+void BaseTank::Draw(sf::RenderWindow& aWindow)
+{
+  if (IsMoving())
   {
     static sf::Clock clock;
     sf::Time time = clock.getElapsedTime();
     if (time.asSeconds() < 0.05f)
     {
-      window.draw(spr[0]);
+      aWindow.draw(mSprites[0]);
     }
     else if (time.asSeconds() < 0.1f)
-      window.draw(spr[1]);
+    {
+      aWindow.draw(mSprites[1]);
+    }
     else
+    {
       clock.restart();
+    }
   }
   else
-    window.draw(spr[0]);
-  if (category == Category::EnemyTank)
   {
-    numbers[getHP()].setPosition(getGlobalBounds().left + getGlobalBounds().width, getGlobalBounds().top + getGlobalBounds().height);
-    window.draw(numbers[getHP()]);
+    aWindow.draw(mSprites[0]);
   }
 }
 
-void Tank::update(const sf::Vector2f vector)
+void BaseTank::Update(const sf::Vector2f& aPos)
 {
-  for (size_t i = 0; i < spritesCount; i++)
+  for (size_t i = 0; i < kTankSpritesCount; i++)
   {
-    spr[i].move(vector);
+    mSprites[i].move(aPos);
   }
 }
 
-void Tank::updateBack(sf::Vector2f vector)
+const std::vector<sf::Sprite>& BaseTank::GetSprite() const
 {
-  if (vector.y < 0)
+ return mSprites;
+}
+
+void BaseTank::UpdateBack(const sf::Vector2f& aPos)
+{
+  sf::Vector2f pos = aPos;
+  if (aPos.y < 0)
   { // Up
-    vector.y = +(-vector.y);
+    pos.y = +(-aPos.y);
   }
-  else if (vector.y > 0)
+  else if (aPos.y > 0)
   { // Down
-    vector.y = -vector.y;
+    pos.y = -aPos.y;
   }
-  else if (vector.x < 0)
+  else if (aPos.x < 0)
   { // Left
-    vector.x = +(-vector.x);
+    pos.x = +(-aPos.x);
   }
-  else if (vector.x > 0)
+  else if (aPos.x > 0)
   { // Right
-    vector.x = -vector.x;
+    pos.x = -aPos.x;
   }
-  for (size_t i = 0; i < spritesCount; i++)
+  for (size_t i = 0; i < kTankSpritesCount; i++)
   {
-    spr[i].move(vector);
+    mSprites[i].move(pos);
   }
 }
 
-void Tank::rotate(actions action)
+void BaseTank::Rotate(EActions mAction)
 {
-  switch (action)
+  switch (mAction)
   {
 
-  case Tank::Left:
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setRotation(270.f);
+  case +EActions::LEFT:
+    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(270.f);
     break;
-  case Tank::Right:
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setRotation(90.f);
+  case +EActions::RIGHT:
+    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(90.f);
     break;
-  case Tank::Up:
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setRotation(0.f);
+  case +EActions::UP:
+    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(0.f);
     break;
-  case Tank::Down:
-    for (size_t i = 0; i < spritesCount; i++) spr[i].setRotation(180.f);
+  case +EActions::DOWN:
+    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(180.f);
     break;
-  case Tank::Fire:
+  case +EActions::FIRE:
+    break;
+  default:
     break;
   }
 }
 
-void Tank::superClipLoad(size_t count)
+void BaseTank::SuperClipLoad(const size_t mCount)
 {
-  for (size_t i = 0; i < count; i++)
+  for (size_t i = 0; i < mCount; i++)
   {
-    superBulletClip.push(std::unique_ptr<SuperBullet>(new SuperBullet()));
+    mSuperBulletClip.push(std::make_unique<SuperBullet>());
   }
 }
 
-sf::FloatRect Tank::getGlobalBounds()
+sf::FloatRect BaseTank::GetGlobalBounds() const
 {
-  return spr[0].getGlobalBounds();
+  return mSprites[0].getGlobalBounds();
 }
 
-sf::FloatRect Tank::getLocalBounds()
+sf::FloatRect BaseTank::GetLocalBounds() const
 {
-  return spr[0].getLocalBounds();
+  return mSprites[0].getLocalBounds();
 }
 
-void Tank::setPosition(float x, float y)
+size_t BaseTank::GetSuperClipSize() const
 {
-  spr[0].setPosition(x, y);
-  spr[1].setPosition(x, y);
+  return mSuperBulletClip.size();
 }
 
-Tank::~Tank()
+EImage BaseTank::GetType() const
 {
-  delete[] spr;
-  // std::cout << "Tank deleted!" << std::endl;
+  return mType;
+}
+
+void BaseTank::SetPosition(const sf::Vector2f& aPos)
+{
+  mSprites[0].setPosition(aPos);
+  mSprites[1].setPosition(aPos);
+}
+
+PlayerTank::PlayerTank()
+  : BaseTank(ECategory::PLAYERTANK, EImage::T_10)
+{
+}
+
+bool PlayerTank::Init()
+{
+  auto sprites = SpriteHolder::GetSprite(mType);
+  if (!sprites || sprites->size() != kTankSpritesCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+
+  mSprites = *sprites;
+
+  for (size_t i = 0; i < kPlayerTankSuperBulletClipSize; i++)
+  {
+    mSuperBulletClip.push(std::make_unique<SuperBullet>());
+  }
+  for (size_t i = 0; i < kTankSpritesCount; i++)
+  {
+    mSprites[i].setScale(1.9f, 1.9f);
+    mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
+
+  }
+
+  SetInitialPosition();
+  SetVelocity(kPlayerTankVelosity);
+  SetBulletFrequency(kPlayerTankBulletFrequency);
+  SetSpeed(kPlayerTankSpeed);
+  CanIDoFire();
+  SetBulletSpeed(kPlayerBulletSpeed);
+  SetHP(kPlayerTankHP);
+
+  return true;
+}
+
+void PlayerTank::SetInitialPosition()
+{
+  for (size_t i = 0; i < kTankSpritesCount; i++)
+  {
+    mSprites[i].setPosition(175.f, 418.f);
+  }
+}
+
+EnemyBaseTank::EnemyBaseTank(ECategory aCategory, EImage aType)
+  : BaseTank(aCategory, aType)
+{
+}
+
+bool EnemyBaseTank::Init()
+{
+  auto numbers = SpriteHolder::GetSprite(EImage::DIGITS);
+  if (!numbers || numbers->size() != kNumbersCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mNumbers = *numbers;
+
+  for (size_t i = 0; i < 10; i++)
+  {
+    mNumbers[i].setScale(kNumbersScale, kNumbersScale);
+  }
+  return true;
+}
+
+void EnemyBaseTank::Draw(sf::RenderWindow& aWindow)
+{
+  if (IsMoving())
+  {
+    static sf::Clock clock;
+    sf::Time time = clock.getElapsedTime();
+    if (time.asSeconds() < 0.05f)
+    {
+      aWindow.draw(mSprites[0]);
+    }
+    else if (time.asSeconds() < 0.1f)
+    {
+      aWindow.draw(mSprites[1]);
+    }
+    else
+    {
+      clock.restart();
+    }
+  }
+  else
+  {
+    aWindow.draw(mSprites[0]);
+  }
+
+  // drawing lives
+  mNumbers[static_cast<size_t>(GetHP())].setPosition(
+    { GetGlobalBounds().left + GetGlobalBounds().width, GetGlobalBounds().top + GetGlobalBounds().height });
+  aWindow.draw(mNumbers[static_cast<size_t>(GetHP())]);
+}
+
+EnemyTank_10::EnemyTank_10()
+  : EnemyBaseTank(ECategory::ENEMYTANK, EImage::ENEMY_10)
+{
+}
+
+bool EnemyTank_10::Init()
+{
+  auto sprites = SpriteHolder::GetSprite(mType);
+  if (!sprites || sprites->size() != kTankSpritesCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mSprites = *sprites;
+  mBulletSpeed = kEnemy_10BulletSpeed;
+  mHP = kEnemy_10TankHP;
+  SetBulletFrequency(kEnemy_10TankBulletFrequency);
+  SetSpeed(kEnemy_10TankSpeed);
+  SetVelocity({0.f, +100.f * GetSpeed()});
+  SetIsMoving(true);
+  Rotate(EActions::DOWN);
+  CanIDoFire(); // for clock initialization
+
+  const size_t spawnIndex = static_cast<size_t>(rand()) % kEnemySpawnPos.size();
+  for (size_t i = 0; i < mSprites.size(); i++)
+  {
+    mSprites[i].setScale(kEnemy_10TankScale, kEnemy_10TankScale);
+    mSprites[i].setPosition(kEnemySpawnPos[static_cast<size_t>(spawnIndex)]);
+    mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
+  }
+
+  return EnemyBaseTank::Init();
+}
+
+EnemyTank_20::EnemyTank_20()
+  : EnemyBaseTank(ECategory::ENEMYTANK, EImage::ENEMY_20)
+{
+}
+
+bool EnemyTank_20::Init()
+{
+  auto sprites = SpriteHolder::GetSprite(mType);
+  if (!sprites || sprites->size() != kTankSpritesCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mSprites = *sprites;
+  mBulletSpeed = kEnemy_20BulletSpeed;
+  mHP = kEnemy_20TankHP;
+  SetBulletFrequency(kEnemy_20TankBulletFrequency);
+  SetSpeed(kEnemy_20TankSpeed);
+  SetVelocity({0.f, +100.f * GetSpeed()});
+  SetIsMoving(true);
+  Rotate(EActions::DOWN);
+  CanIDoFire(); // for clock initialization
+
+  const size_t spawnIndex = static_cast<size_t>(rand()) % kEnemySpawnPos.size();
+  for (size_t i = 0; i < mSprites.size(); i++)
+  {
+    mSprites[i].setScale(kEnemy_20TankScale, kEnemy_20TankScale);
+    mSprites[i].setPosition(kEnemySpawnPos[spawnIndex]);
+    mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
+  }
+
+  return EnemyBaseTank::Init();
+}
+
+EnemyTank_30::EnemyTank_30()
+  : EnemyBaseTank(ECategory::ENEMYTANK, EImage::ENEMY_30)
+{
+}
+
+bool EnemyTank_30::Init()
+{
+  auto sprites = SpriteHolder::GetSprite(mType);
+  if (!sprites || sprites->size() != kTankSpritesCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mSprites = *sprites;
+  mBulletSpeed = kEnemy_30BulletSpeed;
+  mHP = kEnemy_30TankHP;
+  SetBulletFrequency(kEnemy_30TankBulletFrequency);
+  SetSpeed(kEnemy_30TankSpeed);
+  SetVelocity({0.f, +100.f * GetSpeed()});
+  SetIsMoving(true);
+  Rotate(EActions::DOWN);
+  CanIDoFire(); // for clock initialization
+
+  const size_t spawnIndex = static_cast<size_t>(rand()) % kEnemySpawnPos.size();
+  for (size_t i = 0; i < mSprites.size(); i++)
+  {
+    mSprites[i].setScale(kEnemy_30TankScale, kEnemy_30TankScale);
+    mSprites[i].setPosition(kEnemySpawnPos[spawnIndex]);
+    mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
+  }
+
+  return EnemyBaseTank::Init();
+}
+
+EnemyTank_40::EnemyTank_40()
+  : EnemyBaseTank(ECategory::ENEMYTANK, EImage::ENEMY_40)
+{
+}
+
+bool EnemyTank_40::Init()
+{
+  auto sprites = SpriteHolder::GetSprite(mType);
+  if (!sprites || sprites->size() != kTankSpritesCount)
+  {
+    SPDLOG_ERROR("Sprites is not correct");
+    return false;
+  }
+  mSprites = *sprites;
+  mBulletSpeed = kEnemy_40BulletSpeed;
+  mHP = kEnemy_40TankHP;
+  SetBulletFrequency(kEnemy_40TankBulletFrequency);
+  SetSpeed(kEnemy_40TankSpeed);
+  SetVelocity({0.f, +100.f * GetSpeed()});
+  SetIsMoving(true);
+  Rotate(EActions::DOWN);
+  CanIDoFire(); // for clock initialization
+
+  const size_t spawnIndex = static_cast<size_t>(rand()) % kEnemySpawnPos.size();
+  for (size_t i = 0; i < mSprites.size(); i++)
+  {
+    mSprites[i].setScale(kEnemy_40TankScale, kEnemy_40TankScale);
+    mSprites[i].setPosition(kEnemySpawnPos[spawnIndex]);
+    mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
+  }
+
+  return EnemyBaseTank::Init();
 }

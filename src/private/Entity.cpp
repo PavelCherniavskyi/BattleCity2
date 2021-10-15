@@ -1,46 +1,76 @@
-#include "../Entity.h"
+#include "../Entity.hpp"
 
-std::unique_ptr<TexturesHolder> Resourses::mTextures = std::make_unique<TexturesHolder>();
-
-Eagle::Eagle() : spritesCount(2)
+bool Entity::IsAlife() const
 {
-	spr = new sf::Sprite[spritesCount];
-	for (size_t i = 0; i < spritesCount; i++)
-		spr[i].setTexture(resourses.getTexturePtr(Textures::Eagle)[i]);
-	for (size_t i = 0; i < spritesCount; i++){
-		spr[i].setPosition(224.f, 418.f);
-	}
-	for (size_t i = 0; i < spritesCount; i++)
-		spr[i].setScale(1.7f, 1.7f);
-	for (size_t i = 0; i < spritesCount; i++)
-		spr[i].setOrigin(spr[i].getLocalBounds().height / 2.f, spr[i].getLocalBounds().width / 2.f);
-	HP = 0;
+  return mHP >= 0;
 }
 
-Eagle::~Eagle()
+void Entity::Kill()
 {
-	delete [] spr;
-	//std::cout << "BonusStar deleted" << std::endl;
+  mHP -= 1;
 }
 
-void Eagle::draw(sf::RenderWindow & window)
+void Entity::SetVelocity(const sf::Vector2f& aVelocity)
 {
-	if (isAlife()){
-		window.draw(spr[0]);
-	}
-	else {
-		window.draw(spr[1]);
-	}
-		
-	
+  mVelocity = aVelocity;
 }
 
-sf::FloatRect Eagle::getGlobalBounds()
+const sf::Vector2f& Entity::GetVelocity() const
 {
-	return spr[0].getGlobalBounds();
+  return mVelocity;
 }
 
-sf::FloatRect	Eagle::getLocalBounds()
+void Entity::SetSpeed(float aSpeed)
 {
-	return spr[0].getLocalBounds();
+  mSpeed = aSpeed;
+}
+
+bool Entity::CanIDoFire() const
+{
+  return false;
+}
+
+size_t Entity::GetSuperClipSize() const
+{
+  return 0u;
+}
+
+EImage Entity::GetType() const
+{
+  return EImage::UNKNOWN;
+}
+
+std::shared_ptr<BulletBase> Entity::DoFire(ECategory)
+{
+  return nullptr;
+}
+
+float Entity::GetBulletSpeed() const
+{
+  return 0.f;
+}
+
+float Entity::GetSpeed() const
+{
+  return mSpeed;
+}
+
+void Entity::SetIsMoving(bool aMoving)
+{
+  mMoving = aMoving;
+}
+
+bool Entity::IsMoving() const
+{
+  return mMoving;
+}
+
+int Entity::GetHP() const
+{
+  return mHP;
+}
+
+void Entity::SetHP(int aHP)
+{
+  mHP = aHP;
 }

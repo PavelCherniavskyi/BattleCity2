@@ -9,7 +9,7 @@ std::shared_ptr<sf::Text> TextHolder::GetText(EText aText) const
   return mResourceHolder.Get(aText);
 }
 
-void TextHolder::Init() 
+void TextHolder::Init()
 {
   mFontHolder.Init();
 

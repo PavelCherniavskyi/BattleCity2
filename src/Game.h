@@ -1,15 +1,14 @@
 #pragma once
 #include <iostream>
 
-#include "Animation.h"
-#include "Bullet.h"
-#include "Category.h"
-#include "Entity.h"
+#include "Animation.hpp"
+#include "Bullet.hpp"
+#include "Entity.hpp"
 #include "InputHandler.hpp"
-#include "Map.h"
-#include "Player.h"
+#include "Map.hpp"
+#include "Player.hpp"
 #include "ResourceHolders/TextHolder.hpp"
-#include "Tank.h"
+#include "Tank.hpp"
 
 class Game
 {
@@ -23,7 +22,7 @@ private:
   void handleInput(sf::Time aTimePerFrame);
   void update(sf::Time elapsedTime);
   void render();
-  bool intersection(Category::Type category);
+  bool intersection(ECategory category);
   void updateStatistics(sf::Time elapsedTime);
   void draw();
   void stageRender();
@@ -37,13 +36,13 @@ private:
   TextHolder mTextHolder;
   sf::Time mStatisticsUpdateTime;
   std::size_t mStatisticsNumFrames;
-  std::multimap<Category::Type, Entity *> entities;
-  std::multimap<Textures::ID, Animation *> animations;
-  std::multimap<Textures::ID, BaseBonus *> bonuses;
+  std::multimap<ECategory, std::shared_ptr<Entity>> entities;
+  std::multimap<EImage, Animation *> animations;
+  std::multimap<EImage, BaseBonus *> bonuses;
   std::queue<Map *> mapSequence;
   Player player;
-  Player::Gamestates gameStage;
-  std::queue<Entity *> enemyTanks;
+  EGamestates gameStage;
+  std::queue<std::shared_ptr<Entity>> enemyTanks;
   const size_t enemyTanksQuantity;
   bool mIsMoving;
   RightPanel panel;

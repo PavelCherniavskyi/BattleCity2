@@ -1,21 +1,9 @@
-#include "../Map.h"
+#include "../Map.hpp"
+#include "../ResourceHolders/SpriteHolder.hpp"
 
+constexpr auto kWidthAndHeightTile = 16.f;
 
-void Map::draw(sf::RenderWindow & window)
-{
-	for (auto itr = lvl.begin(); itr != lvl.end(); itr++){
-		window.draw(*itr->second.sprite);
-	}
-}
-
-Map::~Map()
-{
-	for (auto itr = lvl.begin(); itr != lvl.end(); itr++){
-		delete itr->second.sprite;
-	}
-}
-
-char Map0::lvl_0_Map[kHeightMap][kWidthMap] = {
+const std::vector<std::string> kMap0{
 	"0000000000000000000000000000",
 	"0                          0",
 	"0                          0",
@@ -44,87 +32,11 @@ char Map0::lvl_0_Map[kHeightMap][kWidthMap] = {
 	"011         2  2           0",
 	"0           2  2           0",
 	"0000000000000000000000000000"
-
-
-
-
 };
 
 
-Map0::Map0()
-{
-	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < kHeightMap; i++)
-	for (size_t j = 0; j < kWidthMap; j++){
-		if (lvl_0_Map[i][j] == '0'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::MainWall, node));
 
-		}
-		else if (lvl_0_Map[i][j] == '1'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_1)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_1, node));
-
-		}
-		else if (lvl_0_Map[i][j] == '2'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_2)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;;
-			pos.top = static_cast<float>(i) * 16.f;;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_2, node));
-
-		}
-		else if (lvl_0_Map[i][j] == '3'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::GreenWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;;
-			pos.top = static_cast<float>(i) * 16.f;;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::GreenWall, node));
-
-		}
-		else if (lvl_0_Map[i][j] == '4'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::WaterWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;;
-			pos.top = static_cast<float>(i) * 16.f;;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::WaterWall, node));
-
-		}
-	}
-}
-
-
-char Map1::lvl_1_Map[kHeightMap][kWidthMap] = {
+const std::vector<std::string> kMap1{
 	"0000000000000000000000000000",
 	"0                          0",
 	"0                          0",
@@ -153,62 +65,9 @@ char Map1::lvl_1_Map[kHeightMap][kWidthMap] = {
 	"0           1  1           0",
 	"0           1  1           0",
 	"0000000000000000000000000000"
-	
-	
-	
-	
 };
 
-
-Map1::Map1() 
-{
-	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < kHeightMap; i++)
-	for (size_t j = 0; j < kWidthMap; j++){
-		if (lvl_1_Map[i][j] == '0'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::MainWall, node));
-			
-		}
-		else if (lvl_1_Map[i][j] == '1'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_1)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_1, node));
-
-		}
-		else if (lvl_1_Map[i][j] == '2'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_2)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_2, node));
-
-		}
-	}
-	//std::cout << "Map Created" << std::endl;
-}
-
-
-char Map2::lvl_2_Map[kHeightMap][kWidthMap] = {
+const std::vector<std::string> kMap2{
 	"0000000000000000000000000000",
 	"0      22      22          0",
 	"0      22      22          0",
@@ -239,68 +98,7 @@ char Map2::lvl_2_Map[kHeightMap][kWidthMap] = {
 	"0000000000000000000000000000"
 };
 
-
-Map2::Map2()
-{
-	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < kHeightMap; i++)
-	for (size_t j = 0; j < kWidthMap; j++){
-		if (lvl_2_Map[i][j] == '0'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::MainWall, node));
-
-		}
-		else if (lvl_2_Map[i][j] == '1'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_1)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_1, node));
-
-		}
-		else if (lvl_2_Map[i][j] == '2'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_2)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_2, node));
-
-		}
-		else if (lvl_2_Map[i][j] == '3'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::GreenWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::GreenWall, node));
-
-		}
-	}
-	//std::cout << "Map Created" << std::endl;
-}
-
-char Map3::lvl_3_Map[kHeightMap][kWidthMap] = {
+const std::vector<std::string> kMap3{
 	"0000000000000000000000000000",
 	"0        11      11        0",
 	"0        11      11        0",
@@ -329,74 +127,9 @@ char Map3::lvl_3_Map[kHeightMap][kWidthMap] = {
 	"0221111     1  1   11      0",
 	"0221111     1  1   11      0",
 	"0000000000000000000000000000"
-
-
-
-
 };
 
-
-Map3::Map3()
-{
-	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < kHeightMap; i++)
-	for (size_t j = 0; j < kWidthMap; j++){
-		if (lvl_3_Map[i][j] == '0'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::MainWall, node));
-
-		}
-		else if (lvl_3_Map[i][j] == '1'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_1)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_1, node));
-
-		}
-		else if (lvl_3_Map[i][j] == '2'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_2)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_2, node));
-
-		}
-		else if (lvl_3_Map[i][j] == '3'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::GreenWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::GreenWall, node));
-
-		}
-	}
-	//std::cout << "Map Created" << std::endl;
-}
-
-char Map4::lvl_4_Map[kHeightMap][kWidthMap] = {
+const std::vector<std::string> kMap4{
 	"0000000000000000000000000000",
 	"0        1111              0",
 	"0        1111              0",
@@ -425,82 +158,123 @@ char Map4::lvl_4_Map[kHeightMap][kWidthMap] = {
 	"011         1  1           0",
 	"0           1  1           0",
 	"0000000000000000000000000000"
-
-
-
-
 };
 
+const std::vector<std::vector<std::string>> kMaps{kMap0, kMap1, kMap2, kMap3, kMap4};
 
-Map4::Map4()
+bool setUpInit(EImage aImage, const sf::Vector2f& aSpritePos, std::unordered_multimap<EImage, Node>& aLevelMap)
 {
-	//std::cout << "Map Creation begin!" << std::endl;
-	for (size_t i = 0; i < kHeightMap; i++)
-	for (size_t j = 0; j < kWidthMap; j++){
-		if (lvl_4_Map[i][j] == '0'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::MainWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::MainWall, node));
+	auto sprite = SpriteHolder::GetSprite(aImage);
+	if(!sprite || sprite->empty())
+	{
+		SPDLOG_ERROR("Sprite is empty");
+		return false;
+	}
 
+	sprite->at(0).setPosition(aSpritePos);
+	sf::FloatRect pos{aSpritePos.x, aSpritePos.y, kWidthAndHeightTile, kWidthAndHeightTile};
+	Node node(pos, sprite->at(0));
+	aLevelMap.insert(std::make_pair(aImage, node));
+
+	return true;
+}
+
+Map::Map(size_t aMapIndex)
+	: mLevelMap()
+	, mMapIndex(aMapIndex)
+{
+}
+
+void Map::Draw(sf::RenderWindow& window)
+{
+	for(const auto& pair: mLevelMap)
+	{
+		window.draw(pair.second.Sprite);
+	}
+}
+
+std::unordered_multimap<EImage, Node>& Map::GetMap()
+{
+	return mLevelMap;
+}
+
+bool Map::Init()
+{
+	//check correct map size
+	for(const auto& map : kMaps)
+	{
+		if(map.size() != kHeightMap)
+		{
+			SPDLOG_ERROR("Map height is not correct");
+			return false;
 		}
-		else if (lvl_4_Map[i][j] == '1'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_1)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_1, node));
-
-		}
-		else if (lvl_4_Map[i][j] == '2'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::Wall_2)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::Wall_2, node));
-
-		}
-		else if (lvl_4_Map[i][j] == '3'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::GreenWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::GreenWall, node));
-
-		}
-		else if (lvl_4_Map[i][j] == '4'){
-			sf::Sprite * sprite = new sf::Sprite(resourses.getTexturePtr(Textures::WaterWall)[0]);
-			sprite->setPosition(static_cast<float>(j * 16), static_cast<float>(i * 16));
-			sprite->setScale(2, 2);
-			sf::FloatRect pos;
-			pos.left = static_cast<float>(j) * 16.f;
-			pos.top = static_cast<float>(i) * 16.f;
-			pos.height = 16.f;
-			pos.width = 16.f;
-			Node node(pos, sprite);
-			lvl.insert(std::make_pair(Textures::WaterWall, node));
-
+		for(const auto& widthMap: map)
+		{
+			if(widthMap.size() != kWidthMap)
+			{
+				SPDLOG_ERROR("Map height is not correct");
+				return false;
+			}
 		}
 	}
-	//std::cout << "Map Created" << std::endl;
+
+	auto currentMap = kMaps[mMapIndex];
+
+	for (size_t i = 0; i < kHeightMap; i++)
+	{
+		for (size_t j = 0; j < kWidthMap; j++){
+			if (currentMap[i][j] == '0'){
+				if(!setUpInit(EImage::MAINWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				{
+					return false;
+				}
+			}
+			else if (currentMap[i][j] == '1'){
+				if(!setUpInit(EImage::WALL_1, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				{
+					return false;
+				}
+			}
+			else if (currentMap[i][j] == '2'){
+				if(!setUpInit(EImage::WALL_2, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				{
+					return false;
+				}
+			}
+			else if (currentMap[i][j] == '3'){
+				if(!setUpInit(EImage::GREENWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				{
+					return false;
+				}
+			}
+			else if (currentMap[i][j] == '4'){
+				if(!setUpInit(EImage::WATERWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+Map0::Map0() : Map(0u)
+{
+}
+
+Map1::Map1() : Map(1u)
+{
+}
+
+Map2::Map2() : Map(2u)
+{
+}
+
+Map3::Map3() : Map(3u)
+{
+}
+
+Map4::Map4() : Map(4u)
+{
 }

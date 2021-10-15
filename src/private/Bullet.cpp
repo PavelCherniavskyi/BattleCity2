@@ -1,86 +1,85 @@
-#include "../Bullet.h"
+#include "../Bullet.hpp"
+#include "../ResourceHolders/SpriteHolder.hpp"
 
-BulletBase::~BulletBase(){}
+constexpr auto kBulletSpriteSize = 1u;
 
-SimpleBullet::SimpleBullet()
+bool setInit(std::shared_ptr<BulletBase> aBullet, const float aScale)
 {
-	spr = new sf::Sprite(resourses.getTexturePtr(Textures::Bullet)[0]);
+  auto sprites = SpriteHolder::GetSprite(EImage::BULLET);
+  if (!sprites || sprites->size() != kBulletSpriteSize || !aBullet)
+  {
+    SPDLOG_ERROR("Sprite is incorrect");
+    return false;
+  }
 
-	spr->setScale(2.f, 2.f);
-	auto height = static_cast<float>(spr->getTextureRect().height);
-	auto width = static_cast<float>(spr->getTextureRect().width);
-	spr->setOrigin(height / 2.f, width / 2.f);
+  aBullet->mSprite = *sprites;
+  aBullet->mSprite[0].setScale(aScale, aScale);
+  auto height = static_cast<float>(aBullet->mSprite[0].getTextureRect().height);
+  auto width = static_cast<float>(aBullet->mSprite[0].getTextureRect().width);
+  aBullet->mSprite[0].setOrigin(height / 2.f, width / 2.f);
 
-
+  return true;
 }
 
-SimpleBullet::~SimpleBullet()
+bool SimpleBullet::Init()
 {
-	delete spr;
+  return setInit(shared_from_this(), 2.f);
 }
 
-SuperBullet::SuperBullet()
+bool SuperBullet::Init()
 {
-	spr = new sf::Sprite(resourses.getTexturePtr(Textures::Bullet)[0]);
-
-	spr->setScale(3.f, 3.f);
-	auto height = static_cast<float>(spr->getTextureRect().height);
-	auto width = static_cast<float>(spr->getTextureRect().width);
-	spr->setOrigin(height / 2.f, width / 2.f);
-
-
-	//std::cout << "SuperBullet created!" << std::endl;
+  return setInit(shared_from_this(), 3.f);
 }
 
-SuperBullet::~SuperBullet()
+void BulletBase::Draw(sf::RenderWindow& window)
 {
-	delete spr;
+  window.draw(mSprite[0]);
 }
 
-void BulletBase::draw(sf::RenderWindow & window)
+void BulletBase::Update(const sf::Vector2f& aOffset)
 {
-		window.draw(*spr);
+  mSprite[0].move(aOffset);
 }
 
-void BulletBase::update(const sf::Vector2f vector)
+void BulletBase::Rotate(EActions aAction)
 {
-	spr->move(vector);
+  switch (aAction)
+  {
+  case +EActions::LEFT:
+    mSprite[0].setRotation(270.f);
+    break;
+  case +EActions::RIGHT:
+    mSprite[0].setRotation(90.f);
+    break;
+  case +EActions::UP:
+    mSprite[0].setRotation(0.f);
+    break;
+  case +EActions::DOWN:
+    mSprite[0].setRotation(180.f);
+    break;
+  case +EActions::FIRE:
+    break;
+  default:
+    break;
+  }
 }
 
-void BulletBase::rotate(actions action)
+sf::FloatRect BulletBase::GetGlobalBounds() const
 {
-	switch (action)
-	{
-
-	case Entity::Left:
-			spr->setRotation(270.f);
-		break;
-	case Entity::Right:
-			spr->setRotation(90.f);
-		break;
-	case Entity::Up:
-			spr->setRotation(0.f);
-		break;
-	case Entity::Down:
-			spr->setRotation(180.f);
-		break;
-	case Entity::Fire:
-		break;
-	}
-
+  return mSprite[0].getGlobalBounds();
 }
 
-sf::FloatRect	BulletBase::getGlobalBounds()
+sf::FloatRect BulletBase::GetLocalBounds() const
 {
-	return spr->getGlobalBounds();
+  return mSprite[0].getLocalBounds();
 }
 
-sf::FloatRect	BulletBase::getLocalBounds()
+void BulletBase::SetPosition(const sf::Vector2f& aPosition)
 {
-	return spr->getLocalBounds();
+  mSprite[0].setPosition(aPosition);
 }
 
-void BulletBase::setPosition(float x, float y)
+const std::vector<sf::Sprite>& BulletBase::GetSprite() const
 {
-	spr->setPosition(x, y);
+  return mSprite;
 }

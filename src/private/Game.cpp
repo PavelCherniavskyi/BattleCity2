@@ -1,7 +1,7 @@
 #include "../Game.h"
 
 #include "../Definitions.hpp"
-#include "../StringHelpers.h"
+#include "../ResourceHolders/SpriteHolder.hpp"
 #include "config.h"
 
 Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
@@ -15,7 +15,7 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , bonuses{}
   , mapSequence{}
   , player(entities, animations, gameStage, enemyTanks, mapSequence, panel, bonuses)
-  , gameStage(Player::Gamestates::runing)
+  , gameStage(EGamestates::RUNNING)
   , enemyTanksQuantity(20)
   , panel(0, enemyTanksQuantity, 1u, 0)
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
@@ -34,7 +34,7 @@ void Game::run()
     {
       // std::cout << "Check1" << std::endl;
       timeSinceLastUpdate -= kTimePerFrame;
-      if (gameStage != Player::Gamestates::gameOver && gameStage != Player::Gamestates::win)
+      if (gameStage != +EGamestates::GAME_OVER && gameStage != +EGamestates::WIN)
       {
         handleInput(kTimePerFrame);
         if (mIsPaused)
@@ -52,14 +52,14 @@ void Game::run()
 
 void Game::Init()
 {
-  Resourses::Init();
+  SpriteHolder::Init();
   mTextHolder.Init();
   tankLoad(1);
   mIsPaused = false;
   mWindow.setKeyRepeatEnabled(false);
   player.Init();
-  panel.setCurrentMissles(player.getPlayerTank()->superClipSize());
-  panel.setCurrentLives(static_cast<std::size_t>(player.getPlayerTank()->getHP()));
+  panel.SetCurrentMissles(player.getPlayerTank()->GetSuperClipSize());
+  panel.SetCurrentLives(static_cast<std::size_t>(player.getPlayerTank()->GetHP()));
   panel.Init();
 }
 
@@ -91,34 +91,34 @@ void Game::update(sf::Time elapsedTime)
   Player::rangePtr retEnemyTank;
 
   // Update for bullets
-  retBullet = entities.equal_range(Category::Bullet);
+  retBullet = entities.equal_range(ECategory::BULLET);
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    itrBullet->second->update(itrBullet->second->getVelocity() * elapsedTime.asSeconds());
+    itrBullet->second->Update(itrBullet->second->GetVelocity() * elapsedTime.asSeconds());
     if (player.isIntersectsBullet())
     {
       break;
     }
   }
   // std::cout << "update1" << std::endl;
-  retSuperBullet = entities.equal_range(Category::SuperBullet);
+  retSuperBullet = entities.equal_range(ECategory::SUPERBULLET);
   // Update for SuperBullets
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    itrSuperBullet->second->update(itrSuperBullet->second->getVelocity() * elapsedTime.asSeconds());
+    itrSuperBullet->second->Update(itrSuperBullet->second->GetVelocity() * elapsedTime.asSeconds());
     if (player.isIntersectsSuperBullet())
     {
       break;
     }
   }
   // Update for Enemy tanks
-  retEnemyTank = entities.equal_range(Category::EnemyTank);
+  retEnemyTank = entities.equal_range(ECategory::ENEMYTANK);
   for (auto itrTank = retEnemyTank.first; itrTank != retEnemyTank.second; itrTank++)
   {
-    itrTank->second->update(itrTank->second->getVelocity() * elapsedTime.asSeconds());
+    itrTank->second->Update(itrTank->second->GetVelocity() * elapsedTime.asSeconds());
     if (player.isIntersectsEnemy())
     {
-      itrTank->second->updateBack(itrTank->second->getVelocity() * elapsedTime.asSeconds());
+      itrTank->second->UpdateBack(itrTank->second->GetVelocity() * elapsedTime.asSeconds());
       player.handleEnemyTanks(itrTank->second);
     }
     player.handleEnemyFire(kTimePerFrame, itrTank->second);
@@ -127,7 +127,7 @@ void Game::update(sf::Time elapsedTime)
   // Update for Animation
   for (auto itrAnim = animations.begin(); itrAnim != animations.end(); itrAnim++)
   {
-    if (itrAnim->second->isAlife())
+    if (itrAnim->second->IsAlife())
     {
       itrAnim->second->update();
     }
@@ -161,14 +161,14 @@ void Game::stageRender()
   static sf::Clock clock;
   if (forClockRestart)
     clock.restart();
-  auto checkIfEmpty = entities.find(Category::EnemyTank);
-  auto checkIfPlayerAlife = entities.find(Category::PlayerTank);
+  auto checkIfEmpty = entities.find(ECategory::ENEMYTANK);
+  auto checkIfPlayerAlife = entities.find(ECategory::PLAYERTANK);
   if (checkIfEmpty == entities.end() 
       && mapSequence.size() > 1 
       && checkIfPlayerAlife != entities.end() 
       && enemyTanks.empty())
   {
-    gameStage = Player::Gamestates::nextLvl;
+    gameStage = EGamestates::NEXT_LVL;
     forClockRestart = false;
   }
   else if (checkIfEmpty == entities.end() 
@@ -176,12 +176,12 @@ void Game::stageRender()
       && checkIfPlayerAlife != entities.end() 
       && enemyTanks.empty())
   {
-    gameStage = Player::Gamestates::win;
+    gameStage = EGamestates::WIN;
     forClockRestart = false;
     // std::cout << "win" << std::endl;
   }
 
-  if (gameStage == Player::Gamestates::runing)
+  if (gameStage == +EGamestates::RUNNING)
   {
     auto text = mTextHolder.GetText(EText::STATISTIC);
     if (text)
@@ -207,7 +207,7 @@ void Game::stageRender()
     }
   }
 
-  else if (gameStage == Player::Gamestates::gameOver)
+  else if (gameStage == +EGamestates::GAME_OVER)
   {
     auto text = mTextHolder.GetText(EText::GAME_OVER);
     if (text)
@@ -225,7 +225,7 @@ void Game::stageRender()
       mWindow.close();
     }
   }
-  else if (gameStage == Player::Gamestates::nextLvl)
+  else if (gameStage == +EGamestates::NEXT_LVL)
   {
     auto text = mTextHolder.GetText(EText::NEXT_LVL);
     if (text)
@@ -243,7 +243,7 @@ void Game::stageRender()
       forClockRestart = true;
     }
   }
-  else if (gameStage == Player::Gamestates::win)
+  else if (gameStage == +EGamestates::WIN)
   {
     auto text = mTextHolder.GetText(EText::WIN);
     if (text)
@@ -265,16 +265,13 @@ void Game::stageRender()
 void Game::nextLvlInitialize()
 {
   mapSequence.pop();
-  panel.resetIcons();
+  panel.ResetIcons();
 
-  panel.setCurrentLvl(1);
-  // std::cout << panel.getCurrentLvl() << std::endl;
-  tankLoad(panel.getCurrentLvl());
-  auto TankPos = entities.find(Category::PlayerTank);
-  Tank *tank = dynamic_cast<Tank *>(TankPos->second);
-  tank->setInitialPosition();
-  // TankPos->second->rotate(Entity::actions::Up);
-  gameStage = Player::Gamestates::runing;
+  panel.IncrementCurrentLvl();
+  tankLoad(panel.GetCurrentLvl());
+  auto TankPos = entities.find(ECategory::PLAYERTANK);
+  TankPos->second->SetInitialPosition();
+  gameStage = EGamestates::RUNNING;
 }
 
 void Game::tankLoad(size_t levl)
@@ -284,66 +281,66 @@ void Game::tankLoad(size_t levl)
   case 1:
     for (int i = 0; i < 18; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_10));
+      enemyTanks.push(std::make_shared<EnemyTank_10>());
     }
     for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_20));
+      enemyTanks.push(std::make_shared<EnemyTank_20>());
     }
     break;
   case 2:
     for (int i = 0; i < 14; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_10));
+      enemyTanks.push(std::make_shared<EnemyTank_10>());
     }
     for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_20));
+      enemyTanks.push(std::make_shared<EnemyTank_20>());
     }
 
     for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_30));
+      enemyTanks.push(std::make_shared<EnemyTank_30>());
     }
     break;
   case 3:
     for (int i = 0; i < 10; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_10));
+      enemyTanks.push(std::make_shared<EnemyTank_10>());
     }
     for (int i = 0; i < 6; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_20));
+      enemyTanks.push(std::make_shared<EnemyTank_20>());
     }
 
     for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_30));
+      enemyTanks.push(std::make_shared<EnemyTank_30>());
     }
     break;
   case 4:
     for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_10));
+      enemyTanks.push(std::make_shared<EnemyTank_10>());
     }
     for (int i = 0; i < 8; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_20));
+      enemyTanks.push(std::make_shared<EnemyTank_20>());
     }
 
     for (int i = 0; i < 6; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_30));
+      enemyTanks.push(std::make_shared<EnemyTank_30>());
     }
     for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_40));
+      enemyTanks.push(std::make_shared<EnemyTank_40>());
     }
     break;
   default:
     for (int i = 0; i < 20; i++)
     {
-      enemyTanks.push(new Tank(Category::EnemyTank, Textures::Enemy_40));
+      enemyTanks.push(std::make_shared<EnemyTank_40>());
     }
     break;
   }
@@ -371,8 +368,8 @@ void Game::updateStatistics(sf::Time elapsedTime)
     auto text = mTextHolder.GetText(EText::STATISTIC);
     if (text)
     {
-      text->setString("Frames / Second = " + toString(mStatisticsNumFrames) + "\n"
-                      + "Time / Update = " + toString(mStatisticsUpdateTime.asMicroseconds() / static_cast<sf::Int64>(mStatisticsNumFrames)) + "us");
+      text->setString("Frames / Second = " + std::to_string(mStatisticsNumFrames) + "\n"
+                      + "Time / Update = " + std::to_string(mStatisticsUpdateTime.asMicroseconds() / static_cast<sf::Int64>(mStatisticsNumFrames)) + "us");
     }
     else
     {
@@ -387,25 +384,25 @@ void Game::updateStatistics(sf::Time elapsedTime)
 void Game::draw()
 {
   // Draw for All entities
-  for (auto itr = entities.begin(); itr != entities.end(); itr++) itr->second->draw(mWindow);
+  for (auto itr = entities.begin(); itr != entities.end(); itr++) itr->second->Draw(mWindow);
 
   // Draw for map
-  mapSequence.front()->draw(mWindow);
+  mapSequence.front()->Draw(mWindow);
 
   // Draw for Bonuses
   for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
   {
-    itrBonus->second->draw(mWindow);
+    itrBonus->second->Draw(mWindow);
   }
 
   // Draw for Animation
   for (auto itrAnim = animations.begin(); itrAnim != animations.end(); itrAnim++)
   {
-    itrAnim->second->draw(mWindow);
+    itrAnim->second->Draw(mWindow);
   }
 
   // Draw for Right Panel
-  panel.draw(mWindow);
+  panel.Draw(mWindow);
 }
 
 Game::~Game()
