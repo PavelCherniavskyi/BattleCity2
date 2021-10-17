@@ -6,15 +6,15 @@ constexpr size_t kBonusMisslePackSize = 5u;
 constexpr size_t kBonusLifePackSize = 1u;
 constexpr size_t kBonusStarPackSize = 1u;
 
-bool setInit(const std::shared_ptr<BaseBonus> aBaseBonusPtr, const float aScale)
+bool BaseBonus::setInit(BaseBonus& aBaseBonus, const float aScale)
 {
   std::shared_ptr<std::vector<sf::Sprite>> spritesPtr;
 
-  if (aBaseBonusPtr && (spritesPtr = SpriteHolder::GetSprite(aBaseBonusPtr->mType))
+  if ((spritesPtr = SpriteHolder::GetSprite(aBaseBonus.mType))
       && spritesPtr->size() == kBonusSpriteSize)
   {
-    aBaseBonusPtr->mSprite = spritesPtr->at(0);
-    aBaseBonusPtr->mSprite.setScale(aScale, aScale);
+    aBaseBonus.mSprite = spritesPtr->at(0);
+    aBaseBonus.mSprite.setScale(aScale, aScale);
   }
   else
   {
@@ -78,7 +78,7 @@ BonusStar::BonusStar()
 
 bool BonusStar::Init()
 {
-	return setInit(shared_from_this(), 2.f);
+	return setInit(*this, 2.f);
 }
 
 BonusMissle::BonusMissle()
@@ -88,7 +88,7 @@ BonusMissle::BonusMissle()
 
 bool BonusMissle::Init()
 {
-  return setInit(shared_from_this(), 2.f);
+  return setInit(*this, 2.f);
 }
 
 BonusLife::BonusLife()
@@ -98,5 +98,5 @@ BonusLife::BonusLife()
 
 bool BonusLife::Init()
 {
-  return setInit(shared_from_this(), 2.f);
+  return setInit(*this, 2.f);
 }

@@ -44,39 +44,40 @@ constexpr auto kEnemy_40TankHP = 3;
 constexpr auto kEnemy_40TankBulletFrequency = 1.f;
 constexpr auto kEnemy_40TankScale = 1.8f;
 
-std::shared_ptr<BulletBase> setupBullet(std::shared_ptr<BulletBase> aBullet, std::shared_ptr<BaseTank> aBaseTank)
+std::shared_ptr<BulletBase> setupBullet(std::shared_ptr<BulletBase> aBullet, BaseTank& aBaseTank)
 {
-  if (!aBullet || !aBaseTank)
+  if (!aBullet)
   {
+    SPDLOG_ERROR("Bullet is null");
     return nullptr;
   }
 
-  aBullet->SetSpeed(aBaseTank->GetBulletSpeed());
-  sf::Vector2f entVelocity = aBaseTank->GetVelocity() / aBaseTank->GetSpeed();
-  aBullet->SetVelocity(entVelocity * aBaseTank->GetBulletSpeed());
+  aBullet->SetSpeed(aBaseTank.GetBulletSpeed());
+  sf::Vector2f entVelocity = aBaseTank.GetVelocity() / aBaseTank.GetSpeed();
+  aBullet->SetVelocity(entVelocity * aBaseTank.GetBulletSpeed());
 
   if (entVelocity.y < 0)
   { // Up
-    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width / 2 + 1,
-      aBaseTank->GetGlobalBounds().top - 10 });
+    aBullet->SetPosition({ aBaseTank.GetGlobalBounds().left + aBaseTank.GetGlobalBounds().width / 2 + 1,
+      aBaseTank.GetGlobalBounds().top - 10 });
     aBullet->Rotate(EActions::UP);
   }
   else if (entVelocity.y > 0)
   { // Down
-    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width / 2 - 1,
-      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height + 10 });
+    aBullet->SetPosition({ aBaseTank.GetGlobalBounds().left + aBaseTank.GetGlobalBounds().width / 2 - 1,
+      aBaseTank.GetGlobalBounds().top + aBaseTank.GetGlobalBounds().height + 10 });
     aBullet->Rotate(EActions::DOWN);
   }
   else if (entVelocity.x < 0)
   { // Left
-    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left - 10,
-      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height / 2 - 1 });
+    aBullet->SetPosition({ aBaseTank.GetGlobalBounds().left - 10,
+      aBaseTank.GetGlobalBounds().top + aBaseTank.GetGlobalBounds().height / 2 - 1 });
     aBullet->Rotate(EActions::LEFT);
   }
   else if (entVelocity.x > 0)
   { // Right
-    aBullet->SetPosition({ aBaseTank->GetGlobalBounds().left + aBaseTank->GetGlobalBounds().width + 10,
-      aBaseTank->GetGlobalBounds().top + aBaseTank->GetGlobalBounds().height / 2 + 1 });
+    aBullet->SetPosition({ aBaseTank.GetGlobalBounds().left + aBaseTank.GetGlobalBounds().width + 10,
+      aBaseTank.GetGlobalBounds().top + aBaseTank.GetGlobalBounds().height / 2 + 1 });
     aBullet->Rotate(EActions::RIGHT);
   }
 
@@ -132,6 +133,10 @@ std::shared_ptr<BulletBase> BaseTank::DoFire(ECategory aCategory)
   if (aCategory == +ECategory::BULLET)
   {
     bullet = std::make_unique<SimpleBullet>();
+    if(!bullet->Init())
+    {
+      return nullptr;
+    }
   }
   else if(aCategory == +ECategory::SUPERBULLET && !mSuperBulletClip.empty())
   {
@@ -139,7 +144,7 @@ std::shared_ptr<BulletBase> BaseTank::DoFire(ECategory aCategory)
     mSuperBulletClip.pop();
   }
 
-  return setupBullet(std::move(bullet), shared_from_this());
+  return setupBullet(std::move(bullet), *this);
 }
 
 void BaseTank::SetBulletFrequency(const float aBulletFrequency)
@@ -238,7 +243,9 @@ void BaseTank::SuperClipLoad(const size_t mCount)
 {
   for (size_t i = 0; i < mCount; i++)
   {
-    mSuperBulletClip.push(std::make_unique<SuperBullet>());
+    auto bullet = std::make_unique<SuperBullet>();
+    bullet->Init();
+    mSuperBulletClip.push(std::move(bullet));
   }
 }
 
@@ -286,7 +293,13 @@ bool PlayerTank::Init()
 
   for (size_t i = 0; i < kPlayerTankSuperBulletClipSize; i++)
   {
-    mSuperBulletClip.push(std::make_unique<SuperBullet>());
+    auto bullet = std::make_unique<SuperBullet>();
+    if(!bullet->Init())
+    {
+      SPDLOG_ERROR("Something wrong with SuperBullet");
+      return false;
+    }
+    mSuperBulletClip.push(std::move(bullet));
   }
   for (size_t i = 0; i < kTankSpritesCount; i++)
   {

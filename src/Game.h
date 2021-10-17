@@ -14,9 +14,8 @@ class Game
 {
 public:
   Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
-  ~Game();
   void run();
-  void Init();
+  bool Init();
 
 private:
   void handleInput(sf::Time aTimePerFrame);
@@ -27,7 +26,7 @@ private:
   void draw();
   void stageRender();
   void nextLvlInitialize();
-  void tankLoad(size_t);
+  bool tankLoad(size_t);
   void textInitialization();
 
 private:
@@ -37,12 +36,12 @@ private:
   sf::Time mStatisticsUpdateTime;
   std::size_t mStatisticsNumFrames;
   std::multimap<ECategory, std::shared_ptr<Entity>> entities;
-  std::multimap<EImage, Animation *> animations;
-  std::multimap<EImage, BaseBonus *> bonuses;
-  std::queue<Map *> mapSequence;
+  std::multimap<EImage, std::shared_ptr<Animation>> animations;
+  std::multimap<EImage, std::shared_ptr<BaseBonus>> bonuses;
+  std::vector<std::shared_ptr<Map>> mapSequence;
   Player player;
   EGamestates gameStage;
-  std::queue<std::shared_ptr<Entity>> enemyTanks;
+  std::vector<std::shared_ptr<Entity>> enemyTanks;
   const size_t enemyTanksQuantity;
   bool mIsMoving;
   RightPanel panel;

@@ -9,14 +9,13 @@ std::shared_ptr<sf::Text> TextHolder::GetText(EText aText) const
   return mResourceHolder.Get(aText);
 }
 
-void TextHolder::Init()
+bool TextHolder::Init()
 {
-  mFontHolder.Init();
-
-  auto sansationFont = mFontHolder.GetFont(EFont::SANSATION);
-  if (!sansationFont) {
+  std::shared_ptr<sf::Font> sansationFont = nullptr;
+  if (!mFontHolder.Init() || !(sansationFont = mFontHolder.GetFont(EFont::SANSATION)))
+  {
     SPDLOG_ERROR("Font is not found.");
-    return;
+    return false;
   }
 
   sf::Text mStatisticsText;
@@ -44,4 +43,6 @@ void TextHolder::Init()
   pause.setStyle(sf::Text::Bold);
   pause.setPosition(130.f, 190.f);
   mResourceHolder.Insert(EText::PAUSE, std::move(pause));
+
+  return true;
 }

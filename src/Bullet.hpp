@@ -4,9 +4,7 @@
 #include "Entity.hpp"
 #include "Enums.hpp"
 
-class BulletBase
-  : public Entity
-  , public std::enable_shared_from_this<BulletBase>
+class BulletBase : public Entity
 {
 public:
   ~BulletBase() = default;
@@ -19,10 +17,11 @@ public:
   const std::vector<sf::Sprite>& GetSprite() const override;
   const sf::Vector2f& GetPosition() const;
 
-  friend bool setInit(std::shared_ptr<BulletBase> aBullet, const float aScale);
+protected:
+  bool setInit(BulletBase& aBullet, const float aScale);
 
 protected:
-  std::vector<sf::Sprite> mSprite;
+  std::vector<sf::Sprite> mSprite;  
 };
 
 class SimpleBullet : public BulletBase

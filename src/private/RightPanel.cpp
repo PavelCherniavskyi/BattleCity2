@@ -5,8 +5,9 @@
 constexpr auto kNumbersSize = 10u;
 constexpr auto kNumbersScale = 2.f;
 constexpr auto kPanelWindosDigitSize = 2u;
+constexpr auto kTanksQuantity = 20u;
 
-RightPanel::RightPanel(size_t aLives, size_t aLevel, size_t aMissles, size_t aTanks)
+RightPanel::RightPanel(size_t aLives, size_t aLevel, size_t aMissles)
   : mPanel()
   , mTankIcons()
   , mNumbers(kNumbersSize)
@@ -16,7 +17,6 @@ RightPanel::RightPanel(size_t aLives, size_t aLevel, size_t aMissles, size_t aTa
   , mCurrentLives(aLives)
   , mCurrentLvl(aLevel)
   , mCurrentMissles(aMissles)
-  , mTanksQuantity(aTanks)
 {
 }
 
@@ -96,22 +96,22 @@ void RightPanel::ResetIcons()
 
   mTankIcons.clear();
 
-  for (size_t i = 0; i < mTanksQuantity; i++)
+  for (size_t i = 0; i < kTanksQuantity; i++)
   {
-    sf::Sprite spite = sprite->at(0);
-    spite.setScale(2, 2);
+    sf::Sprite tank = sprite->at(0);
+    tank.setScale(2, 2);
     if (set)
     {
-      spite.setPosition(X1, Y);
+      tank.setPosition(X1, Y);
       set = false;
     }
     else
     {
-      spite.setPosition(X2, Y);
+      tank.setPosition(X2, Y);
       set = true;
       Y += 16;
     }
-    mTankIcons.emplace_back(spite);
+    mTankIcons.emplace_back(std::move(tank));
   }
 }
 

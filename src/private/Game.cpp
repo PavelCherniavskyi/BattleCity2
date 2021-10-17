@@ -5,7 +5,7 @@
 #include "config.h"
 
 Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
-  : mWindow(sf::VideoMode(kWidthScreen + kWidthRightPanel * 2, kHeightScreen), "Battle City", sf::Style::Close)
+  : mWindow(sf::VideoMode(kWidthScreen + kWidthRightPanel * 2, kHeightScreen), "Battle City 2", sf::Style::Close)
   , mIsPaused(false)
   , mTextHolder()
   , mStatisticsUpdateTime()
@@ -17,7 +17,7 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , player(entities, animations, gameStage, enemyTanks, mapSequence, panel, bonuses)
   , gameStage(EGamestates::RUNNING)
   , enemyTanksQuantity(20)
-  , panel(0, enemyTanksQuantity, 1u, 0)
+  , panel(0, enemyTanksQuantity, 1u)
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
 {
 }
@@ -50,17 +50,20 @@ void Game::run()
   }
 }
 
-void Game::Init()
+bool Game::Init()
 {
-  SpriteHolder::Init();
-  mTextHolder.Init();
-  tankLoad(1);
+  if(!SpriteHolder::Init() || !mTextHolder.Init() || !tankLoad(1) || !player.Init() || !panel.Init())
+  {
+    SPDLOG_ERROR("Init failure");
+    return false;
+  }
+
   mIsPaused = false;
   mWindow.setKeyRepeatEnabled(false);
-  player.Init();
   panel.SetCurrentMissles(player.getPlayerTank()->GetSuperClipSize());
   panel.SetCurrentLives(static_cast<std::size_t>(player.getPlayerTank()->GetHP()));
-  panel.Init();
+  
+  return true;
 }
 
 void Game::handleInput(sf::Time aTimePerFrame)
@@ -100,7 +103,6 @@ void Game::update(sf::Time elapsedTime)
       break;
     }
   }
-  // std::cout << "update1" << std::endl;
   retSuperBullet = entities.equal_range(ECategory::SUPERBULLET);
   // Update for SuperBullets
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
@@ -133,10 +135,7 @@ void Game::update(sf::Time elapsedTime)
     }
     else
     {
-      auto temp = itrAnim;
-      itrAnim->second->~Animation();
-      animations.erase(temp);
-      itrAnim = animations.begin();
+      animations.erase(itrAnim);
       break;
     }
   }
@@ -264,7 +263,7 @@ void Game::stageRender()
 
 void Game::nextLvlInitialize()
 {
-  mapSequence.pop();
+  mapSequence.pop_back();
   panel.ResetIcons();
 
   panel.IncrementCurrentLvl();
@@ -274,79 +273,86 @@ void Game::nextLvlInitialize()
   gameStage = EGamestates::RUNNING;
 }
 
-void Game::tankLoad(size_t levl)
+bool Game::tankLoad(size_t levl)
 {
   switch (levl)
   {
   case 1:
-    for (int i = 0; i < 18; i++)
-    {
-      enemyTanks.push(std::make_shared<EnemyTank_10>());
-    }
     for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_20>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_20>());
+    }
+    for (int i = 0; i < 18; i++)
+    {
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_10>());
     }
     break;
   case 2:
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_10>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_30>());
     }
     for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_20>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_20>());
     }
-
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 14; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_30>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_10>());
     }
     break;
   case 3:
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_10>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_30>());
     }
     for (int i = 0; i < 6; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_20>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_20>());
     }
-
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 10; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_30>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_10>());
     }
     break;
   case 4:
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_10>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_40>());
+    }
+    for (int i = 0; i < 6; i++)
+    {
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_30>());
     }
     for (int i = 0; i < 8; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_20>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_20>());
     }
-
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 2; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_30>());
-    }
-    for (int i = 0; i < 4; i++)
-    {
-      enemyTanks.push(std::make_shared<EnemyTank_40>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_10>());
     }
     break;
   default:
     for (int i = 0; i < 20; i++)
     {
-      enemyTanks.push(std::make_shared<EnemyTank_40>());
+      enemyTanks.emplace_back(std::make_shared<EnemyTank_40>());
     }
     break;
   }
 
+  for(auto& tank : enemyTanks)
+  {
+    if(!tank->Init())
+    {
+      SPDLOG_ERROR("Enemy tank init failed");
+      return false;
+    }
+  }
+
   player.handleEnemySpawn(kTimePerFrame); // initial start for check game states wouldn't get
                                           // nextLvl because of empty entity field
+  return true;
 }
 
 void Game::render()
@@ -384,10 +390,13 @@ void Game::updateStatistics(sf::Time elapsedTime)
 void Game::draw()
 {
   // Draw for All entities
-  for (auto itr = entities.begin(); itr != entities.end(); itr++) itr->second->Draw(mWindow);
+  for (auto itr = entities.begin(); itr != entities.end(); itr++)
+  {
+    itr->second->Draw(mWindow);
+  }
 
   // Draw for map
-  mapSequence.front()->Draw(mWindow);
+  mapSequence.back()->Draw(mWindow);
 
   // Draw for Bonuses
   for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
@@ -403,9 +412,4 @@ void Game::draw()
 
   // Draw for Right Panel
   panel.Draw(mWindow);
-}
-
-Game::~Game()
-{
-  for (auto itr = entities.begin(); itr != entities.end(); itr++) itr->second->~Entity();
 }

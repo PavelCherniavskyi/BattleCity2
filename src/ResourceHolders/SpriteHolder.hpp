@@ -13,7 +13,7 @@
 class SpriteHolder
 {
 public:
-   static void Init();
+   static bool Init();
    static std::shared_ptr<std::vector<sf::Sprite>> GetSprite(EImage aImage);
    static std::shared_ptr<std::vector<sf::Texture>> GetTexture(EImage aImage);
 private:

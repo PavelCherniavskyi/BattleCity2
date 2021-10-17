@@ -2,6 +2,7 @@
 #include "../ResourceHolders/SpriteHolder.hpp"
 
 constexpr auto kWidthAndHeightTile = 16.f;
+constexpr auto kScale = 2.f;
 
 const std::vector<std::string> kMap0{
 	"0000000000000000000000000000",
@@ -171,6 +172,11 @@ bool setUpInit(EImage aImage, const sf::Vector2f& aSpritePos, std::unordered_mul
 		return false;
 	}
 
+	if(aImage != +EImage::MAINWALL)
+	{
+		sprite->at(0).setScale(kScale, kScale);
+	}
+
 	sprite->at(0).setPosition(aSpritePos);
 	sf::FloatRect pos{aSpritePos.x, aSpritePos.y, kWidthAndHeightTile, kWidthAndHeightTile};
 	Node node(pos, sprite->at(0));
@@ -205,58 +211,63 @@ bool Map::Init()
 	{
 		if(map.size() != kHeightMap)
 		{
-			SPDLOG_ERROR("Map height is not correct");
+			SPDLOG_ERROR("Map height is not correct; actual: {}, expected: {}", map.size(), kHeightMap);
 			return false;
 		}
 		for(const auto& widthMap: map)
 		{
 			if(widthMap.size() != kWidthMap)
 			{
-				SPDLOG_ERROR("Map height is not correct");
+				SPDLOG_ERROR("Map width is not correct; actual: {}, expected: {}", widthMap.size(), kWidthMap);
 				return false;
 			}
 		}
 	}
 
-	auto currentMap = kMaps[mMapIndex];
+  auto currentMap = kMaps[mMapIndex];
 
-	for (size_t i = 0; i < kHeightMap; i++)
-	{
-		for (size_t j = 0; j < kWidthMap; j++){
-			if (currentMap[i][j] == '0'){
-				if(!setUpInit(EImage::MAINWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
-				{
+  for (size_t i = 0; i < kHeightMap; i++)
+  {
+    for (size_t j = 0; j < kWidthMap; j++)
+    {
+      sf::Vector2f spritePos = { static_cast<float>(j) * kWidthAndHeightTile,
+        static_cast<float>(i) * kWidthAndHeightTile };
+      if (currentMap[i][j] == '0')
+      {
+        if (!setUpInit(EImage::MAINWALL, spritePos, mLevelMap))
+        {
+          return false;
+        }
+      }
+      else if (currentMap[i][j] == '1')
+      {
+        if (!setUpInit(EImage::WALL_1, spritePos, mLevelMap))
+        {
 					return false;
 				}
-			}
-			else if (currentMap[i][j] == '1'){
-				if(!setUpInit(EImage::WALL_1, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
-				{
-					return false;
-				}
-			}
-			else if (currentMap[i][j] == '2'){
-				if(!setUpInit(EImage::WALL_2, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+      }
+      else if (currentMap[i][j] == '2'){
+				if(!setUpInit(EImage::WALL_2, spritePos, mLevelMap))
 				{
 					return false;
 				}
 			}
 			else if (currentMap[i][j] == '3'){
-				if(!setUpInit(EImage::GREENWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				if(!setUpInit(EImage::GREENWALL, spritePos, mLevelMap))
 				{
 					return false;
 				}
 			}
 			else if (currentMap[i][j] == '4'){
-				if(!setUpInit(EImage::WATERWALL, {static_cast<float>(j * 16), static_cast<float>(i * 16)}, mLevelMap))
+				if(!setUpInit(EImage::WATERWALL, spritePos, mLevelMap))
 				{
 					return false;
 				}
 			}
-		}
-	}
+    }
+  }
 
-	return true;
+  return true;
 }
 
 Map0::Map0() : Map(0u)

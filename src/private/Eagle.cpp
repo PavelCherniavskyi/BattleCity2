@@ -12,10 +12,12 @@ Eagle::Eagle()
 bool Eagle::Init()
 {
   auto sprite = SpriteHolder::GetSprite(EImage::EAGLE);
-  if (!sprite || mSprites.size() != kEagleSpriteSize)
+  if (!sprite || sprite->size() != kEagleSpriteSize)
   {
-    
-    SPDLOG_WARN("Sprite size doesn't match");
+    SPDLOG_ERROR("Sprite: {}. expected: {}, actual: {}", 
+      (sprite ? "valid" : "NOT valid"), 
+      kEagleSpriteSize, 
+      mSprites.size());
     return false;
   }
 

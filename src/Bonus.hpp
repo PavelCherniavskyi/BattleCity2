@@ -5,7 +5,7 @@
 #include "Entity.hpp"
 #include "Enums.hpp"
 
-class BaseBonus : public std::enable_shared_from_this<BaseBonus>
+class BaseBonus
 {
 public:
   BaseBonus(EImage aType, size_t aPackSize);
@@ -21,7 +21,8 @@ public:
   size_t GetPackSize() const;
   EImage GetType() const;
 
-  friend bool setInit(const std::shared_ptr<BaseBonus> aBaseBonusPtr, const float aScale);
+protected:
+  bool setInit(BaseBonus& aBaseBonus, const float aScale);
 
 private:
   sf::Sprite mSprite;

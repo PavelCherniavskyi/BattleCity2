@@ -9,7 +9,7 @@ class FontHolder
 {
 public:
   FontHolder();
-  void Init();
+  bool Init();
   std::shared_ptr<sf::Font> GetFont(EFont aFont) const;
 
 private:

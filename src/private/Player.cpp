@@ -2,12 +2,12 @@
 #include "../Eagle.hpp"
 
 Player::Player(std::multimap<ECategory, std::shared_ptr<Entity>>& ent,
-  std::multimap<EImage, Animation*>& a,
+  std::multimap<EImage, std::shared_ptr<Animation>>& a,
   EGamestates& g,
-  std::queue<std::shared_ptr<Entity>>& et,
-  std::queue<Map*>& map,
+  std::vector<std::shared_ptr<Entity>>& et,
+  std::vector<std::shared_ptr<Map>>& map,
   RightPanel& pan,
-  std::multimap<EImage, BaseBonus*>& bon)
+  std::multimap<EImage, std::shared_ptr<BaseBonus>>& bon)
   : entities(ent)
   , animations(a)
   , gameStage(g)
@@ -22,8 +22,9 @@ Player::Player(std::multimap<ECategory, std::shared_ptr<Entity>>& ent,
 
 void Player::initialPlayer()
 {
-  playerTank = new PlayerTank();
-  entities.insert(std::make_pair(ECategory::PLAYERTANK, playerTank));
+  playerTank = std::make_shared<PlayerTank>();
+  playerTank->Init();
+  entities.insert({ECategory::PLAYERTANK, playerTank});
 }
 
 void Player::handleEvent(const sf::Event& event, sf::Time)
@@ -132,6 +133,7 @@ void Player::handleAnimation(sf::FloatRect rect, EImage tex)
     anim = new EagleCollision();
   }
 
+  anim->Init();
   anim->Bang(rect);
   animations.insert(std::make_pair(tex, anim));
 }
@@ -175,9 +177,9 @@ void Player::handleEnemySpawn(sf::Time)
       {
         if (handleEnemyApperanceEffect())
         {
-          entities.insert(std::make_pair(ECategory::ENEMYTANK, enemyTanks.front()));
+          entities.insert({ECategory::ENEMYTANK, enemyTanks.back()});
           panel.PopIcon();
-          enemyTanks.pop();
+          enemyTanks.pop_back();
           clock.restart();
           spawn = spawnEnemyTanksTime;
         }
@@ -193,8 +195,9 @@ bool Player::handleEnemyApperanceEffect()
   if (doOnce)
   {
     // std::cout << "handleEnemyApperanceEffect1" << std::endl;
-    sf::FloatRect rect = enemyTanks.front()->GetGlobalBounds();
+    sf::FloatRect rect = enemyTanks.back()->GetGlobalBounds();
     anim = new Apperance;
+    anim->Init();
     anim->Bang(rect);
     animations.insert(std::make_pair(EImage::APPERANCE, anim));
     doOnce = false;
@@ -231,24 +234,22 @@ void Player::handleEnemyFire(sf::Time, std::shared_ptr<Entity> entity)
 
 void Player::BulletControl::bulletAction(std::shared_ptr<Entity> entity)
 {
+  std::shared_ptr<BulletBase> bullet(nullptr);
   if (type == +ECategory::BULLET)
   {
-    entities.insert(std::make_pair(ECategory::BULLET, entity->DoFire(ECategory::BULLET)));
+    bullet = entity->DoFire(ECategory::BULLET);
   }
   else if (type == +ECategory::SUPERBULLET)
   {
-    if (entity->GetType() == +EImage::T_10)
-    {
-      if (entity->GetSuperClipSize() != 0)
-      {
-        entities.insert(std::make_pair(ECategory::SUPERBULLET, entity->DoFire(ECategory::SUPERBULLET)));
-      }
-    }
-    else if (entity->GetType() == +EImage::ENEMY_40)
-    {
-      entities.insert(std::make_pair(ECategory::SUPERBULLET, entity->DoFire(ECategory::SUPERBULLET)));
-    }
+    bullet = entity->DoFire(ECategory::SUPERBULLET);
   }
+
+  if(!bullet)
+  {
+    SPDLOG_WARN("Bullet is emtpy");
+    return;
+  }
+  entities.insert({ECategory::BULLET, std::move(bullet)});
 }
 
 void Player::initializeActions()
@@ -269,10 +270,10 @@ void Player::initializeObjects()
   retSuperBullet = entities.equal_range(ECategory::SUPERBULLET);
   retEnemy = entities.equal_range(ECategory::ENEMYTANK);
   retEagle = entities.equal_range(ECategory::EAGLE);
-  retWall_1 = mapSequence.front()->GetMap().equal_range(EImage::WALL_1);
-  retWall_2 = mapSequence.front()->GetMap().equal_range(EImage::WALL_2);
-  retMainWall = mapSequence.front()->GetMap().equal_range(EImage::MAINWALL);
-  retWaterWall = mapSequence.front()->GetMap().equal_range(EImage::WATERWALL);
+  retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
+  retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
+  retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
+  retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
 }
 
 bool Player::isRealtimeAction(EActions action)
@@ -324,7 +325,7 @@ bool Player::isIntersectsBullet()
       if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-        mapSequence.front()->GetMap().erase(itrMap);
+        mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrBullet);
         initializeObjects();
         return true;
@@ -451,7 +452,7 @@ bool Player::isIntersectsSuperBullet()
       if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.front()->GetMap().erase(itrMap);
+        mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
         initializeObjects();
         return true;
@@ -466,7 +467,7 @@ bool Player::isIntersectsSuperBullet()
       if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.front()->GetMap().erase(itrMap);
+        mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
         initializeObjects();
         return true;
@@ -626,25 +627,22 @@ bool Player::isIntersectsBonus()
   {
     if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
     {
-      BaseBonus* bonus = itrBonus->second;
+      auto bonus = itrBonus->second;
       if (bonus->GetType() == +EImage::BONUSSTAR)
       {
         retPlayerTank->second->SetBulletSpeed(retPlayerTank->second->GetBulletSpeed() + static_cast<float>(bonus->GetPackSize()));
-        bonus->~BaseBonus();
         bonuses.erase(itrBonus);
       }
       else if (bonus->GetType() == +EImage::BONUSMISSLE)
       {
         SPDLOG_INFO("Player::isIntersectsBonus getPack size: {}", bonus->GetPackSize());
         retPlayerTank->second->SuperClipLoad(bonus->GetPackSize());
-        bonus->~BaseBonus();
         bonuses.erase(itrBonus);
         panel.SetCurrentMissles(retPlayerTank->second->GetSuperClipSize());
       }
       else if (bonus->GetType() == +EImage::BONUSLIFE)
       {
         retPlayerTank->second->SetHP(retPlayerTank->second->GetHP() + static_cast<int>(bonus->GetPackSize()));
-        bonus->~BaseBonus();
         bonuses.erase(itrBonus);
         auto lives = retPlayerTank->second->GetHP();
         if (lives < 0)
@@ -735,7 +733,7 @@ void Player::isIntersectsOthers()
   }
 }
 
-void Player::Init()
+bool Player::Init()
 {
   mKeyBinding[sf::Keyboard::Left] = EActions::LEFT;
   mKeyBinding[sf::Keyboard::Right] = EActions::RIGHT;
@@ -745,15 +743,31 @@ void Player::Init()
   mKeyBinding[sf::Keyboard::LControl] = EActions::SUPERFIRE;
   mKeyBinding[sf::Keyboard::P] = EActions::PAUSE;
 
-  auto eagle = new Eagle();
+  auto eagle = std::make_shared<Eagle>();
+  if(!eagle->Init())
+  {
+    SPDLOG_ERROR("Something wrong with Eagle");
+    return false;
+  }
+  entities.insert({ECategory::EAGLE, std::move(eagle)});
 
-  mapSequence.push(new Map1());
-  mapSequence.push(new Map2());
-  mapSequence.push(new Map3());
-  mapSequence.push(new Map4());
-  entities.insert(std::make_pair(ECategory::EAGLE, eagle));
+  mapSequence.emplace_back(std::make_shared<Map4>());
+  mapSequence.emplace_back(std::make_shared<Map3>());
+  mapSequence.emplace_back(std::make_shared<Map2>());
+  mapSequence.emplace_back(std::make_shared<Map1>());
+
+  for(auto& map : mapSequence)
+  {
+    if(!map->Init())
+    {
+      SPDLOG_ERROR("Something wrong with map");
+      return false;
+    }
+  }
 
   initialPlayer();
   initializeActions();
   initializeObjects();
+
+  return true;
 }

@@ -7,7 +7,7 @@
 class RightPanel
 {
 public:
-  RightPanel(size_t aLives, size_t aLevel, size_t aMissles, size_t aTanks);
+  RightPanel(size_t aLives, size_t aLevel, size_t aMissles);
   void Draw(sf::RenderWindow& aWindow);
   void PopIcon();
   void ResetIcons();
@@ -35,7 +35,6 @@ private:
   size_t mCurrentLives;
   size_t mCurrentLvl;
   size_t mCurrentMissles;
-  size_t mTanksQuantity;
 };
 
 

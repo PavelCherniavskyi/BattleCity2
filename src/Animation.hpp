@@ -4,7 +4,7 @@
 #include "Entity.hpp"
 #include "Enums.hpp"
 
-class Animation : public std::enable_shared_from_this<Animation>
+class Animation
 {
 public:
   Animation(const size_t aSpritesCount, const EImage aType);
@@ -15,7 +15,8 @@ public:
   virtual void Bang(const sf::FloatRect&) = 0;
   virtual bool IsAlife() const;
 
-	friend bool setInit(const std::shared_ptr<Animation> aAnimationPtr, const float aScale, const float aLifeTime);
+protected:
+  bool setInit(Animation& aAnimation, const float aScale, const float aLifeTime);
 
 protected:
   static sf::Clock mClockForTimeOfLiving;

@@ -6,25 +6,25 @@ sf::Clock Animation::mClockForDraw;
 
 constexpr int kMaxSpriteNumber = 4;
 
-bool setInit(const std::shared_ptr<Animation> aAnimationPtr, const float aScale, const float aLifeTime)
+bool Animation::setInit(Animation& aAnimation, const float aScale, const float aLifeTime)
 {
-  auto sprites = SpriteHolder::GetSprite(aAnimationPtr->mType);
+  auto sprites = SpriteHolder::GetSprite(aAnimation.mType);
 
-  if (aAnimationPtr && sprites && sprites->size() == aAnimationPtr->mSpritesCount)
+  if (sprites && sprites->size() == aAnimation.mSpritesCount)
   {
-    aAnimationPtr->mSprites = *sprites;
+    aAnimation.mSprites = *sprites;
 
-    for (size_t i = 0; i < aAnimationPtr->mSprites.size(); i++)
+    for (size_t i = 0; i < aAnimation.mSprites.size(); i++)
     {
-      aAnimationPtr->mSprites[i].setScale(aScale, aScale);
+      aAnimation.mSprites[i].setScale(aScale, aScale);
     }
-    for (size_t i = 0; i < aAnimationPtr->mSprites.size(); i++)
+    for (size_t i = 0; i < aAnimation.mSprites.size(); i++)
     {
-      aAnimationPtr->mSprites[i].setOrigin(aAnimationPtr->mSprites[i].getLocalBounds().height / 2.f,
-        aAnimationPtr->mSprites[i].getLocalBounds().width / 2.f);
+      aAnimation.mSprites[i].setOrigin(aAnimation.mSprites[i].getLocalBounds().height / 2.f,
+        aAnimation.mSprites[i].getLocalBounds().width / 2.f);
     }
 
-    aAnimationPtr->mTimeOfLiving = aLifeTime;
+    aAnimation.mTimeOfLiving = aLifeTime;
     Animation::mClockForTimeOfLiving.restart();
     Animation::mClockForDraw.restart();
   }
@@ -67,7 +67,7 @@ BulletCollision::BulletCollision()
 
 bool BulletCollision::Init()
 {
-  return setInit(shared_from_this(), 1.f, 0.05f);
+  return setInit(*this, 1.f, 0.05f);
 }
 
 void BulletCollision::Draw(sf::RenderWindow& window)
@@ -98,7 +98,7 @@ TankCollision::TankCollision()
 
 bool TankCollision::Init()
 {
-  return setInit(shared_from_this(), 2.f, 0.03f);
+  return setInit(*this, 2.f, 0.03f);
 }
 
 void TankCollision::Draw(sf::RenderWindow& window)
@@ -135,7 +135,7 @@ SuperBulletCollision::SuperBulletCollision()
 
 bool SuperBulletCollision::Init()
 {
-  return setInit(shared_from_this(), 2.f, 0.3f);
+  return setInit(*this, 2.f, 0.3f);
 }
 
 void SuperBulletCollision::Draw(sf::RenderWindow& window)
@@ -172,7 +172,7 @@ EagleCollision::EagleCollision()
 
 bool EagleCollision::Init()
 {
-  return setInit(shared_from_this(), 2.f, 0.3f);
+  return setInit(*this, 2.f, 0.3f);
 }
 
 void EagleCollision::Draw(sf::RenderWindow& window)
@@ -203,7 +203,7 @@ Apperance::Apperance()
 
 bool Apperance::Init()
 {
-  return setInit(shared_from_this(), 2.f, 0.7f);
+  return setInit(*this, 2.f, 0.7f);
 }
 
 void Apperance::Draw(sf::RenderWindow& window)

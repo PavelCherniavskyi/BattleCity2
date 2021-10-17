@@ -15,7 +15,11 @@ int main(int argc, char ** argv)
    }
 
    Game game(std::make_unique<InputHandler>(inputHandler));
-   game.Init();
+   if(!game.Init())
+   {
+      return 0;
+   }
+   
    game.run();
 
    return 0;

@@ -5,7 +5,7 @@
 
 const sf::Time kTimePerFrame = sf::seconds(1.f / 60.f);
 const size_t kHeightMap = 28;
-const size_t kWidthMap = 29;
+const size_t kWidthMap = 28;
 const int kWidthScreen = 440;
 const int kHeightScreen = 445;
 const size_t kWidthRightPanel = 25;

@@ -20,7 +20,7 @@ std::shared_ptr<std::vector<sf::Texture>> SpriteHolder::GetTexture(EImage aImage
 	return mTextureHolder.Get(aImage);
 }
 
-void SpriteHolder::Init()
+bool SpriteHolder::Init()
 {
 	const std::string path = fmt::format("{}/src/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR);
 
@@ -125,6 +125,7 @@ void SpriteHolder::Init()
 	std::vector<sf::IntRect> Apperance = { { 256, 96, 16, 16 }, { 272, 96, 16, 16 }, { 288, 96, 16, 16 }, { 304, 96, 16, 16 } };
 	mTextureHolder.LoadFromFile(EImage::APPERANCE, path, Apperance);
 	insert(EImage::APPERANCE, mTextureHolder.Get(EImage::APPERANCE));
+	return true;
 }
 
 

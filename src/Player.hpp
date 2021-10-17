@@ -35,7 +35,7 @@ public:
 
   struct BulletControl
   {
-    BulletControl(const std::multimap<ECategory, std::shared_ptr<Entity>> &ent, ECategory t)
+    BulletControl(std::multimap<ECategory, std::shared_ptr<Entity>> &ent, ECategory t)
        : type(t)
        , entities(ent)
     {
@@ -44,7 +44,7 @@ public:
     void bulletAction(std::shared_ptr<Entity> entity);
 
     ECategory type;
-    std::multimap<ECategory, std::shared_ptr<Entity>> entities;
+    std::multimap<ECategory, std::shared_ptr<Entity>>& entities;
     sf::Vector2f velocity;
   };
 
@@ -55,12 +55,12 @@ public:
 
 public:
   Player(std::multimap<ECategory, std::shared_ptr<Entity>> &,
-     std::multimap<EImage, Animation*> &,
+     std::multimap<EImage, std::shared_ptr<Animation>> &,
      EGamestates &,
-     std::queue<std::shared_ptr<Entity>> &,
-     std::queue<Map *> &,
+     std::vector<std::shared_ptr<Entity>> &,
+     std::vector<std::shared_ptr<Map>> &,
      RightPanel &,
-     std::multimap<EImage, BaseBonus *> &);
+     std::multimap<EImage, std::shared_ptr<BaseBonus>> &);
 
   void handleEvent(const sf::Event &event, sf::Time TimePerFrame);
   void handleRealtimeInput(sf::Time TimePerFrame);
@@ -78,8 +78,8 @@ public:
   bool handleEnemyApperanceEffect();
   void initialPlayer();
   void handleEnemyFire(sf::Time, std::shared_ptr<Entity>);
-  BaseTank *getPlayerTank() { return playerTank; }
-  void Init();
+  std::shared_ptr<BaseTank> getPlayerTank() { return playerTank; }
+  bool Init();
 
 private:
   void initializeObjects();
@@ -90,15 +90,15 @@ private:
 
 private:
   std::multimap<ECategory, std::shared_ptr<Entity>> &entities;
-  std::multimap<EImage, Animation *> &animations;
+  std::multimap<EImage, std::shared_ptr<Animation>> &animations;
   EGamestates &gameStage;
-  std::queue<std::shared_ptr<Entity>> &enemyTanks;
+  std::vector<std::shared_ptr<Entity>> &enemyTanks;
   float spawnEnemyTanksTime;
-  std::queue<Map *> &mapSequence;
+  std::vector<std::shared_ptr<Map>> &mapSequence;
   RightPanel &panel;
   size_t enemyTanksOnFieldNumber;
-  std::multimap<EImage, BaseBonus *> &bonuses;
-  BaseTank *playerTank;
+  std::multimap<EImage, std::shared_ptr<BaseBonus>> &bonuses;
+  std::shared_ptr<BaseTank> playerTank;
   std::map<sf::Keyboard::Key, EActions> mKeyBinding;
   std::map<EActions, std::unique_ptr<TankControl>> mActionBinding;
   std::map<EActions, std::unique_ptr<BulletControl>> mFireBinding;

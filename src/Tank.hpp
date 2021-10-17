@@ -7,9 +7,7 @@
 #include "Entity.hpp"
 #include "Enums.hpp"
 
-class BaseTank
-  : public Entity
-  , std::enable_shared_from_this<BaseTank>
+class BaseTank : public Entity
 {
 public:
   BaseTank(ECategory, EImage);

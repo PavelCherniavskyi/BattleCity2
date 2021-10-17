@@ -10,7 +10,7 @@ class TextHolder
 {
 public:
   TextHolder();
-  void Init();
+  bool Init();
   std::shared_ptr<sf::Text> GetText(EText aText) const;
 
 private:
