@@ -144,7 +144,12 @@ std::shared_ptr<BulletBase> BaseTank::DoFire(ECategory aCategory)
     mSuperBulletClip.pop();
   }
 
-  return setupBullet(std::move(bullet), *this);
+  if(bullet)
+  {
+    return setupBullet(std::move(bullet), *this);
+  }
+
+  return nullptr;
 }
 
 void BaseTank::SetBulletFrequency(const float aBulletFrequency)

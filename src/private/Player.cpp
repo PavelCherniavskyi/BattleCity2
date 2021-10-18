@@ -74,32 +74,35 @@ void Player::handleBonusEvents(sf::Time)
   static sf::Clock clock;
   static sf::Vector2f spawnPos;
   static float bonusSpawnTime = 20.f; // for initial start
-  int bonusSwitch;
   sf::Time time = clock.getElapsedTime();
-  BaseBonus* bonus = nullptr;
 
   if (time.asSeconds() > bonusSpawnTime)
   {
-    spawnPos.x = static_cast<float>(rand() % (kWidthScreen - 75) + 25);
-    spawnPos.y = static_cast<float>(rand() % (kHeightScreen - 75) + 25);
+    int bonusSwitch;
+    std::shared_ptr<BaseBonus> bonus = nullptr;
+    float x = static_cast<float>(rand() % (kWidthScreen - 75) + 25);
+    float y = static_cast<float>(rand() % (kHeightScreen - 75) + 25);
     bonusSwitch = rand() % 3 + 1;
 
     switch (bonusSwitch)
     {
     case 1:
-      bonus = new BonusStar();
-      bonus->SetPosition(spawnPos.x, spawnPos.y);
-      bonuses.insert(std::make_pair(EImage::BONUSSTAR, bonus));
+      bonus = std::make_shared<BonusStar>();
+      bonus->Init();
+      bonus->SetPosition(x, y);
+      bonuses.insert({EImage::BONUSSTAR, bonus});
       break;
     case 2:
-      bonus = new BonusMissle();
-      bonus->SetPosition(spawnPos.x, spawnPos.y);
-      bonuses.insert(std::make_pair(EImage::BONUSMISSLE, bonus));
+      bonus = std::make_shared<BonusMissle>();
+      bonus->Init();
+      bonus->SetPosition(x, y);
+      bonuses.insert({EImage::BONUSMISSLE, bonus});
       break;
     case 3:
-      bonus = new BonusLife();
-      bonus->SetPosition(spawnPos.x, spawnPos.y);
-      bonuses.insert(std::make_pair(EImage::BONUSLIFE, bonus));
+      bonus = std::make_shared<BonusLife>();
+      bonus->SetPosition(x, y);
+      bonus->Init();
+      bonuses.insert({EImage::BONUSLIFE, bonus});
       break;
     default:
       break;
@@ -107,9 +110,8 @@ void Player::handleBonusEvents(sf::Time)
 
     bonusSpawnTime = static_cast<float>(rand() % 30 + 20);
     clock.restart();
-
-    // std::cout << spawnPos.x << ' ' << spawnPos.y << std::endl;
   }
+
   isIntersectsBonus();
 }
 
@@ -246,7 +248,6 @@ void Player::BulletControl::bulletAction(std::shared_ptr<Entity> entity)
 
   if(!bullet)
   {
-    SPDLOG_WARN("Bullet is emtpy");
     return;
   }
   entities.insert({ECategory::BULLET, std::move(bullet)});
@@ -635,7 +636,6 @@ bool Player::isIntersectsBonus()
       }
       else if (bonus->GetType() == +EImage::BONUSMISSLE)
       {
-        SPDLOG_INFO("Player::isIntersectsBonus getPack size: {}", bonus->GetPackSize());
         retPlayerTank->second->SuperClipLoad(bonus->GetPackSize());
         bonuses.erase(itrBonus);
         panel.SetCurrentMissles(retPlayerTank->second->GetSuperClipSize());
