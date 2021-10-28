@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
       return 0;
    }
    
-   game.run();
+   game.Run();
 
    return 0;
 }

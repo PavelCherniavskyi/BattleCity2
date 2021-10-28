@@ -7,16 +7,16 @@ constexpr auto kNumbersScale = 2.f;
 constexpr auto kPanelWindosDigitSize = 2u;
 constexpr auto kTanksQuantity = 20u;
 
-RightPanel::RightPanel(size_t aLives, size_t aLevel, size_t aMissles)
+RightPanel::RightPanel()
   : mPanel()
   , mTankIcons()
   , mNumbers(kNumbersSize)
   , mLife(kPanelWindosDigitSize)
   , mMissle(kPanelWindosDigitSize)
   , mLevel(kPanelWindosDigitSize)
-  , mCurrentLives(aLives)
-  , mCurrentLvl(aLevel)
-  , mCurrentMissles(aMissles)
+  , mCurrentLives(0)
+  , mCurrentLvl(0)
+  , mCurrentMissles(0)
 {
 }
 

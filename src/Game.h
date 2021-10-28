@@ -14,7 +14,7 @@ class Game
 {
 public:
   Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
-  void run();
+  void Run();
   bool Init();
 
 private:
@@ -35,14 +35,13 @@ private:
   TextHolder mTextHolder;
   sf::Time mStatisticsUpdateTime;
   std::size_t mStatisticsNumFrames;
-  std::multimap<ECategory, std::shared_ptr<Entity>> entities;
-  std::multimap<EImage, std::shared_ptr<Animation>> animations;
-  std::multimap<EImage, std::shared_ptr<BaseBonus>> bonuses;
+  std::unordered_multimap<ECategory, std::shared_ptr<Entity>> mEntities;
+  std::unordered_multimap<EImage, std::shared_ptr<Animation>> mAnimations;
+  std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> mBonuses;
   std::vector<std::shared_ptr<Map>> mapSequence;
   Player player;
   EGamestates gameStage;
   std::vector<std::shared_ptr<Entity>> enemyTanks;
-  const size_t enemyTanksQuantity;
   bool mIsMoving;
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;

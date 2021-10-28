@@ -1,13 +1,17 @@
 #include "../Player.hpp"
 #include "../Eagle.hpp"
+#include "../Utils/Utils.hpp"
 
-Player::Player(std::multimap<ECategory, std::shared_ptr<Entity>>& ent,
-  std::multimap<EImage, std::shared_ptr<Animation>>& a,
+constexpr auto kPlayerStepMove = 100.f;
+constexpr auto kBonusSpawnTime = 20.f;
+
+Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
+  std::unordered_multimap<EImage, std::shared_ptr<Animation>>& a,
   EGamestates& g,
   std::vector<std::shared_ptr<Entity>>& et,
   std::vector<std::shared_ptr<Map>>& map,
   RightPanel& pan,
-  std::multimap<EImage, std::shared_ptr<BaseBonus>>& bon)
+  std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>>& bon)
   : entities(ent)
   , animations(a)
   , gameStage(g)
@@ -17,29 +21,23 @@ Player::Player(std::multimap<ECategory, std::shared_ptr<Entity>>& ent,
   , panel(pan)
   , enemyTanksOnFieldNumber(4)
   , bonuses(bon)
+  , mPlayerTank(std::make_shared<PlayerTank>())
 {
 }
 
-void Player::initialPlayer()
+void Player::HandleActionEvent(const sf::Event& event, sf::Time)
 {
-  playerTank = std::make_shared<PlayerTank>();
-  playerTank->Init();
-  entities.insert({ECategory::PLAYERTANK, playerTank});
-}
-
-void Player::handleEvent(const sf::Event& event, sf::Time)
-{
-  if (event.type == sf::Event::KeyPressed)
+  if (event.type == sf::Event::MouseButtonPressed)
   {
-    auto found = mKeyBinding.find(event.key.code);
-    if (found != mKeyBinding.end() && !isRealtimeAction(found->second))
+    auto found = mMousedBinding.find(event.mouseButton.button);
+    if (found != mMousedBinding.end())
     {
       auto itrPlayer = entities.find(ECategory::PLAYERTANK);
       if (itrPlayer != entities.end())
       {
         if (itrPlayer->second->CanIDoFire())
         {
-          mFireBinding[found->second].get()->bulletAction(itrPlayer->second);
+          mMouseActionBinding[found->second].get()->MouseAction(itrPlayer->second);
           panel.SetCurrentMissles(itrPlayer->second->GetSuperClipSize());
         }
       }
@@ -47,25 +45,21 @@ void Player::handleEvent(const sf::Event& event, sf::Time)
   }
 }
 
-void Player::handleRealtimeInput(sf::Time TimePerFrame)
+void Player::HandleMovingInput(sf::Time TimePerFrame)
 {
-  auto itrPlayer = entities.find(ECategory::PLAYERTANK);
-  if (itrPlayer != entities.end())
+  for (auto& pair : mKeyboardBinding)
   {
-    for (auto pair : mKeyBinding)
+    if (sf::Keyboard::isKeyPressed(pair.first) && Utils::IsMovingAction(pair.second))
     {
-      if (sf::Keyboard::isKeyPressed(pair.first) && isRealtimeAction(pair.second))
+      mKeyboardMovingBinding[pair.second].get()->KeyboardAction(TimePerFrame, mPlayerTank, false);
+      if (isIntersectsPlayerTank())
       {
-        mActionBinding[pair.second].get()->tankAction(TimePerFrame, itrPlayer->second, false);
-        if (isIntersectsPlayerTank())
-        {
-          mActionBinding[pair.second].get()->tankAction(TimePerFrame, itrPlayer->second, true);
-        }
-        itrPlayer->second->SetIsMoving(true);
-        break;
+        mKeyboardMovingBinding[pair.second].get()->KeyboardAction(TimePerFrame, mPlayerTank, true);
       }
-      itrPlayer->second->SetIsMoving(false);
+      mPlayerTank->SetIsMoving(true);
+      break;
     }
+    mPlayerTank->SetIsMoving(false);
   }
 }
 
@@ -73,10 +67,9 @@ void Player::handleBonusEvents(sf::Time)
 {
   static sf::Clock clock;
   static sf::Vector2f spawnPos;
-  static float bonusSpawnTime = 20.f; // for initial start
   sf::Time time = clock.getElapsedTime();
 
-  if (time.asSeconds() > bonusSpawnTime)
+  if (time.asSeconds() > kBonusSpawnTime)
   {
     int bonusSwitch;
     std::shared_ptr<BaseBonus> bonus = nullptr;
@@ -107,8 +100,6 @@ void Player::handleBonusEvents(sf::Time)
     default:
       break;
     }
-
-    bonusSpawnTime = static_cast<float>(rand() % 30 + 20);
     clock.restart();
   }
 
@@ -117,27 +108,27 @@ void Player::handleBonusEvents(sf::Time)
 
 void Player::handleAnimation(sf::FloatRect rect, EImage tex)
 {
-  Animation* anim = nullptr;
+  std::shared_ptr<Animation> anim = nullptr;
   if (tex == +EImage::BULLETCOLLISION)
   {
-    anim = new BulletCollision();
+    anim = std::make_shared<BulletCollision>();
   }
   else if (tex == +EImage::TANKCOLLISION)
   {
-    anim = new TankCollision();
+    anim = std::make_shared<TankCollision>();
   }
   else if (tex == +EImage::SUPERBULLETCOLLISION)
   {
-    anim = new SuperBulletCollision();
+    anim = std::make_shared<SuperBulletCollision>();
   }
   else if (tex == +EImage::EAGLECOLLISION)
   {
-    anim = new EagleCollision();
+    anim = std::make_shared<EagleCollision>();
   }
 
   anim->Init();
   anim->Bang(rect);
-  animations.insert(std::make_pair(tex, anim));
+  animations.insert({tex, std::move(anim)});
 }
 
 void Player::handleEnemyTanks(std::shared_ptr<Entity> entity)
@@ -225,16 +216,21 @@ void Player::handleEnemyFire(sf::Time, std::shared_ptr<Entity> entity)
   {
     if (entity->GetType() == +EImage::ENEMY_40)
     {
-      mFireBinding[EActions::SUPERFIRE].get()->bulletAction(entity);
+      mMouseActionBinding[EActions::SUPERFIRE].get()->MouseAction(entity);
     }
     else
     {
-      mFireBinding[EActions::FIRE].get()->bulletAction(entity);
+      mMouseActionBinding[EActions::FIRE].get()->MouseAction(entity);
     }
   }
 }
 
-void Player::BulletControl::bulletAction(std::shared_ptr<Entity> entity)
+std::shared_ptr<PlayerTank> Player::getPlayerTank()
+{
+  return mPlayerTank;
+}
+
+void Player::MouseControl::MouseAction(std::shared_ptr<Entity> entity)
 {
   std::shared_ptr<BulletBase> bullet(nullptr);
   if (type == +ECategory::BULLET)
@@ -255,14 +251,12 @@ void Player::BulletControl::bulletAction(std::shared_ptr<Entity> entity)
 
 void Player::initializeActions()
 {
-  float playerStepMove = 100.f;
-
-  mActionBinding[EActions::LEFT] = std::make_unique<TankControl>(-playerStepMove, 0.f, EActions::LEFT);
-  mActionBinding[EActions::RIGHT] = std::make_unique<TankControl>(+playerStepMove, 0.f, EActions::RIGHT);
-  mActionBinding[EActions::UP] = std::make_unique<TankControl>(0.f, -playerStepMove, EActions::UP);
-  mActionBinding[EActions::DOWN] = std::make_unique<TankControl>(0.f, +playerStepMove, EActions::DOWN);
-  mFireBinding[EActions::FIRE] = std::make_unique<BulletControl>(entities, ECategory::BULLET);
-  mFireBinding[EActions::SUPERFIRE] = std::make_unique<BulletControl>(entities, ECategory::SUPERBULLET);
+  mKeyboardMovingBinding[EActions::LEFT] = std::make_unique<KeyboardControl>(-kPlayerStepMove, 0.f, EActions::LEFT);
+  mKeyboardMovingBinding[EActions::RIGHT] = std::make_unique<KeyboardControl>(+kPlayerStepMove, 0.f, EActions::RIGHT);
+  mKeyboardMovingBinding[EActions::UP] = std::make_unique<KeyboardControl>(0.f, -kPlayerStepMove, EActions::UP);
+  mKeyboardMovingBinding[EActions::DOWN] = std::make_unique<KeyboardControl>(0.f, +kPlayerStepMove, EActions::DOWN);
+  mMouseActionBinding[EActions::FIRE] = std::make_unique<MouseControl>(entities, ECategory::BULLET);
+  mMouseActionBinding[EActions::SUPERFIRE] = std::make_unique<MouseControl>(entities, ECategory::SUPERBULLET);
 }
 
 void Player::initializeObjects()
@@ -277,32 +271,17 @@ void Player::initializeObjects()
   retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
 }
 
-bool Player::isRealtimeAction(EActions action)
+void Player::KeyboardControl::KeyboardAction(sf::Time time, std::shared_ptr<PlayerTank> aPlayer, bool aMoveBack)
 {
-  switch (action)
+  if (aMoveBack)
   {
-  case +EActions::LEFT:
-  case +EActions::RIGHT:
-  case +EActions::UP:
-  case +EActions::DOWN: 
-    return true;
-
-  default:
-    return false;
-  }
-}
-
-void Player::TankControl::tankAction(sf::Time time, std::shared_ptr<Entity> entity, bool back)
-{
-  if (!back)
-  {
-    entity->SetVelocity(velocity * entity->GetSpeed());
-    entity->Update((velocity * entity->GetSpeed()) * time.asSeconds());
-    entity->Rotate(side);
+    aPlayer->MoveBack((Velocity * aPlayer->GetSpeed()) * time.asSeconds());
   }
   else
   {
-    entity->UpdateBack((velocity * entity->GetSpeed()) * time.asSeconds());
+    aPlayer->SetVelocity(Velocity * aPlayer->GetSpeed());
+    aPlayer->Update((Velocity * aPlayer->GetSpeed()) * time.asSeconds());
+    aPlayer->Rotate(Side);
   }
 }
 
@@ -373,7 +352,6 @@ bool Player::isIntersectsBullet()
         entities.erase(itrBullet);
         itrTank->second->Kill();
         initializeObjects();
-        // std::cout << playerTank->second->getHP() << std::endl;
         if (!itrTank->second->IsAlife())
         {
           handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -386,39 +364,34 @@ bool Player::isIntersectsBullet()
   }
 
   // Bullet vs PlayerTank
-  auto lplayerTank = entities.find(ECategory::PLAYERTANK);
-  if (lplayerTank != entities.end())
+  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
-      if (myIntersection(lplayerTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+      handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+      entities.erase(itrBullet);
+      mPlayerTank->Kill();
+      initializeObjects();
+      // std::cout << lplayerTank->second->getHP() << std::endl;
+      if (!mPlayerTank->IsAlife())
       {
-        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-        entities.erase(itrBullet);
-        lplayerTank->second->Kill();
+        handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+        entities.erase(ECategory::PLAYERTANK);
+        gameStage = EGamestates::GAME_OVER;
         initializeObjects();
-        // std::cout << lplayerTank->second->getHP() << std::endl;
-        if (!lplayerTank->second->IsAlife())
-        {
-          handleAnimation(lplayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
-          entities.erase(lplayerTank);
-          gameStage = EGamestates::GAME_OVER;
-          initializeObjects();
-        }
-        else
-        {
-          auto lives = lplayerTank->second->GetHP();
-          if (lives < 0)
-          {
-            lives = 0;
-          }
-
-          panel.SetCurrentLives(static_cast<std::size_t>(lives));
-        }
-        // std::cout << "TankCollision!!!" << std::endl;
-
-        return true;
       }
+      else
+      {
+        auto lives = mPlayerTank->GetHP();
+        if (lives < 0)
+        {
+          lives = 0;
+        }
+
+        panel.SetCurrentLives(static_cast<std::size_t>(lives));
+      }
+
+      return true;
     }
   }
 
@@ -433,7 +406,6 @@ bool Player::isIntersectsBullet()
       eagle->second->Kill();
       entities.erase(itrBullet);
       gameStage = EGamestates::GAME_OVER;
-      // std::cout << "TankCollision!!!" << std::endl;
       initializeObjects();
       return true;
     }
@@ -509,23 +481,19 @@ bool Player::isIntersectsSuperBullet()
   }
 
   // SuperBullet vs PlayerTank
-  auto lplayerTank = entities.find(ECategory::PLAYERTANK);
-  if (lplayerTank != entities.end())
+  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
-      if (myIntersection(lplayerTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
-      {
-        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        handleAnimation(lplayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
-        entities.erase(itrSuperBullet);
-        entities.erase(lplayerTank);
-        panel.SetCurrentLives(0);
-        gameStage = EGamestates::GAME_OVER;
-        initializeObjects();
-        // std::cout << lplayerTank->second->getHP() << std::endl;
-        return true;
-      }
+      handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+      handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      entities.erase(itrSuperBullet);
+      entities.erase(ECategory::PLAYERTANK);
+      panel.SetCurrentLives(0);
+      gameStage = EGamestates::GAME_OVER;
+      initializeObjects();
+      // std::cout << lplayerTank->second->getHP() << std::endl;
+      return true;
     }
   }
 
@@ -621,30 +589,29 @@ bool Player::isIntersectsEnemy()
 bool Player::isIntersectsBonus()
 {
   initializeObjects();
-  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
 
   // PlayerTank vs StarBonus
   for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
   {
-    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
     {
       auto bonus = itrBonus->second;
       if (bonus->GetType() == +EImage::BONUSSTAR)
       {
-        retPlayerTank->second->SetBulletSpeed(retPlayerTank->second->GetBulletSpeed() + static_cast<float>(bonus->GetPackSize()));
+        mPlayerTank->SetBulletSpeed(mPlayerTank->GetBulletSpeed() + static_cast<float>(bonus->GetPackSize()));
         bonuses.erase(itrBonus);
       }
       else if (bonus->GetType() == +EImage::BONUSMISSLE)
       {
-        retPlayerTank->second->SuperClipLoad(bonus->GetPackSize());
+        mPlayerTank->SuperClipLoad(bonus->GetPackSize());
         bonuses.erase(itrBonus);
-        panel.SetCurrentMissles(retPlayerTank->second->GetSuperClipSize());
+        panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
       }
       else if (bonus->GetType() == +EImage::BONUSLIFE)
       {
-        retPlayerTank->second->SetHP(retPlayerTank->second->GetHP() + static_cast<int>(bonus->GetPackSize()));
+        mPlayerTank->SetHP(mPlayerTank->GetHP() + static_cast<int>(bonus->GetPackSize()));
         bonuses.erase(itrBonus);
-        auto lives = retPlayerTank->second->GetHP();
+        auto lives = mPlayerTank->GetHP();
         if (lives < 0)
         {
           lives = 0;
@@ -664,12 +631,11 @@ bool Player::isIntersectsBonus()
 bool Player::isIntersectsPlayerTank()
 {
   // PlayerTank vs Wall_1
-  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
   initializeObjects();
 
   for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
   {
-    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
     {
       // std::cout << "Collision!!!" << std::endl;
       return true;
@@ -679,7 +645,7 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs Wall_2
   for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
   {
-    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
     {
       // std::cout << "Collision!!!" << std::endl;
       return true;
@@ -689,7 +655,7 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs MainWall
   for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
   {
-    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
     {
       // std::cout << "Collision!!!" << std::endl;
       return true;
@@ -699,7 +665,7 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs WaterWall
   for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
   {
-    if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrMap->second.Rect))
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
     {
       // std::cout << "Collision!!!" << std::endl;
       return true;
@@ -713,42 +679,39 @@ void Player::isIntersectsOthers()
 {
   initializeObjects();
   // EnemyTank vs PlayerTank
-  auto retPlayerTank = entities.find(ECategory::PLAYERTANK);
-  if (retPlayerTank != entities.end())
+  for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
   {
-    for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
+    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
     {
-      if (myIntersection(retPlayerTank->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
-      {
-        handleAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
-        handleAnimation(retPlayerTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
-        entities.erase(itrEnemyTank);
-        entities.erase(retPlayerTank);
-        panel.SetCurrentLives(0);
-        gameStage = EGamestates::GAME_OVER;
-        initializeObjects();
-        break;
-      }
+      handleAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
+      handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      entities.erase(itrEnemyTank);
+      entities.erase(ECategory::PLAYERTANK);
+      panel.SetCurrentLives(0);
+      gameStage = EGamestates::GAME_OVER;
+      initializeObjects();
+      break;
     }
   }
 }
 
 bool Player::Init()
 {
-  mKeyBinding[sf::Keyboard::Left] = EActions::LEFT;
-  mKeyBinding[sf::Keyboard::Right] = EActions::RIGHT;
-  mKeyBinding[sf::Keyboard::Up] = EActions::UP;
-  mKeyBinding[sf::Keyboard::Down] = EActions::DOWN;
-  mKeyBinding[sf::Keyboard::Space] = EActions::FIRE;
-  mKeyBinding[sf::Keyboard::LControl] = EActions::SUPERFIRE;
-  mKeyBinding[sf::Keyboard::P] = EActions::PAUSE;
+  mKeyboardBinding[sf::Keyboard::A] = EActions::LEFT;
+  mKeyboardBinding[sf::Keyboard::D] = EActions::RIGHT;
+  mKeyboardBinding[sf::Keyboard::W] = EActions::UP;
+  mKeyboardBinding[sf::Keyboard::S] = EActions::DOWN;
+  mMousedBinding[sf::Mouse::Left] = EActions::FIRE;
+  mMousedBinding[sf::Mouse::Right] = EActions::SUPERFIRE;
+  mMousedBinding[sf::Mouse::Middle] = EActions::PAUSE;
 
   auto eagle = std::make_shared<Eagle>();
-  if(!eagle->Init())
+  if(!eagle->Init() || !mPlayerTank->Init())
   {
-    SPDLOG_ERROR("Something wrong with Eagle");
+    SPDLOG_ERROR("Something wrong with Eagle or Player tank");
     return false;
   }
+  entities.insert({ECategory::PLAYERTANK, mPlayerTank});
   entities.insert({ECategory::EAGLE, std::move(eagle)});
 
   mapSequence.emplace_back(std::make_shared<Map4>());
@@ -765,7 +728,6 @@ bool Player::Init()
     }
   }
 
-  initialPlayer();
   initializeActions();
   initializeObjects();
 

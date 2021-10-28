@@ -9,10 +9,12 @@ class BulletBase;
 class Entity
 {
 public:
+  Entity();
+  Entity(const Entity&);
   virtual ~Entity() = default;
   virtual void Draw(sf::RenderWindow &) = 0;
   virtual void Update(const sf::Vector2f&) {}
-  virtual void UpdateBack(const sf::Vector2f&) {}
+  virtual void MoveBack(const sf::Vector2f&) {}
   virtual const std::vector<sf::Sprite>& GetSprite() const = 0;
   virtual sf::FloatRect GetGlobalBounds() const = 0;
   virtual sf::FloatRect GetLocalBounds() const = 0;

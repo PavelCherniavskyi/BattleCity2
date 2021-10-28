@@ -1,5 +1,20 @@
 #include "../Entity.hpp"
 
+Entity::Entity()
+  : mMoving(false)
+  , mVelocity{0,0}
+  , mSpeed(0.f)
+  , mHP(0)
+{
+}
+Entity::Entity(const Entity& rhs)
+{
+  mMoving = rhs.mMoving;
+  mVelocity = rhs.mVelocity;
+  mSpeed = rhs.mSpeed;
+  mHP = rhs.mHP;
+}
+
 bool Entity::IsAlife() const
 {
   return mHP >= 0;

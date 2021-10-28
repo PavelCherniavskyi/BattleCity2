@@ -7,7 +7,7 @@
 class RightPanel
 {
 public:
-  RightPanel(size_t aLives, size_t aLevel, size_t aMissles);
+  RightPanel();
   void Draw(sf::RenderWindow& aWindow);
   void PopIcon();
   void ResetIcons();

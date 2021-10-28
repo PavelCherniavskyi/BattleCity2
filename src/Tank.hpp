@@ -11,11 +11,12 @@ class BaseTank : public Entity
 {
 public:
   BaseTank(ECategory, EImage);
+  BaseTank(const BaseTank&);
   virtual ~BaseTank() = default;
   void Draw(sf::RenderWindow&) override;
   void Update(const sf::Vector2f&) override;
   const std::vector<sf::Sprite>& GetSprite() const override;
-  void UpdateBack(const sf::Vector2f&) override;
+  void MoveBack(const sf::Vector2f&) override;
   void SetPosition(const sf::Vector2f&) override;
   void Rotate(EActions) override;
   sf::FloatRect GetGlobalBounds() const override;
@@ -27,18 +28,14 @@ public:
   float GetBulletSpeed() const override;
   void SuperClipLoad(const size_t) override;
 
-
   size_t GetSpritesCount() const;
-  
-  
   void SuperClipPop();
-  
   void SetBulletFrequency(const float);
   float GetBulletFrequency() const;
-  
+  ECategory GetCategory() const;
 
 protected:
-  std::queue<std::unique_ptr<SuperBullet>> mSuperBulletClip;
+  std::queue<std::shared_ptr<SuperBullet>> mSuperBulletClip;
   float mBulletSpeed;
   float mBulletFrequency;
   ECategory mCategory;
@@ -50,6 +47,7 @@ class PlayerTank : public BaseTank
 {
 public:
   PlayerTank();
+  PlayerTank(const PlayerTank&);
   void SetInitialPosition() override;
   bool CanIDoFire() const override;
   bool Init() override;

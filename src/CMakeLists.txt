@@ -1,4 +1,5 @@
-# Generic test that uses conan libs
+add_subdirectory(Utils)
+
 add_executable(${PROJECT_NAME}
         main.cpp
         private/Animation.cpp
@@ -19,6 +20,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
+        Utils
         project_options
         project_warnings
         CONAN_PKG::fmt
@@ -27,3 +29,4 @@ target_link_libraries(
         CONAN_PKG::boost
 )
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}") #for access config.h
+

@@ -90,6 +90,17 @@ BaseTank::BaseTank(ECategory aCategory, EImage aType)
 {
 }
 
+BaseTank::BaseTank(const BaseTank& rhs)
+  : Entity(rhs)
+{
+  mSuperBulletClip = rhs.mSuperBulletClip;
+  mBulletSpeed = rhs.mBulletSpeed;
+  mBulletFrequency = rhs.mBulletFrequency;
+  mCategory = rhs.mCategory;
+  mType = rhs.mType;
+  mSprites = rhs.mSprites;
+}
+
 bool PlayerTank::CanIDoFire() const
 {
   static sf::Clock clock;
@@ -157,6 +168,16 @@ void BaseTank::SetBulletFrequency(const float aBulletFrequency)
   mBulletFrequency = aBulletFrequency;
 }
 
+float BaseTank::GetBulletFrequency() const
+{
+  return mBulletFrequency;
+}
+
+ECategory BaseTank::GetCategory() const
+{
+  return mCategory;
+}
+
 void BaseTank::Draw(sf::RenderWindow& aWindow)
 {
   if (IsMoving())
@@ -195,7 +216,7 @@ const std::vector<sf::Sprite>& BaseTank::GetSprite() const
  return mSprites;
 }
 
-void BaseTank::UpdateBack(const sf::Vector2f& aPos)
+void BaseTank::MoveBack(const sf::Vector2f& aPos)
 {
   sf::Vector2f pos = aPos;
   if (aPos.y < 0)
@@ -282,6 +303,11 @@ void BaseTank::SetPosition(const sf::Vector2f& aPos)
 
 PlayerTank::PlayerTank()
   : BaseTank(ECategory::PLAYERTANK, EImage::T_10)
+{
+}
+
+PlayerTank::PlayerTank(const PlayerTank& rhs)
+  : BaseTank(rhs)
 {
 }
 
