@@ -1,5 +1,3 @@
-add_subdirectory(Utils)
-
 add_executable(${PROJECT_NAME}
         main.cpp
         private/Animation.cpp
@@ -20,7 +18,6 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
-        Utils
         project_options
         project_warnings
         CONAN_PKG::fmt
