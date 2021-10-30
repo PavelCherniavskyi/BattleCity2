@@ -13,7 +13,7 @@ class ResourceHolder
 {
 public:
   void LoadFromFile(Identifier, const std::string&, const std::vector<sf::IntRect>& aRec = {});
-  void Insert(Identifier, const Resource&);
+  template<typename UniversalRef> void Insert(Identifier, UniversalRef&&);
   std::shared_ptr<Resource> Get(Identifier) const;
 
 private:
@@ -27,25 +27,27 @@ void ResourceHolder<Identifier, Resource>::LoadFromFile(Identifier aId, const st
   {
     if constexpr(Utils::is_vector<Resource>::value)
     {
+      std::vector<typename Resource::value_type> array;
       for(auto i = 0u; i < aRec.size(); ++i)
       {
         typename Resource::value_type resource;
         if (resource.loadFromFile(aFilename, aRec[i]))
         {
-          Insert(aId, {resource});
+          array.emplace_back(std::move(resource));
         }
         else
         {
           SPDLOG_ERROR("Failed to load from file");
         }
       }
+      Insert(aId, std::move(array));
     }
     else
     {
       Resource resource;
       if (resource.loadFromFile(aFilename))
       {
-        Insert(aId, resource);
+        Insert(aId, std::move(resource));
       }
       else
       {
@@ -60,25 +62,26 @@ void ResourceHolder<Identifier, Resource>::LoadFromFile(Identifier aId, const st
 }
 
 template<typename Identifier, typename Resource>
-void ResourceHolder<Identifier, Resource>::Insert(Identifier aId, const Resource& aRes)
+template<typename UniversalRef>
+void ResourceHolder<Identifier, Resource>::Insert(Identifier aId, UniversalRef&& aRes)
 {
   if constexpr(Utils::is_vector<Resource>::value)
   {
-    auto it = mResourceMap.find(aId);
-    if (it != mResourceMap.end() && it->second)
+    if (auto it = mResourceMap.find(aId); it != mResourceMap.end() && it->second)
     {
       it->second->insert(it->second->end(), aRes.begin(), aRes.end());
     }
     else
     {
-      mResourceMap.insert(std::make_pair(aId, std::make_shared<std::vector<typename Resource::value_type>>(aRes)));
+      mResourceMap.emplace(
+          aId, 
+          std::make_shared<std::vector<typename Resource::value_type>>(std::forward<Resource>(aRes)));
     }
   }
   else
   {
-    mResourceMap.insert(std::make_pair(aId, std::make_shared<Resource>(aRes)));
+    mResourceMap.emplace(aId, std::make_shared<Resource>(std::forward<Resource>(aRes)));
   }
-  
 }
 
 template<typename Identifier, typename Resource>

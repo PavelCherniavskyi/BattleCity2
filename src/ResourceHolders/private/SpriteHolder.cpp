@@ -138,6 +138,6 @@ void SpriteHolder::insert(EImage aImageId, const std::shared_ptr<std::vector<sf:
     {
       sprites.emplace_back(sf::Sprite(t));
     }
-		mSpriteHolder.Insert(aImageId, sprites);
+		mSpriteHolder.Insert(aImageId, std::move(sprites));
   }
 }

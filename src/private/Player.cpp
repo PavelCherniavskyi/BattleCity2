@@ -29,17 +29,12 @@ void Player::HandleActionEvent(const sf::Event& event, sf::Time)
 {
   if (event.type == sf::Event::MouseButtonPressed)
   {
-    auto found = mMousedBinding.find(event.mouseButton.button);
-    if (found != mMousedBinding.end())
+    if (auto found = mMousedBinding.find(event.mouseButton.button); found != mMousedBinding.end())
     {
-      auto itrPlayer = entities.find(ECategory::PLAYERTANK);
-      if (itrPlayer != entities.end())
+      if (mPlayerTank && mPlayerTank->CanIDoFire())
       {
-        if (itrPlayer->second->CanIDoFire())
-        {
-          mMouseActionBinding[found->second].get()->MouseAction(itrPlayer->second);
-          panel.SetCurrentMissles(itrPlayer->second->GetSuperClipSize());
-        }
+        mMouseActionBinding[found->second].get()->MouseAction(mPlayerTank);
+        panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
       }
     }
   }
@@ -285,15 +280,6 @@ void Player::KeyboardControl::KeyboardAction(sf::Time time, std::shared_ptr<Play
   }
 }
 
-bool Player::myIntersection(sf::FloatRect obj1, sf::FloatRect obj2)
-{
-  if (obj1.left + obj1.width >= obj2.left && obj1.top + obj1.height >= obj2.top && obj1.left <= obj2.left + obj2.width
-      && obj1.top <= obj2.top + obj2.width)
-    return true;
-  else
-    return false;
-}
-
 bool Player::isIntersectsBullet()
 {
   initializeObjects();
@@ -302,7 +288,7 @@ bool Player::isIntersectsBullet()
   {
     for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
     {
-      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
@@ -317,7 +303,7 @@ bool Player::isIntersectsBullet()
   {
     for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
     {
-      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
@@ -331,7 +317,7 @@ bool Player::isIntersectsBullet()
   {
     for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
     {
-      if (myIntersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
@@ -346,7 +332,7 @@ bool Player::isIntersectsBullet()
   {
     for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
     {
-      if (myIntersection(itrTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+      if (Utils::Intersection(itrTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
       {
         handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
@@ -366,7 +352,7 @@ bool Player::isIntersectsBullet()
   // Bullet vs PlayerTank
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
       handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       entities.erase(itrBullet);
@@ -399,7 +385,7 @@ bool Player::isIntersectsBullet()
   auto eagle = entities.find(ECategory::EAGLE);
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    if (myIntersection(eagle->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
       handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
@@ -422,7 +408,7 @@ bool Player::isIntersectsSuperBullet()
   {
     for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
     {
-      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
@@ -437,7 +423,7 @@ bool Player::isIntersectsSuperBullet()
   {
     for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
     {
-      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
@@ -452,7 +438,7 @@ bool Player::isIntersectsSuperBullet()
   {
     for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
     {
-      if (myIntersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         entities.erase(itrSuperBullet);
@@ -467,7 +453,7 @@ bool Player::isIntersectsSuperBullet()
   {
     for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
     {
-      if (myIntersection(itrTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+      if (Utils::Intersection(itrTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
       {
         handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -483,7 +469,7 @@ bool Player::isIntersectsSuperBullet()
   // SuperBullet vs PlayerTank
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
       handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
       handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -501,7 +487,7 @@ bool Player::isIntersectsSuperBullet()
   auto eagle = entities.find(ECategory::EAGLE);
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    if (myIntersection(eagle->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
       handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
       handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
@@ -526,7 +512,7 @@ bool Player::isIntersectsEnemy()
   {
     for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
     {
-      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
       { // Collision!
         return true;
       }
@@ -538,7 +524,7 @@ bool Player::isIntersectsEnemy()
   {
     for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
     {
-      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
       { // Collision!
         return true;
       }
@@ -550,7 +536,7 @@ bool Player::isIntersectsEnemy()
   {
     for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
     {
-      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
       { // Collision!
         return true;
       }
@@ -562,7 +548,7 @@ bool Player::isIntersectsEnemy()
   {
     for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
     {
-      if (myIntersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrEnemyTank->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         // std::cout << "Collision!!!" << std::endl;
         return true;
@@ -574,7 +560,7 @@ bool Player::isIntersectsEnemy()
   auto eagle = entities.find(ECategory::EAGLE);
   for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
   {
-    if (myIntersection(eagle->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
+    if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
     {
       handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
       eagle->second->Kill();
@@ -593,7 +579,7 @@ bool Player::isIntersectsBonus()
   // PlayerTank vs StarBonus
   for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
+    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
     {
       auto bonus = itrBonus->second;
       if (bonus->GetType() == +EImage::BONUSSTAR)
@@ -633,11 +619,11 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs Wall_1
   initializeObjects();
 
+  const auto& globalBounds = mPlayerTank->GetGlobalBounds();
   for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
+    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
     {
-      // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
@@ -645,9 +631,8 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs Wall_2
   for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
+    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
     {
-      // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
@@ -655,9 +640,8 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs MainWall
   for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
+    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
     {
-      // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
@@ -665,9 +649,8 @@ bool Player::isIntersectsPlayerTank()
   // PlayerTank vs WaterWall
   for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrMap->second.Rect))
+    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
     {
-      // std::cout << "Collision!!!" << std::endl;
       return true;
     }
   }
@@ -681,7 +664,7 @@ void Player::isIntersectsOthers()
   // EnemyTank vs PlayerTank
   for (auto itrEnemyTank = retEnemy.first; itrEnemyTank != retEnemy.second; ++itrEnemyTank)
   {
-    if (myIntersection(mPlayerTank->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
+    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
     {
       handleAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
       handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);

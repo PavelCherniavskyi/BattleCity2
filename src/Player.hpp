@@ -73,7 +73,7 @@ public:
   bool isIntersectsEnemy();
   bool isIntersectsBonus();
   void isIntersectsOthers();
-  bool myIntersection(sf::FloatRect, sf::FloatRect);
+  bool Intersection(const sf::FloatRect&, const sf::FloatRect&) const;
   void handleEnemySpawn(sf::Time);
   bool handleEnemyApperanceEffect();
   void handleEnemyFire(sf::Time, std::shared_ptr<Entity>);

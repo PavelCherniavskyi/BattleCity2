@@ -3,9 +3,9 @@
 
 #include "../Enums.hpp"
 #include <type_traits>
+#include <SFML/Graphics/Rect.hpp>
 
 namespace Utils{
-
 
 inline bool IsMovingAction(EActions action)
 {
@@ -18,6 +18,21 @@ inline bool IsMovingAction(EActions action)
     return true;
 
   default:
+    return false;
+  }
+}
+
+inline bool Intersection(const sf::FloatRect& obj1, const sf::FloatRect& obj2)
+{
+  if (obj1.left + obj1.width >= obj2.left 
+      && obj1.top + obj1.height >= obj2.top 
+      && obj1.left <= obj2.left + obj2.width
+      && obj1.top <= obj2.top + obj2.width)
+  {
+    return true;
+  }
+  else
+  {
     return false;
   }
 }

@@ -9,6 +9,7 @@
 #include "Player.hpp"
 #include "ResourceHolders/TextHolder.hpp"
 #include "Tank.hpp"
+#include "BonusHandler.hpp"
 
 class Game
 {
@@ -37,7 +38,6 @@ private:
   std::size_t mStatisticsNumFrames;
   std::unordered_multimap<ECategory, std::shared_ptr<Entity>> mEntities;
   std::unordered_multimap<EImage, std::shared_ptr<Animation>> mAnimations;
-  std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> mBonuses;
   std::vector<std::shared_ptr<Map>> mapSequence;
   Player player;
   EGamestates gameStage;
@@ -45,4 +45,5 @@ private:
   bool mIsMoving;
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
+  BonusHandler mBonusHandler;
 };

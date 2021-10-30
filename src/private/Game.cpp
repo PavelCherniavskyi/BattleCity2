@@ -14,12 +14,12 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , mStatisticsNumFrames(0)
   , mEntities{}
   , mAnimations{}
-  , mBonuses{}
   , mapSequence{}
   , player(mEntities, mAnimations, gameStage, enemyTanks, mapSequence, panel, mBonuses)
   , gameStage(EGamestates::RUNNING)
   , panel()
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
+  , mBonusHandler()
 {
 }
 
