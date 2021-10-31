@@ -57,10 +57,27 @@ void Player::HandleMovingInput(sf::Time TimePerFrame)
   }
 }
 
-void Player::handleBonusEvents(sf::Time)
+void Player::HandleBonusEvents()
 {
-
-  isIntersectsBonus();
+  BonusHandler::BonusCIterator bonusIt;
+  if(mBonusHandler.CheckIntersection(mPlayerTank->GetGlobalBounds(), bonusIt))
+  {
+    if (bonusIt->second->GetType() == +EImage::BONUSSTAR)
+    {
+      mPlayerTank->SetBulletSpeed(mPlayerTank->GetBulletSpeed() + static_cast<float>(bonusIt->second->GetPackSize()));
+    }
+    else if (bonusIt->second->GetType() == +EImage::BONUSMISSLE)
+    {
+      mPlayerTank->SuperClipLoad(bonusIt->second->GetPackSize());
+      panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
+    }
+    else if (bonusIt->second->GetType() == +EImage::BONUSLIFE)
+    {
+      mPlayerTank->SetHP(mPlayerTank->GetHP() + static_cast<int>(bonusIt->second->GetPackSize()));
+      panel.SetCurrentLives(static_cast<std::size_t>(mPlayerTank->GetHP()));
+    }
+    mBonusHandler.EraseBonus(bonusIt);
+  }
 }
 
 void Player::handleAnimation(sf::FloatRect rect, EImage tex)
@@ -527,48 +544,6 @@ bool Player::isIntersectsEnemy()
       handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
       eagle->second->Kill();
       gameStage = EGamestates::GAME_OVER;
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool Player::isIntersectsBonus()
-{
-  initializeObjects();
-
-  // PlayerTank vs StarBonus
-  for (auto itrBonus = bonuses.begin(); itrBonus != bonuses.end(); itrBonus++)
-  {
-    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrBonus->second->GetGlobalBounds()))
-    {
-      auto bonus = itrBonus->second;
-      if (bonus->GetType() == +EImage::BONUSSTAR)
-      {
-        mPlayerTank->SetBulletSpeed(mPlayerTank->GetBulletSpeed() + static_cast<float>(bonus->GetPackSize()));
-        bonuses.erase(itrBonus);
-      }
-      else if (bonus->GetType() == +EImage::BONUSMISSLE)
-      {
-        mPlayerTank->SuperClipLoad(bonus->GetPackSize());
-        bonuses.erase(itrBonus);
-        panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
-      }
-      else if (bonus->GetType() == +EImage::BONUSLIFE)
-      {
-        mPlayerTank->SetHP(mPlayerTank->GetHP() + static_cast<int>(bonus->GetPackSize()));
-        bonuses.erase(itrBonus);
-        auto lives = mPlayerTank->GetHP();
-        if (lives < 0)
-        {
-          lives = 0;
-        }
-
-        panel.SetCurrentLives(static_cast<std::size_t>(lives));
-      }
-
-      // panel.setCurrentMissles(tank->GetSuperClipSize());
       return true;
     }
   }

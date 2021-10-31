@@ -1,7 +1,8 @@
 #include "../BonusHandler.hpp"
 #include "../Definitions.hpp"
+#include "../Utils/Utils.hpp"
 
-constexpr auto kBonusSpawnTime = 5.f;
+constexpr auto kBonusSpawnTime = 20.f;
 
 void BonusHandler::Draw(sf::RenderWindow& window)
 {
@@ -50,4 +51,23 @@ void BonusHandler::Update()
     }
     clock.restart();
   }
+}
+
+ 
+bool BonusHandler::CheckIntersection(const sf::FloatRect& obj, BonusCIterator& itOut) const
+{
+  for(auto it = std::begin(mBonuses); it != std::end(mBonuses); ++it)
+  {
+    if (Utils::Intersection(obj, it->second->GetGlobalBounds()))
+    {
+      itOut = it;
+      return true;
+    }
+  }
+  return false;
+}
+
+void BonusHandler::EraseBonus(BonusCIterator it)
+{
+  mBonuses.erase(it);
 }

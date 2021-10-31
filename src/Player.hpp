@@ -65,13 +65,12 @@ public:
   void HandleActionEvent(const sf::Event &event, sf::Time TimePerFrame);
   void HandleMovingInput(sf::Time TimePerFrame);
   void handleEnemyTanks(std::shared_ptr<Entity>);
-  void handleBonusEvents(sf::Time TimePerFrame);
+  void HandleBonusEvents();
   void handleAnimation(sf::FloatRect, EImage);
   bool isIntersectsPlayerTank();
   bool isIntersectsBullet();
   bool isIntersectsSuperBullet();
   bool isIntersectsEnemy();
-  bool isIntersectsBonus();
   void isIntersectsOthers();
   bool Intersection(const sf::FloatRect&, const sf::FloatRect&) const;
   void handleEnemySpawn(sf::Time);

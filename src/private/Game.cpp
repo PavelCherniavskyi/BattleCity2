@@ -15,11 +15,11 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , mEntities{}
   , mAnimations{}
   , mapSequence{}
-  , player(mEntities, mAnimations, gameStage, enemyTanks, mapSequence, panel, mBonuses)
+  , mBonusHandler()
+  , player(mEntities, mAnimations, gameStage, enemyTanks, mapSequence, panel, mBonusHandler)
   , gameStage(EGamestates::RUNNING)
   , panel()
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
-  , mBonusHandler()
 {
 }
 
@@ -145,8 +145,10 @@ void Game::update(sf::Time elapsedTime)
     }
   }
 
+  mBonusHandler.Update();
+
   player.handleEnemySpawn(kTimePerFrame);
-  player.handleBonusEvents(kTimePerFrame);
+  player.HandleBonusEvents();
   player.isIntersectsOthers();
 }
 

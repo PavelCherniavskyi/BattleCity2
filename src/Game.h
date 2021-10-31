@@ -39,11 +39,11 @@ private:
   std::unordered_multimap<ECategory, std::shared_ptr<Entity>> mEntities;
   std::unordered_multimap<EImage, std::shared_ptr<Animation>> mAnimations;
   std::vector<std::shared_ptr<Map>> mapSequence;
+  BonusHandler mBonusHandler;
   Player player;
   EGamestates gameStage;
   std::vector<std::shared_ptr<Entity>> enemyTanks;
   bool mIsMoving;
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
-  BonusHandler mBonusHandler;
 };

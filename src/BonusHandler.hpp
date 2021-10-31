@@ -8,11 +8,15 @@
 class BonusHandler
 {
 public:
+  using BonusCIterator = std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>>::const_iterator;
+
   void Draw(sf::RenderWindow&);
   void Update();
+  bool CheckIntersection(const sf::FloatRect& obj, BonusCIterator& itOut) const;
+  void EraseBonus(BonusCIterator);
 
 private:
   std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> mBonuses;
 };
 
-#endif// BATTLECITY_BONUSHANDLER_HPP
+#endif // BATTLECITY_BONUSHANDLER_HPP
