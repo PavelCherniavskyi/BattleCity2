@@ -8,10 +8,8 @@ constexpr size_t kBonusStarPackSize = 1u;
 
 bool BaseBonus::setInit(BaseBonus& aBaseBonus, const float aScale)
 {
-  std::shared_ptr<std::vector<sf::Sprite>> spritesPtr;
-
-  if ((spritesPtr = SpriteHolder::GetSprite(aBaseBonus.mType))
-      && spritesPtr->size() == kBonusSpriteSize)
+  if (auto spritesPtr = SpriteHolder::GetSprite(aBaseBonus.mType)
+      ; spritesPtr->size() == kBonusSpriteSize)
   {
     aBaseBonus.mSprite = spritesPtr->at(0);
     aBaseBonus.mSprite.setScale(aScale, aScale);

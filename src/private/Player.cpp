@@ -3,7 +3,6 @@
 #include "../Utils/Utils.hpp"
 
 constexpr auto kPlayerStepMove = 100.f;
-constexpr auto kBonusSpawnTime = 20.f;
 
 Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
   std::unordered_multimap<EImage, std::shared_ptr<Animation>>& a,
@@ -11,7 +10,7 @@ Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
   std::vector<std::shared_ptr<Entity>>& et,
   std::vector<std::shared_ptr<Map>>& map,
   RightPanel& pan,
-  std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>>& bon)
+  BonusHandler& bon)
   : entities(ent)
   , animations(a)
   , gameStage(g)
@@ -20,7 +19,7 @@ Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
   , mapSequence(map)
   , panel(pan)
   , enemyTanksOnFieldNumber(4)
-  , bonuses(bon)
+  , mBonusHandler(bon)
   , mPlayerTank(std::make_shared<PlayerTank>())
 {
 }
@@ -60,43 +59,6 @@ void Player::HandleMovingInput(sf::Time TimePerFrame)
 
 void Player::handleBonusEvents(sf::Time)
 {
-  static sf::Clock clock;
-  static sf::Vector2f spawnPos;
-  sf::Time time = clock.getElapsedTime();
-
-  if (time.asSeconds() > kBonusSpawnTime)
-  {
-    int bonusSwitch;
-    std::shared_ptr<BaseBonus> bonus = nullptr;
-    float x = static_cast<float>(rand() % (kWidthScreen - 75) + 25);
-    float y = static_cast<float>(rand() % (kHeightScreen - 75) + 25);
-    bonusSwitch = rand() % 3 + 1;
-
-    switch (bonusSwitch)
-    {
-    case 1:
-      bonus = std::make_shared<BonusStar>();
-      bonus->Init();
-      bonus->SetPosition(x, y);
-      bonuses.insert({EImage::BONUSSTAR, bonus});
-      break;
-    case 2:
-      bonus = std::make_shared<BonusMissle>();
-      bonus->Init();
-      bonus->SetPosition(x, y);
-      bonuses.insert({EImage::BONUSMISSLE, bonus});
-      break;
-    case 3:
-      bonus = std::make_shared<BonusLife>();
-      bonus->SetPosition(x, y);
-      bonus->Init();
-      bonuses.insert({EImage::BONUSLIFE, bonus});
-      break;
-    default:
-      break;
-    }
-    clock.restart();
-  }
 
   isIntersectsBonus();
 }

@@ -9,7 +9,7 @@ class BonusHandler
 {
 public:
   void Draw(sf::RenderWindow&);
-  
+  void Update();
 
 private:
   std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> mBonuses;

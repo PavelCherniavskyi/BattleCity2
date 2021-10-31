@@ -396,10 +396,7 @@ void Game::draw()
   mapSequence.back()->Draw(mWindow);
 
   // Draw for Bonuses
-  for (auto itrBonus = mBonuses.begin(); itrBonus != mBonuses.end(); itrBonus++)
-  {
-    itrBonus->second->Draw(mWindow);
-  }
+  mBonusHandler.Draw(mWindow);
 
   // Draw for Animation
   for (auto itrAnim = mAnimations.begin(); itrAnim != mAnimations.end(); itrAnim++)

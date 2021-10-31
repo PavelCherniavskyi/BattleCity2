@@ -5,7 +5,7 @@
 #include "Bullet.hpp"
 #include "Map.hpp"
 #include "Tank.hpp"
-#include "Bonus.hpp"
+#include "BonusHandler.hpp"
 #include "Animation.hpp"
 #include "RightPanel.hpp"
 
@@ -60,7 +60,7 @@ public:
      std::vector<std::shared_ptr<Entity>> &,
      std::vector<std::shared_ptr<Map>> &,
      RightPanel &,
-     std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> &);
+     BonusHandler &);
 
   void HandleActionEvent(const sf::Event &event, sf::Time TimePerFrame);
   void HandleMovingInput(sf::Time TimePerFrame);
@@ -95,7 +95,7 @@ private:
   std::vector<std::shared_ptr<Map>> &mapSequence;
   RightPanel &panel;
   size_t enemyTanksOnFieldNumber;
-  std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>> &bonuses;
+  BonusHandler& mBonusHandler;
   std::unordered_map<sf::Keyboard::Key, EActions> mKeyboardBinding;
   std::unordered_map<sf::Mouse::Button, EActions> mMousedBinding;
   std::map<EActions, std::unique_ptr<KeyboardControl>> mKeyboardMovingBinding;
