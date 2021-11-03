@@ -64,16 +64,12 @@ public:
 
   void HandleActionEvent(const sf::Event &event, sf::Time TimePerFrame);
   void HandleMovingInput(sf::Time TimePerFrame);
-  void handleEnemyTanks(std::shared_ptr<Entity>);
   void HandleBonusEvents();
   bool isIntersectsPlayerTank();
   bool isIntersectsBullet();
   bool isIntersectsSuperBullet();
   bool isIntersectsEnemy();
-  void isIntersectsOthers();
   bool Intersection(const sf::FloatRect&, const sf::FloatRect&) const;
-  void handleEnemySpawn(sf::Time);
-  void handleEnemyFire(sf::Time, std::shared_ptr<Entity>);
   std::shared_ptr<PlayerTank> getPlayerTank();
   bool Init();
 
@@ -88,7 +84,6 @@ private:
   AnimationHandler& mAnimationHandler;
   EGamestates &gameStage;
   std::vector<std::shared_ptr<Entity>> &mEnemyTanksQueue;
-  float spawnEnemyTanksTime;
   std::vector<std::shared_ptr<Map>> &mapSequence;
   RightPanel &panel;
   BonusHandler& mBonusHandler;
@@ -98,7 +93,6 @@ private:
   std::map<EActions, std::unique_ptr<MouseControl>> mMouseActionBinding;
   rangePtr retBullet;
   rangePtr retSuperBullet;
-  rangePtr retEnemy;
   rangePtr retEagle;
   rangeMapPtr retMainWall;
   rangeMapPtr retWall_1;

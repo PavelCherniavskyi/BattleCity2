@@ -34,6 +34,7 @@ void AnimationHandler::Update()
     {
       ap->second();
       mAppearances.erase(ap);
+      mAppearanceCallback();
       break;
     }
   }
@@ -42,6 +43,11 @@ void AnimationHandler::Update()
 bool AnimationHandler::AppearanceIsPending()
 {
   return !mAppearances.empty();
+}
+
+void AnimationHandler::SetAppearanceFinishCallback(const std::function<void()> aCallback)
+{
+  mAppearanceCallback = aCallback;
 }
 
 void AnimationHandler::CreateAnimation(const sf::FloatRect& rect, EImage type, const std::function<void()> popEnemyTank)

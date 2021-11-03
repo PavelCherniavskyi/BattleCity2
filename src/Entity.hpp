@@ -1,7 +1,9 @@
 #ifndef BATTLECITY_ENTITY_HPP
 #define BATTLECITY_ENTITY_HPP
 
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include "Enums.hpp"
 
 class BulletBase;

@@ -22,8 +22,9 @@ void BonusHandler::Update()
   {
     int bonusSwitch;
     std::shared_ptr<BaseBonus> bonus = nullptr;
-    float x = static_cast<float>(rand() % (kWidthScreen - 75) + 25);
-    float y = static_cast<float>(rand() % (kHeightScreen - 75) + 25);
+    float x = static_cast<float>(kRectTileSize + rand() % (kWidthScreen - kWidthRightPanel));
+    float y = static_cast<float>(kRectTileSize + rand() % (kHeightScreen - kRectTileSize * 2));
+    
     bonusSwitch = rand() % 3 + 1;
 
     switch (bonusSwitch)
@@ -42,8 +43,8 @@ void BonusHandler::Update()
       break;
     case 3:
       bonus = std::make_shared<BonusLife>();
-      bonus->SetPosition(x, y);
       bonus->Init();
+      bonus->SetPosition(x, y);
       mBonuses.emplace(EImage::BONUSLIFE, std::move(bonus));
       break;
     default:

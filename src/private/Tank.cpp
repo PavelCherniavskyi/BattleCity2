@@ -16,7 +16,7 @@ constexpr auto kPlayerTankSpeed = 1.f;
 
 const std::vector<sf::Vector2f> kEnemySpawnPos{ 
   { 32, 32 },
-  { (kWidthScreen + kWidthRightPanel - 14) / 2, 32 },
+  { (kWidthScreen + 11) / 2, 32 },
   { kWidthScreen - 23, 33 }
 };
 

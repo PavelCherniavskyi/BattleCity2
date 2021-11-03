@@ -15,12 +15,14 @@ public:
 
   void Draw(sf::RenderWindow&);
   void Update();
+  void SetAppearanceFinishCallback(const std::function<void()>);
   void CreateAnimation(const sf::FloatRect&, EImage, const std::function<void()> = nullptr);
   bool AppearanceIsPending();
 
 private:
   std::unordered_multimap<EImage, std::shared_ptr<Animation>> mAnimations;
   std::vector<std::pair<std::weak_ptr<Animation>, std::function<void()>>> mAppearances;
+  std::function<void()> mAppearanceCallback;
 };
 
 #endif // BATTLECITY_ANIMATIONHANDLER_HPP

@@ -8,8 +8,8 @@ const size_t kHeightMap = 28;
 const size_t kWidthMap = 28;
 const int kWidthScreen = 440;
 const int kHeightScreen = 445;
-const size_t kWidthRightPanel = 25;
-const auto kRectTileSize = 16u;
+const int kWidthRightPanel = 50;
+const int kRectTileSize = 16;
 const uint16_t kTextureWidth = 400U;
 const uint16_t kTextureHeight = 256U;
 

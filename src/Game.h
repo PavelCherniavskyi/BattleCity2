@@ -10,11 +10,15 @@
 #include "ResourceHolders/TextHolder.hpp"
 #include "Tank.hpp"
 #include "BonusHandler.hpp"
+#include "EnemyControlUnit.hpp"
 
 class Game
 {
 public:
   Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
+  void SetGameStage(EGamestates);
+  bool isIntersectsEnemy();
+  
   void Run();
   bool Init();
 
@@ -27,8 +31,11 @@ private:
   void draw();
   void stageRender();
   void nextLvlInitialize();
-  bool tankLoad(size_t);
   void textInitialization();
+  bool isIntersectsSuperBullet();
+  bool isIntersectsBullet();
+  void appearanceIsFinished();
+  void insertNewBullet(std::shared_ptr<BulletBase>);
 
 private:
   sf::RenderWindow mWindow;
@@ -45,4 +52,5 @@ private:
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
   std::vector<sf::Text> mText;
+  EnemyControlUnit mEnemyControlUnit;
 };

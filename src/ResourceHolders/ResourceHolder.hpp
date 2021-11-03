@@ -15,10 +15,17 @@ public:
   void LoadFromFile(Identifier, const std::string&, const std::vector<sf::IntRect>& aRec = {});
   template<typename UniversalRef> void Insert(Identifier, UniversalRef&&);
   std::shared_ptr<Resource> Get(Identifier) const;
+  void Reset();
 
 private:
   std::unordered_map<Identifier, std::shared_ptr<Resource>> mResourceMap;
 };
+
+template<typename Identifier, typename Resource>
+void ResourceHolder<Identifier, Resource>::Reset()
+{
+  mResourceMap.clear();
+}
 
 template<typename Identifier, typename Resource>
 void ResourceHolder<Identifier, Resource>::LoadFromFile(Identifier aId, const std::string& aFilename, const std::vector<sf::IntRect>& aRec)

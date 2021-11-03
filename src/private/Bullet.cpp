@@ -3,6 +3,11 @@
 
 constexpr auto kBulletSpriteSize = 1u;
 
+BulletBase::BulletBase(ECategory type)
+  : mBulletType(type)
+{
+}
+
 bool BulletBase::setInit(BulletBase& aBullet, const float aScale)
 {
   auto sprites = SpriteHolder::GetSprite(EImage::BULLET);
@@ -21,9 +26,24 @@ bool BulletBase::setInit(BulletBase& aBullet, const float aScale)
   return true;
 }
 
+ECategory BulletBase::GetBulletType() const
+{
+  return mBulletType;
+}
+
+SimpleBullet::SimpleBullet() 
+  : BulletBase(ECategory::BULLET)
+{
+}
+
 bool SimpleBullet::Init()
 {
   return setInit(*this, 2.f);
+}
+
+SuperBullet::SuperBullet() 
+  : BulletBase(ECategory::SUPERBULLET)
+{
 }
 
 bool SuperBullet::Init()

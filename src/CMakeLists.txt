@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
         private/RightPanel.cpp
         private/Tank.cpp
         private/InputHandler.cpp
+        private/EnemyControlUnit.cpp
         ResourceHolders/private/FontHolder.cpp
         ResourceHolders/private/TextHolder.cpp
         ResourceHolders/private/SpriteHolder.cpp

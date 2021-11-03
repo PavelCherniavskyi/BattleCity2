@@ -7,17 +7,13 @@
 
 constexpr auto KScaleFactor = 2.F;
 
-ResourceHolder<EImage, std::vector<sf::Sprite>> SpriteHolder::mSpriteHolder;
 ResourceHolder<EImage, std::vector<sf::Texture>> SpriteHolder::mTextureHolder;
+ResourceHolder<EImage, std::vector<sf::Sprite>> SpriteHolder::mSpriteHolder;
+
 
 std::shared_ptr<std::vector<sf::Sprite>> SpriteHolder::GetSprite(EImage aImage)
 {
   return mSpriteHolder.Get(aImage);
-}
-
-std::shared_ptr<std::vector<sf::Texture>> SpriteHolder::GetTexture(EImage aImage)
-{
-	return mTextureHolder.Get(aImage);
 }
 
 bool SpriteHolder::Init()

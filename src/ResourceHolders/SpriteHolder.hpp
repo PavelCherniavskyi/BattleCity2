@@ -15,12 +15,13 @@ class SpriteHolder
 public:
    static bool Init();
    static std::shared_ptr<std::vector<sf::Sprite>> GetSprite(EImage aImage);
-   static std::shared_ptr<std::vector<sf::Texture>> GetTexture(EImage aImage);
+
 private:
    static void insert(EImage aTextureId, const std::shared_ptr<std::vector<sf::Texture>>& aTexturesPtr);
 
-   static ResourceHolder<EImage, std::vector<sf::Sprite>> mSpriteHolder;
+private:
    static ResourceHolder<EImage, std::vector<sf::Texture>> mTextureHolder;
+   static ResourceHolder<EImage, std::vector<sf::Sprite>> mSpriteHolder;
 };
 
 
