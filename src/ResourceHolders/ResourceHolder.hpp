@@ -87,15 +87,14 @@ void ResourceHolder<Identifier, Resource>::Insert(Identifier aId, UniversalRef&&
 template<typename Identifier, typename Resource>
 std::shared_ptr<Resource> ResourceHolder<Identifier, Resource>::Get(Identifier aId) const
 {
-  auto it = mResourceMap.find(aId);
-  if (it == mResourceMap.end())
+  if (auto it = mResourceMap.find(aId); it != mResourceMap.end())
   {
-    SPDLOG_ERROR("Resource doesn't exist");
-    return nullptr;
+    return it->second;
   }
   else
   {
-    return it->second;
+    SPDLOG_ERROR("Resource doesn't exist");
+    return nullptr;
   }
 }
 

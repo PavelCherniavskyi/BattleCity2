@@ -3,22 +3,22 @@
 #include "../Utils/Utils.hpp"
 
 constexpr auto kPlayerStepMove = 100.f;
+constexpr auto KEnemyTanksOnFieldNumber = 4u;
 
 Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
-  std::unordered_multimap<EImage, std::shared_ptr<Animation>>& a,
+  AnimationHandler& a,
   EGamestates& g,
   std::vector<std::shared_ptr<Entity>>& et,
   std::vector<std::shared_ptr<Map>>& map,
   RightPanel& pan,
   BonusHandler& bon)
   : entities(ent)
-  , animations(a)
+  , mAnimationHandler(a)
   , gameStage(g)
-  , enemyTanks(et)
+  , mEnemyTanksQueue(et)
   , spawnEnemyTanksTime(2)
   , mapSequence(map)
   , panel(pan)
-  , enemyTanksOnFieldNumber(4)
   , mBonusHandler(bon)
   , mPlayerTank(std::make_shared<PlayerTank>())
 {
@@ -80,31 +80,6 @@ void Player::HandleBonusEvents()
   }
 }
 
-void Player::handleAnimation(sf::FloatRect rect, EImage tex)
-{
-  std::shared_ptr<Animation> anim = nullptr;
-  if (tex == +EImage::BULLETCOLLISION)
-  {
-    anim = std::make_shared<BulletCollision>();
-  }
-  else if (tex == +EImage::TANKCOLLISION)
-  {
-    anim = std::make_shared<TankCollision>();
-  }
-  else if (tex == +EImage::SUPERBULLETCOLLISION)
-  {
-    anim = std::make_shared<SuperBulletCollision>();
-  }
-  else if (tex == +EImage::EAGLECOLLISION)
-  {
-    anim = std::make_shared<EagleCollision>();
-  }
-
-  anim->Init();
-  anim->Bang(rect);
-  animations.insert({tex, std::move(anim)});
-}
-
 void Player::handleEnemyTanks(std::shared_ptr<Entity> entity)
 {
   int choice(std::rand() % 4);
@@ -138,50 +113,24 @@ void Player::handleEnemySpawn(sf::Time)
 
   if (time.asSeconds() > spawn)
   {
-    if (!enemyTanks.empty())
+    if (!mEnemyTanksQueue.empty())
     {
-      if (entities.count(ECategory::ENEMYTANK) < enemyTanksOnFieldNumber)
+      const auto enemyTanksOnField = entities.count(ECategory::ENEMYTANK);
+      if (enemyTanksOnField < KEnemyTanksOnFieldNumber && !mAnimationHandler.AppearanceIsPending())
       {
-        if (handleEnemyApperanceEffect())
-        {
-          entities.insert({ECategory::ENEMYTANK, enemyTanks.back()});
+        auto popEnemyTank = [this]() {
+          entities.emplace(ECategory::ENEMYTANK, mEnemyTanksQueue.back());
           panel.PopIcon();
-          enemyTanks.pop_back();
+          mEnemyTanksQueue.pop_back();
           clock.restart();
           spawn = spawnEnemyTanksTime;
-        }
+        };
+
+        const auto rect = mEnemyTanksQueue.back()->GetGlobalBounds();
+        mAnimationHandler.CreateAnimation(rect, EImage::APPERANCE, popEnemyTank);
       }
     }
   }
-}
-
-bool Player::handleEnemyApperanceEffect()
-{
-  static bool doOnce = true;
-  static Apperance* anim = nullptr;
-  if (doOnce)
-  {
-    // std::cout << "handleEnemyApperanceEffect1" << std::endl;
-    sf::FloatRect rect = enemyTanks.back()->GetGlobalBounds();
-    anim = new Apperance;
-    anim->Init();
-    anim->Bang(rect);
-    animations.insert(std::make_pair(EImage::APPERANCE, anim));
-    doOnce = false;
-  }
-  else
-  {
-    // std::cout << "handleEnemyApperanceEffect2" << std::endl;
-    if (!anim->IsAlife())
-    {
-      doOnce = true;
-      return true;
-    }
-
-    // std::cout << "handleEnemyApperanceEffect3" << std::endl;
-  }
-
-  return false;
 }
 
 void Player::handleEnemyFire(sf::Time, std::shared_ptr<Entity> entity)
@@ -269,7 +218,7 @@ bool Player::isIntersectsBullet()
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrBullet);
         initializeObjects();
@@ -284,7 +233,7 @@ bool Player::isIntersectsBullet()
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
         initializeObjects();
         return true;
@@ -298,7 +247,7 @@ bool Player::isIntersectsBullet()
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
         initializeObjects();
         return true;
@@ -313,13 +262,13 @@ bool Player::isIntersectsBullet()
     {
       if (Utils::Intersection(itrTank->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
       {
-        handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         entities.erase(itrBullet);
         itrTank->second->Kill();
         initializeObjects();
         if (!itrTank->second->IsAlife())
         {
-          handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
+          mAnimationHandler.CreateAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
           entities.erase(itrTank);
           initializeObjects();
         }
@@ -333,14 +282,13 @@ bool Player::isIntersectsBullet()
   {
     if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
-      handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+      mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       entities.erase(itrBullet);
       mPlayerTank->Kill();
       initializeObjects();
-      // std::cout << lplayerTank->second->getHP() << std::endl;
       if (!mPlayerTank->IsAlife())
       {
-        handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+        mAnimationHandler.CreateAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
         entities.erase(ECategory::PLAYERTANK);
         gameStage = EGamestates::GAME_OVER;
         initializeObjects();
@@ -366,8 +314,8 @@ bool Player::isIntersectsBullet()
   {
     if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
-      handleAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
+      mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
       eagle->second->Kill();
       entities.erase(itrBullet);
       gameStage = EGamestates::GAME_OVER;
@@ -389,7 +337,7 @@ bool Player::isIntersectsSuperBullet()
     {
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
         initializeObjects();
@@ -404,7 +352,7 @@ bool Player::isIntersectsSuperBullet()
     {
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         mapSequence.back()->GetMap().erase(itrMap);
         entities.erase(itrSuperBullet);
         initializeObjects();
@@ -419,7 +367,7 @@ bool Player::isIntersectsSuperBullet()
     {
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         entities.erase(itrSuperBullet);
         initializeObjects();
         return true;
@@ -434,11 +382,10 @@ bool Player::isIntersectsSuperBullet()
     {
       if (Utils::Intersection(itrTank->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
       {
-        handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        handleAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
+        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+        mAnimationHandler.CreateAnimation(itrTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
         entities.erase(itrSuperBullet);
         entities.erase(itrTank);
-        // std::cout << "TankCollision!!!" << std::endl;
         initializeObjects();
         return true;
       }
@@ -450,14 +397,13 @@ bool Player::isIntersectsSuperBullet()
   {
     if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
-      handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-      handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+      mAnimationHandler.CreateAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
       entities.erase(itrSuperBullet);
       entities.erase(ECategory::PLAYERTANK);
       panel.SetCurrentLives(0);
       gameStage = EGamestates::GAME_OVER;
       initializeObjects();
-      // std::cout << lplayerTank->second->getHP() << std::endl;
       return true;
     }
   }
@@ -468,12 +414,11 @@ bool Player::isIntersectsSuperBullet()
   {
     if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
-      handleAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
+      mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
       eagle->second->Kill();
       entities.erase(itrSuperBullet);
       gameStage = EGamestates::GAME_OVER;
-      // std::cout << "TankCollision!!!" << std::endl;
       initializeObjects();
       return true;
     }
@@ -541,7 +486,7 @@ bool Player::isIntersectsEnemy()
   {
     if (Utils::Intersection(eagle->second->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
     {
-      handleAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
+      mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
       eagle->second->Kill();
       gameStage = EGamestates::GAME_OVER;
       return true;
@@ -603,8 +548,8 @@ void Player::isIntersectsOthers()
   {
     if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrEnemyTank->second->GetGlobalBounds()))
     {
-      handleAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
-      handleAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      mAnimationHandler.CreateAnimation(mPlayerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      mAnimationHandler.CreateAnimation(itrEnemyTank->second->GetGlobalBounds(), EImage::TANKCOLLISION);
       entities.erase(itrEnemyTank);
       entities.erase(ECategory::PLAYERTANK);
       panel.SetCurrentLives(0);

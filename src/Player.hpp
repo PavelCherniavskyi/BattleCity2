@@ -6,7 +6,7 @@
 #include "Map.hpp"
 #include "Tank.hpp"
 #include "BonusHandler.hpp"
-#include "Animation.hpp"
+#include "AnimationHandler.hpp"
 #include "RightPanel.hpp"
 
 #include <SFML/Window/Event.hpp>
@@ -55,7 +55,7 @@ public:
 
 public:
   Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>> &,
-     std::unordered_multimap<EImage, std::shared_ptr<Animation>> &,
+     AnimationHandler&,
      EGamestates &,
      std::vector<std::shared_ptr<Entity>> &,
      std::vector<std::shared_ptr<Map>> &,
@@ -66,7 +66,6 @@ public:
   void HandleMovingInput(sf::Time TimePerFrame);
   void handleEnemyTanks(std::shared_ptr<Entity>);
   void HandleBonusEvents();
-  void handleAnimation(sf::FloatRect, EImage);
   bool isIntersectsPlayerTank();
   bool isIntersectsBullet();
   bool isIntersectsSuperBullet();
@@ -74,7 +73,6 @@ public:
   void isIntersectsOthers();
   bool Intersection(const sf::FloatRect&, const sf::FloatRect&) const;
   void handleEnemySpawn(sf::Time);
-  bool handleEnemyApperanceEffect();
   void handleEnemyFire(sf::Time, std::shared_ptr<Entity>);
   std::shared_ptr<PlayerTank> getPlayerTank();
   bool Init();
@@ -87,13 +85,12 @@ private:
 
 private:
   std::unordered_multimap<ECategory, std::shared_ptr<Entity>> &entities;
-  std::unordered_multimap<EImage, std::shared_ptr<Animation>> &animations;
+  AnimationHandler& mAnimationHandler;
   EGamestates &gameStage;
-  std::vector<std::shared_ptr<Entity>> &enemyTanks;
+  std::vector<std::shared_ptr<Entity>> &mEnemyTanksQueue;
   float spawnEnemyTanksTime;
   std::vector<std::shared_ptr<Map>> &mapSequence;
   RightPanel &panel;
-  size_t enemyTanksOnFieldNumber;
   BonusHandler& mBonusHandler;
   std::unordered_map<sf::Keyboard::Key, EActions> mKeyboardBinding;
   std::unordered_map<sf::Mouse::Button, EActions> mMousedBinding;

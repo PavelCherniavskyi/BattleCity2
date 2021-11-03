@@ -1,9 +1,6 @@
 #include "../Animation.hpp"
 #include "../ResourceHolders/SpriteHolder.hpp"
 
-sf::Clock Animation::mClockForTimeOfLiving;
-sf::Clock Animation::mClockForDraw;
-
 constexpr int kMaxSpriteNumber = 4;
 
 bool Animation::setInit(Animation& aAnimation, const float aScale, const float aLifeTime)
@@ -60,6 +57,15 @@ bool Animation::IsAlife() const
   return mIsLiving;
 }
 
+sf::Vector2f Animation::GetPosition() const
+{
+  if(!mSprites.empty())
+  {
+    return mSprites[0].getPosition();
+  }
+  return sf::Vector2f();
+}
+
 BulletCollision::BulletCollision()
   : Animation(2u, EImage::BULLETCOLLISION)
 {
@@ -83,7 +89,7 @@ void BulletCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void BulletCollision::Bang(const sf::FloatRect& rect)
+void BulletCollision::SetPosition(const sf::FloatRect& rect)
 {
   for (size_t i = 0; i < mSpritesCount; i++)
   {
@@ -120,7 +126,7 @@ void TankCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void TankCollision::Bang(const sf::FloatRect& rect)
+void TankCollision::SetPosition(const sf::FloatRect& rect)
 {
   for (size_t i = 0; i < mSpritesCount; i++)
   {
@@ -157,7 +163,7 @@ void SuperBulletCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void SuperBulletCollision::Bang(const sf::FloatRect& rect)
+void SuperBulletCollision::SetPosition(const sf::FloatRect& rect)
 {
   for (size_t i = 0; i < mSpritesCount; i++)
   {
@@ -188,7 +194,7 @@ void EagleCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void EagleCollision::Bang(const sf::FloatRect& rect)
+void EagleCollision::SetPosition(const sf::FloatRect& rect)
 {
   for (size_t i = 0; i < mSpritesCount; i++)
   {
@@ -229,7 +235,7 @@ void Apperance::Draw(sf::RenderWindow& window)
   }
 }
 
-void Apperance::Bang(const sf::FloatRect& rect)
+void Apperance::SetPosition(const sf::FloatRect& rect)
 {
   for (size_t i = 0; i < mSpritesCount; i++)
   {

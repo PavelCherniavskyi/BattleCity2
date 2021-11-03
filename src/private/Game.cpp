@@ -10,16 +10,15 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   : mWindow(sf::VideoMode(kWidthScreen + kWidthRightPanel * 2, kHeightScreen), "Battle City 2", sf::Style::Close)
   , mIsPaused(false)
   , mTextHolder()
-  , mStatisticsUpdateTime()
-  , mStatisticsNumFrames(0)
   , mEntities{}
-  , mAnimations{}
+  , mAnimationHandler()
   , mapSequence{}
   , mBonusHandler()
-  , player(mEntities, mAnimations, gameStage, enemyTanks, mapSequence, panel, mBonusHandler)
+  , player(mEntities, mAnimationHandler, gameStage, enemyTanks, mapSequence, panel, mBonusHandler)
   , gameStage(EGamestates::RUNNING)
   , panel()
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
+  , mText(EText::_size())
 {
 }
 
@@ -44,7 +43,7 @@ void Game::Run()
         update(kTimePerFrame);
       }
     }
-    updateStatistics(elapsedTime);
+    updateFPS(elapsedTime);
     render();
   }
 }
@@ -55,6 +54,19 @@ bool Game::Init()
   {
     SPDLOG_ERROR("Init failure");
     return false;
+  }
+
+  for(const auto& idx : EText::_values())
+  {
+    if(const auto text = mTextHolder.GetText(idx); !text)
+    {
+      SPDLOG_ERROR("No text for: {}", idx._to_string());
+      return false;
+    }
+    else
+    {
+      mText[idx] = *text;
+    }
   }
 
   auto playerTankPtr = player.getPlayerTank();
@@ -132,18 +144,7 @@ void Game::update(sf::Time elapsedTime)
   }
 
   // Update for Animation
-  for (auto itrAnim = mAnimations.begin(); itrAnim != mAnimations.end(); itrAnim++)
-  {
-    if (itrAnim->second->IsAlife())
-    {
-      itrAnim->second->update();
-    }
-    else
-    {
-      mAnimations.erase(itrAnim);
-      break;
-    }
-  }
+  mAnimationHandler.Update();
 
   mBonusHandler.Update();
 
@@ -176,64 +177,31 @@ void Game::stageRender()
   {
     gameStage = EGamestates::WIN;
     forClockRestart = false;
-    // std::cout << "win" << std::endl;
   }
 
   if (gameStage == +EGamestates::RUNNING)
   {
-    auto text = mTextHolder.GetText(EText::STATISTIC);
-    if (text)
-    {
-      mWindow.draw(*text);
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for STATISTIC");
-    }
+    mWindow.draw(mText[EText::FPS]);
   }
 
   if (mIsPaused)
   {
-    auto text = mTextHolder.GetText(EText::PAUSE);
-    if (text)
-    {
-      mWindow.draw(*text);
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for PAUSE");
-    }
+    mWindow.draw(mText[EText::PAUSE]);
   }
 
   else if (gameStage == +EGamestates::GAME_OVER)
   {
-    auto text = mTextHolder.GetText(EText::GAME_OVER);
-    if (text)
-    {
-      mWindow.draw(*text);
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for GAME OVER");
-    }
+    mWindow.draw(mText[EText::GAME_OVER]);
     static sf::Clock forGameOver;
     sf::Time time = forGameOver.getElapsedTime();
-    if (time.asSeconds() > 2)
+    if (time.asSeconds() > 3)
     {
       mWindow.close();
     }
   }
   else if (gameStage == +EGamestates::NEXT_LVL)
   {
-    auto text = mTextHolder.GetText(EText::NEXT_LVL);
-    if (text)
-    {
-      mWindow.draw(*text);
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for NEXT_LVL");
-    }
+    mWindow.draw(mText[EText::NEXT_LVL]);
     sf::Time time = clock.getElapsedTime();
     if (time.asSeconds() > 3)
     {
@@ -243,15 +211,7 @@ void Game::stageRender()
   }
   else if (gameStage == +EGamestates::WIN)
   {
-    auto text = mTextHolder.GetText(EText::WIN);
-    if (text)
-    {
-      mWindow.draw(*text);
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for WIN");
-    }
+    mWindow.draw(mText[EText::WIN]);
     sf::Time time = clock.getElapsedTime();
     if (time.asSeconds() > 3)
     {
@@ -363,26 +323,18 @@ void Game::render()
   mWindow.display();
 }
 
-void Game::updateStatistics(sf::Time elapsedTime)
+void Game::updateFPS(sf::Time elapsedTime)
 {
-  mStatisticsUpdateTime += elapsedTime;
-  mStatisticsNumFrames += 1;
+  static sf::Time FPSUpdateTime;
+  static size_t FPSNumFrames = 0u;
+  FPSUpdateTime += elapsedTime;
+  FPSNumFrames += 1;
 
-  if (mStatisticsUpdateTime >= sf::seconds(1.0f))
+  if (FPSUpdateTime >= sf::seconds(1.0f))
   {
-    auto text = mTextHolder.GetText(EText::STATISTIC);
-    if (text)
-    {
-      text->setString("Frames / Second = " + std::to_string(mStatisticsNumFrames) + "\n"
-                      + "Time / Update = " + std::to_string(mStatisticsUpdateTime.asMicroseconds() / static_cast<sf::Int64>(mStatisticsNumFrames)) + "us");
-    }
-    else
-    {
-      SPDLOG_ERROR("No text for STATISTIC");
-    }
-
-    mStatisticsUpdateTime -= sf::seconds(1.0f);
-    mStatisticsNumFrames = 0;
+    mText[EText::FPS].setString("FPS: " + std::to_string(FPSNumFrames));
+    FPSUpdateTime = sf::seconds(0);
+    FPSNumFrames = 0;
   }
 }
 
@@ -394,17 +346,9 @@ void Game::draw()
     itr->second->Draw(mWindow);
   }
 
-  // Draw for map
   mapSequence.back()->Draw(mWindow);
-
-  // Draw for Bonuses
   mBonusHandler.Draw(mWindow);
-
-  // Draw for Animation
-  for (auto itrAnim = mAnimations.begin(); itrAnim != mAnimations.end(); itrAnim++)
-  {
-    itrAnim->second->Draw(mWindow);
-  }
+  mAnimationHandler.Draw(mWindow);
 
   // Draw for Right Panel
   panel.Draw(mWindow);

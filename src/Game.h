@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-#include "Animation.hpp"
+#include "AnimationHandler.hpp"
 #include "Bullet.hpp"
 #include "Entity.hpp"
 #include "InputHandler.hpp"
@@ -23,7 +23,7 @@ private:
   void update(sf::Time elapsedTime);
   void render();
   bool intersection(ECategory category);
-  void updateStatistics(sf::Time elapsedTime);
+  void updateFPS(sf::Time elapsedTime);
   void draw();
   void stageRender();
   void nextLvlInitialize();
@@ -34,10 +34,8 @@ private:
   sf::RenderWindow mWindow;
   bool mIsPaused;
   TextHolder mTextHolder;
-  sf::Time mStatisticsUpdateTime;
-  std::size_t mStatisticsNumFrames;
   std::unordered_multimap<ECategory, std::shared_ptr<Entity>> mEntities;
-  std::unordered_multimap<EImage, std::shared_ptr<Animation>> mAnimations;
+  AnimationHandler mAnimationHandler;
   std::vector<std::shared_ptr<Map>> mapSequence;
   BonusHandler mBonusHandler;
   Player player;
@@ -46,4 +44,5 @@ private:
   bool mIsMoving;
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
+  std::vector<sf::Text> mText;
 };

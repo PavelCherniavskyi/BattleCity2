@@ -20,9 +20,9 @@ bool TextHolder::Init()
 
   sf::Text mStatisticsText;
   mStatisticsText.setFont(*sansationFont);
-  mStatisticsText.setPosition(5.f, 5.f);
+  mStatisticsText.setPosition(5.f, 2.f);
   mStatisticsText.setCharacterSize(10);
-  mResourceHolder.Insert(EText::STATISTIC, std::move(mStatisticsText));
+  mResourceHolder.Insert(EText::FPS, std::move(mStatisticsText));
 
   sf::Text gameOver("Game Over!!!", *sansationFont, 60);
   gameOver.setStyle(sf::Text::Bold);

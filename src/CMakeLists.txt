@@ -3,6 +3,7 @@ add_executable(${PROJECT_NAME}
         private/Animation.cpp
         private/Bonus.cpp
         private/BonusHandler.cpp
+        private/AnimationHandler.cpp
         private/Bullet.cpp
         private/Eagle.cpp
         private/Entity.cpp
