@@ -18,7 +18,7 @@ public:
   Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
   void SetGameStage(EGamestates);
   bool isIntersectsEnemy();
-  
+  void ShutDown();
   void Run();
   bool Init();
 

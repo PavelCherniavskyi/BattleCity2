@@ -23,6 +23,11 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
 {
 }
 
+void Game::ShutDown()
+{
+  SpriteHolder::ShutDown();
+}
+
 void Game::Run()
 {
   sf::Clock clock;

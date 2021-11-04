@@ -21,6 +21,7 @@ int main(int argc, char ** argv)
    }
    
    game.Run();
-
+   game.ShutDown();
+   
    return 0;
 }

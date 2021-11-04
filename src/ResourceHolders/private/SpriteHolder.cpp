@@ -16,6 +16,12 @@ std::shared_ptr<std::vector<sf::Sprite>> SpriteHolder::GetSprite(EImage aImage)
   return mSpriteHolder.Get(aImage);
 }
 
+void SpriteHolder::ShutDown()
+{
+	mTextureHolder.Reset();
+	mSpriteHolder.Reset();
+}
+
 bool SpriteHolder::Init()
 {
 	const std::string path = fmt::format("{}/src/media/Textures/SpriteSheet.png", CMAKE_SOURCE_DIR);
