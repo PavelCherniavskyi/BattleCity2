@@ -92,6 +92,7 @@ bool Game::Init()
   panel.IncrementCurrentLvl();
   mAnimationHandler.SetAppearanceFinishCallback([this](){appearanceIsFinished();});
   mEnemyControlUnit.SetNewBulletCallback([this](const auto& aBullet){insertNewBullet(aBullet);});
+  player.SetNewBulletCallback([this](const auto& aBullet){insertNewBullet(aBullet);});
   
   return true;
 }
@@ -412,12 +413,8 @@ bool Game::isIntersectsEnemy()
 
 void Game::update(sf::Time elapsedTime)
 {
-  Player::rangePtr retBullet;
-  Player::rangePtr retSuperBullet;
-  Player::rangePtr retEnemyTank;
-
   // Update for bullets
-  retBullet = mEntities.equal_range(ECategory::BULLET);
+  auto retBullet = mEntities.equal_range(ECategory::BULLET);
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
     itrBullet->second->Update(itrBullet->second->GetVelocity() * elapsedTime.asSeconds());
@@ -426,7 +423,8 @@ void Game::update(sf::Time elapsedTime)
       break;
     }
   }
-  retSuperBullet = mEntities.equal_range(ECategory::SUPERBULLET);
+
+  auto retSuperBullet = mEntities.equal_range(ECategory::SUPERBULLET);
   // Update for SuperBullets
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {

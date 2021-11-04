@@ -19,6 +19,7 @@ Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
   , panel(pan)
   , mBonusHandler(bon)
   , mPlayerTank(std::make_shared<PlayerTank>())
+  , mNewBulletCallback()
 {
 }
 
@@ -30,7 +31,7 @@ void Player::HandleActionEvent(const sf::Event& event, sf::Time)
     {
       if (mPlayerTank && mPlayerTank->CanIDoFire())
       {
-        mMouseActionBinding[found->second].get()->MouseAction(mPlayerTank);
+        mMouseActions[found->second].get()->Action(mPlayerTank);
         panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
       }
     }
@@ -43,10 +44,10 @@ void Player::HandleMovingInput(sf::Time TimePerFrame)
   {
     if (sf::Keyboard::isKeyPressed(pair.first) && Utils::IsMovingAction(pair.second))
     {
-      mKeyboardMovingBinding[pair.second].get()->KeyboardAction(TimePerFrame, mPlayerTank, false);
-      if (isIntersectsPlayerTank())
+      mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, false);
+      if (isIntersectsWalls())
       {
-        mKeyboardMovingBinding[pair.second].get()->KeyboardAction(TimePerFrame, mPlayerTank, true);
+        mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, true);
       }
       mPlayerTank->SetIsMoving(true);
       break;
@@ -83,66 +84,28 @@ std::shared_ptr<PlayerTank> Player::getPlayerTank()
   return mPlayerTank;
 }
 
-void Player::MouseControl::MouseAction(std::shared_ptr<Entity> entity)
-{
-  std::shared_ptr<BulletBase> bullet(nullptr);
-  if (type == +ECategory::BULLET)
-  {
-    bullet = entity->DoFire(ECategory::BULLET);
-  }
-  else if (type == +ECategory::SUPERBULLET)
-  {
-    bullet = entity->DoFire(ECategory::SUPERBULLET);
-  }
 
-  if(!bullet)
-  {
-    return;
-  }
-  entities.insert({ECategory::BULLET, std::move(bullet)});
+void Player::SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>)> aCallback)
+{
+  mNewBulletCallback = aCallback;
 }
 
 void Player::initializeActions()
 {
-  mKeyboardMovingBinding[EActions::LEFT] = std::make_unique<KeyboardControl>(-kPlayerStepMove, 0.f, EActions::LEFT);
-  mKeyboardMovingBinding[EActions::RIGHT] = std::make_unique<KeyboardControl>(+kPlayerStepMove, 0.f, EActions::RIGHT);
-  mKeyboardMovingBinding[EActions::UP] = std::make_unique<KeyboardControl>(0.f, -kPlayerStepMove, EActions::UP);
-  mKeyboardMovingBinding[EActions::DOWN] = std::make_unique<KeyboardControl>(0.f, +kPlayerStepMove, EActions::DOWN);
-  mMouseActionBinding[EActions::FIRE] = std::make_unique<MouseControl>(entities, ECategory::BULLET);
-  mMouseActionBinding[EActions::SUPERFIRE] = std::make_unique<MouseControl>(entities, ECategory::SUPERBULLET);
+  mKeyboardActions[EActions::LEFT] = std::make_unique<KeyboardCommand>(-kPlayerStepMove, 0.f, EActions::LEFT);
+  mKeyboardActions[EActions::RIGHT] = std::make_unique<KeyboardCommand>(+kPlayerStepMove, 0.f, EActions::RIGHT);
+  mKeyboardActions[EActions::UP] = std::make_unique<KeyboardCommand>(0.f, -kPlayerStepMove, EActions::UP);
+  mKeyboardActions[EActions::DOWN] = std::make_unique<KeyboardCommand>(0.f, +kPlayerStepMove, EActions::DOWN);
+  mMouseActions[EActions::FIRE] = std::make_unique<MouseCommand>([this](const auto& aBullet){mNewBulletCallback(aBullet);}, ECategory::BULLET);
+  mMouseActions[EActions::SUPERFIRE] = std::make_unique<MouseCommand>([this](const auto& aBullet){mNewBulletCallback(aBullet);}, ECategory::SUPERBULLET);
 }
 
-void Player::initializeObjects()
+bool Player::isIntersectsWalls()
 {
-  retBullet = entities.equal_range(ECategory::BULLET);
-  retSuperBullet = entities.equal_range(ECategory::SUPERBULLET);
-  retEagle = entities.equal_range(ECategory::EAGLE);
-  retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
-  retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
-  retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
-  retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
-}
-
-void Player::KeyboardControl::KeyboardAction(sf::Time time, std::shared_ptr<PlayerTank> aPlayer, bool aMoveBack)
-{
-  if (aMoveBack)
-  {
-    aPlayer->MoveBack((Velocity * aPlayer->GetSpeed()) * time.asSeconds());
-  }
-  else
-  {
-    aPlayer->SetVelocity(Velocity * aPlayer->GetSpeed());
-    aPlayer->Update((Velocity * aPlayer->GetSpeed()) * time.asSeconds());
-    aPlayer->Rotate(Side);
-  }
-}
-
-bool Player::isIntersectsPlayerTank()
-{
-  // PlayerTank vs Wall_1
-  initializeObjects();
-
   const auto& globalBounds = mPlayerTank->GetGlobalBounds();
+
+  // PlayerTank vs Wall_1
+  auto retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
   for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
   {
     if (Utils::Intersection(globalBounds, itrMap->second.Rect))
@@ -152,6 +115,7 @@ bool Player::isIntersectsPlayerTank()
   }
 
   // PlayerTank vs Wall_2
+  auto retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
   for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
   {
     if (Utils::Intersection(globalBounds, itrMap->second.Rect))
@@ -161,6 +125,7 @@ bool Player::isIntersectsPlayerTank()
   }
 
   // PlayerTank vs MainWall
+  auto retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
   for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
   {
     if (Utils::Intersection(globalBounds, itrMap->second.Rect))
@@ -170,6 +135,7 @@ bool Player::isIntersectsPlayerTank()
   }
 
   // PlayerTank vs WaterWall
+  auto retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
   for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
   {
     if (Utils::Intersection(globalBounds, itrMap->second.Rect))
@@ -215,7 +181,6 @@ bool Player::Init()
   }
 
   initializeActions();
-  initializeObjects();
 
   return true;
 }

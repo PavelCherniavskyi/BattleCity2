@@ -14,6 +14,7 @@ add_executable(${PROJECT_NAME}
         private/Tank.cpp
         private/InputHandler.cpp
         private/EnemyControlUnit.cpp
+        private/Commands.cpp
         ResourceHolders/private/FontHolder.cpp
         ResourceHolders/private/TextHolder.cpp
         ResourceHolders/private/SpriteHolder.cpp
