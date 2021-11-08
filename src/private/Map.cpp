@@ -199,7 +199,12 @@ void Map::Draw(sf::RenderWindow& window)
 	}
 }
 
-std::unordered_multimap<EImage, Node>& Map::GetMap()
+void Map::Destroy(const std::unordered_multimap<EImage, Node>::const_iterator& it)
+{
+	mLevelMap.erase(it);
+}
+
+const std::unordered_multimap<EImage, Node>& Map::GetMap() const
 {
 	return mLevelMap;
 }

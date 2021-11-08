@@ -1,0 +1,63 @@
+@startuml TestUML
+
+class Player {
+  -- public --
+  +Player(mapSequence&, rightPanel&, bonusHandler&)
+  +Init()
+  +HandleActionEvent(event, timePerFrame)
+  +HandleMovingInput(timePerFrame)
+  +HandleBonusEvents()
+  +bool IsIntersectsWalls()
+  +playerTank GetPlayerTank()
+  +SetNewBulletCallback(function<void(bullet)>)
+  -- private --
+  -mapSequence&
+  -rightPanel&
+  -bonusHandler&
+  -keyboardBinding
+  -mousedBinding
+  -keyboardActions
+  -mouseActions
+  -playerTank
+  -newBulletCallback
+
+}
+
+class Game {
+  -- public --
+  +Game(inputHandler)
+  +isIntersectsEnemy()
+  +ShutDown()
+  +Run()
+  +Init()
+  -- private --
+  .. functions ..
+  -handleInput(Time)
+  -update(Time)
+  -updateFPS(Time)
+  -draw()
+  -stageRender()
+  -nextLvlInitialize()
+  -isIntersectsSuperBullet()
+  -isIntersectsBullet()
+  -appearanceIsFinished()
+  -insertNewBullet(shared_ptr<BulletBase>)
+  .. fields ..
+  -window
+  -isPaused
+  -textHolder
+  -entities
+  -animationHandler
+  -mapSequence
+  -bonusHandler
+  -player
+  -gameStage
+  -rightPanel
+  -inputHandler
+  -text
+  -enemyControlUnit
+}
+
+Game *-- Player
+
+@enduml

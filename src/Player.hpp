@@ -14,34 +14,19 @@
 class Player
 {
 public:
-  Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>> &,
-     AnimationHandler&,
-     EGamestates &,
-     std::vector<std::shared_ptr<Entity>> &,
+  Player(
      std::vector<std::shared_ptr<Map>> &,
      RightPanel &,
      BonusHandler &);
-
+  bool Init();
   void HandleActionEvent(const sf::Event &event, sf::Time TimePerFrame);
   void HandleMovingInput(sf::Time TimePerFrame);
   void HandleBonusEvents();
-  bool isIntersectsWalls();
-  bool isIntersectsBullet();
-  bool isIntersectsSuperBullet();
-  bool isIntersectsEnemy();
-  bool Intersection(const sf::FloatRect&, const sf::FloatRect&) const;
-  std::shared_ptr<PlayerTank> getPlayerTank();
+  bool IsIntersectsWalls();
+  std::shared_ptr<PlayerTank> GetPlayerTank();
   void SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>)>);
-  bool Init();
 
 private:
-  void initializeActions();
-
-private:
-  std::unordered_multimap<ECategory, std::shared_ptr<Entity>> &entities;
-  AnimationHandler& mAnimationHandler;
-  EGamestates &gameStage;
-  std::vector<std::shared_ptr<Entity>> &mEnemyTanksQueue;
   std::vector<std::shared_ptr<Map>> &mapSequence;
   RightPanel &panel;
   BonusHandler& mBonusHandler;

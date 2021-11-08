@@ -20,10 +20,11 @@ struct Node
 class Map
 {
 public:
-  explicit Map(size_t aMapIndex);
+  explicit Map(size_t);
   bool Init();
-  void Draw(sf::RenderWindow& window);
-  std::unordered_multimap<EImage, Node>& GetMap();
+  void Draw(sf::RenderWindow&);
+  void Destroy(const std::unordered_multimap<EImage, Node>::const_iterator& it);
+  const std::unordered_multimap<EImage, Node>& GetMap() const;
 
 protected:
   std::unordered_multimap<EImage, Node> mLevelMap;

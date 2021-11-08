@@ -16,7 +16,6 @@ class Game
 {
 public:
   Game(std::unique_ptr<InputHandler> aInputHandlerUPtr);
-  void SetGameStage(EGamestates);
   bool isIntersectsEnemy();
   void ShutDown();
   void Run();
@@ -25,13 +24,10 @@ public:
 private:
   void handleInput(sf::Time aTimePerFrame);
   void update(sf::Time elapsedTime);
-  void render();
-  bool intersection(ECategory category);
   void updateFPS(sf::Time elapsedTime);
   void draw();
   void stageRender();
   void nextLvlInitialize();
-  void textInitialization();
   bool isIntersectsSuperBullet();
   bool isIntersectsBullet();
   void appearanceIsFinished();
@@ -47,8 +43,6 @@ private:
   BonusHandler mBonusHandler;
   Player player;
   EGamestates gameStage;
-  std::vector<std::shared_ptr<Entity>> enemyTanks;
-  bool mIsMoving;
   RightPanel panel;
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
   std::vector<sf::Text> mText;

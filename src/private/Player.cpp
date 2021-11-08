@@ -4,18 +4,8 @@
 
 constexpr auto kPlayerStepMove = 100.f;
 
-Player::Player(std::unordered_multimap<ECategory, std::shared_ptr<Entity>>& ent,
-  AnimationHandler& a,
-  EGamestates& g,
-  std::vector<std::shared_ptr<Entity>>& et,
-  std::vector<std::shared_ptr<Map>>& map,
-  RightPanel& pan,
-  BonusHandler& bon)
-  : entities(ent)
-  , mAnimationHandler(a)
-  , gameStage(g)
-  , mEnemyTanksQueue(et)
-  , mapSequence(map)
+Player::Player(std::vector<std::shared_ptr<Map>>& map, RightPanel& pan, BonusHandler& bon)
+  : mapSequence(map)
   , panel(pan)
   , mBonusHandler(bon)
   , mPlayerTank(std::make_shared<PlayerTank>())
@@ -45,7 +35,7 @@ void Player::HandleMovingInput(sf::Time TimePerFrame)
     if (sf::Keyboard::isKeyPressed(pair.first) && Utils::IsMovingAction(pair.second))
     {
       mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, false);
-      if (isIntersectsWalls())
+      if (IsIntersectsWalls())
       {
         mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, true);
       }
@@ -59,7 +49,7 @@ void Player::HandleMovingInput(sf::Time TimePerFrame)
 void Player::HandleBonusEvents()
 {
   BonusHandler::BonusCIterator bonusIt;
-  if(mBonusHandler.CheckIntersection(mPlayerTank->GetGlobalBounds(), bonusIt))
+  if (mBonusHandler.CheckIntersection(mPlayerTank->GetGlobalBounds(), bonusIt))
   {
     if (bonusIt->second->GetType() == +EImage::BONUSSTAR)
     {
@@ -79,7 +69,7 @@ void Player::HandleBonusEvents()
   }
 }
 
-std::shared_ptr<PlayerTank> Player::getPlayerTank()
+std::shared_ptr<PlayerTank> Player::GetPlayerTank()
 {
   return mPlayerTank;
 }
@@ -90,17 +80,7 @@ void Player::SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>
   mNewBulletCallback = aCallback;
 }
 
-void Player::initializeActions()
-{
-  mKeyboardActions[EActions::LEFT] = std::make_unique<KeyboardCommand>(-kPlayerStepMove, 0.f, EActions::LEFT);
-  mKeyboardActions[EActions::RIGHT] = std::make_unique<KeyboardCommand>(+kPlayerStepMove, 0.f, EActions::RIGHT);
-  mKeyboardActions[EActions::UP] = std::make_unique<KeyboardCommand>(0.f, -kPlayerStepMove, EActions::UP);
-  mKeyboardActions[EActions::DOWN] = std::make_unique<KeyboardCommand>(0.f, +kPlayerStepMove, EActions::DOWN);
-  mMouseActions[EActions::FIRE] = std::make_unique<MouseCommand>([this](const auto& aBullet){mNewBulletCallback(aBullet);}, ECategory::BULLET);
-  mMouseActions[EActions::SUPERFIRE] = std::make_unique<MouseCommand>([this](const auto& aBullet){mNewBulletCallback(aBullet);}, ECategory::SUPERBULLET);
-}
-
-bool Player::isIntersectsWalls()
+bool Player::IsIntersectsWalls()
 {
   const auto& globalBounds = mPlayerTank->GetGlobalBounds();
 
@@ -157,30 +137,14 @@ bool Player::Init()
   mMousedBinding[sf::Mouse::Right] = EActions::SUPERFIRE;
   mMousedBinding[sf::Mouse::Middle] = EActions::PAUSE;
 
-  auto eagle = std::make_shared<Eagle>();
-  if(!eagle->Init() || !mPlayerTank->Init())
-  {
-    SPDLOG_ERROR("Something wrong with Eagle or Player tank");
-    return false;
-  }
-  entities.insert({ECategory::PLAYERTANK, mPlayerTank});
-  entities.insert({ECategory::EAGLE, std::move(eagle)});
-
-  mapSequence.emplace_back(std::make_shared<Map4>());
-  mapSequence.emplace_back(std::make_shared<Map3>());
-  mapSequence.emplace_back(std::make_shared<Map2>());
-  mapSequence.emplace_back(std::make_shared<Map1>());
-
-  for(auto& map : mapSequence)
-  {
-    if(!map->Init())
-    {
-      SPDLOG_ERROR("Something wrong with map");
-      return false;
-    }
-  }
-
-  initializeActions();
+  mKeyboardActions[EActions::LEFT] = std::make_unique<KeyboardCommand>(-kPlayerStepMove, 0.f, EActions::LEFT);
+  mKeyboardActions[EActions::RIGHT] = std::make_unique<KeyboardCommand>(+kPlayerStepMove, 0.f, EActions::RIGHT);
+  mKeyboardActions[EActions::UP] = std::make_unique<KeyboardCommand>(0.f, -kPlayerStepMove, EActions::UP);
+  mKeyboardActions[EActions::DOWN] = std::make_unique<KeyboardCommand>(0.f, +kPlayerStepMove, EActions::DOWN);
+  mMouseActions[EActions::FIRE] =
+    std::make_unique<MouseCommand>([this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::BULLET);
+  mMouseActions[EActions::SUPERFIRE] = std::make_unique<MouseCommand>(
+    [this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::SUPERBULLET);
 
   return true;
 }

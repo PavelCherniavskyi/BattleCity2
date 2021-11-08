@@ -3,6 +3,7 @@
 #include "../Definitions.hpp"
 #include "../ResourceHolders/SpriteHolder.hpp"
 #include "config.h"
+#include "../Eagle.hpp"
 
 constexpr auto kEnemyTanksQuantity = 20u;
 
@@ -14,7 +15,7 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , mAnimationHandler()
   , mapSequence{}
   , mBonusHandler()
-  , player(mEntities, mAnimationHandler, gameStage, enemyTanks, mapSequence, panel, mBonusHandler)
+  , player(mapSequence, panel, mBonusHandler)
   , gameStage(EGamestates::RUNNING)
   , panel()
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
@@ -50,7 +51,7 @@ void Game::Run()
       }
     }
     updateFPS(elapsedTime);
-    render();
+    draw();
   }
 }
 
@@ -80,12 +81,17 @@ bool Game::Init()
     }
   }
 
-  auto playerTankPtr = player.getPlayerTank();
-  if(!playerTankPtr)
+  auto playerTankPtr = player.GetPlayerTank();
+  auto eagle = std::make_shared<Eagle>();
+  if(!playerTankPtr || !eagle->Init() || !playerTankPtr->Init())
   {
-    SPDLOG_ERROR("Player tank is null");
+    SPDLOG_ERROR("Something wrong with Eagle or Player tank");
     return false;
   }
+
+  mEntities.insert({ECategory::PLAYERTANK, playerTankPtr});
+  mEntities.insert({ECategory::EAGLE, std::move(eagle)});
+
   mWindow.setKeyRepeatEnabled(false);
   panel.SetCurrentMissles(playerTankPtr->GetSuperClipSize());
   panel.SetCurrentLives(static_cast<std::size_t>(playerTankPtr->GetHP()));
@@ -93,13 +99,22 @@ bool Game::Init()
   mAnimationHandler.SetAppearanceFinishCallback([this](){appearanceIsFinished();});
   mEnemyControlUnit.SetNewBulletCallback([this](const auto& aBullet){insertNewBullet(aBullet);});
   player.SetNewBulletCallback([this](const auto& aBullet){insertNewBullet(aBullet);});
+
+  mapSequence.emplace_back(std::make_shared<Map4>());
+  mapSequence.emplace_back(std::make_shared<Map3>());
+  mapSequence.emplace_back(std::make_shared<Map2>());
+  mapSequence.emplace_back(std::make_shared<Map1>());
+
+  for(auto& map : mapSequence)
+  {
+    if(!map->Init())
+    {
+      SPDLOG_ERROR("Something wrong with map");
+      return false;
+    }
+  }
   
   return true;
-}
-
-void Game::SetGameStage(EGamestates aGameStage)
-{
-  gameStage = aGameStage;
 }
 
 void Game::handleInput(sf::Time aTimePerFrame)
@@ -141,7 +156,7 @@ bool Game::isIntersectsBullet()
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-        mapSequence.back()->GetMap().erase(itrMap);
+        mapSequence.back()->Destroy(itrMap);
         mEntities.erase(itrBullet);
         return true;
       }
@@ -199,20 +214,20 @@ bool Game::isIntersectsBullet()
   // Bullet vs PlayerTank
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    if (Utils::Intersection(player.getPlayerTank()->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(player.GetPlayerTank()->GetGlobalBounds(), itrBullet->second->GetGlobalBounds()))
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mEntities.erase(itrBullet);
-      player.getPlayerTank()->Kill();
-      if (!player.getPlayerTank()->IsAlife())
+      player.GetPlayerTank()->Kill();
+      if (!player.GetPlayerTank()->IsAlife())
       {
-        mAnimationHandler.CreateAnimation(player.getPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
+        mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
         mEntities.erase(ECategory::PLAYERTANK);
         gameStage = EGamestates::GAME_OVER;
       }
       else
       {
-        auto lives = player.getPlayerTank()->GetHP();
+        auto lives = player.GetPlayerTank()->GetHP();
         if (lives < 0)
         {
           lives = 0;
@@ -257,7 +272,7 @@ bool Game::isIntersectsSuperBullet()
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.back()->GetMap().erase(itrMap);
+        mapSequence.back()->Destroy(itrMap);
         mEntities.erase(itrSuperBullet);
         return true;
       }
@@ -274,7 +289,7 @@ bool Game::isIntersectsSuperBullet()
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
         mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.back()->GetMap().erase(itrMap);
+        mapSequence.back()->Destroy(itrMap);
         mEntities.erase(itrSuperBullet);
         return true;
       }
@@ -314,10 +329,10 @@ bool Game::isIntersectsSuperBullet()
   // SuperBullet vs PlayerTank
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    if (Utils::Intersection(player.getPlayerTank()->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
+    if (Utils::Intersection(player.GetPlayerTank()->GetGlobalBounds(), itrSuperBullet->second->GetGlobalBounds()))
     {
       mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-      mAnimationHandler.CreateAnimation(player.getPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
+      mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
       mEntities.erase(itrSuperBullet);
       mEntities.erase(ECategory::PLAYERTANK);
       panel.SetCurrentLives(0);
@@ -437,9 +452,9 @@ void Game::update(sf::Time elapsedTime)
 
   // EnemyTank vs PlayerTank
   EnemyControlUnit::EnemyTankIter tankIter;
-  if (mEnemyControlUnit.Intersection(player.getPlayerTank()->GetGlobalBounds(), tankIter))
+  if (mEnemyControlUnit.Intersection(player.GetPlayerTank()->GetGlobalBounds(), tankIter))
   {
-    mAnimationHandler.CreateAnimation(player.getPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
+    mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
     mAnimationHandler.CreateAnimation(tankIter->get()->GetGlobalBounds(), EImage::TANKCOLLISION);
     mEnemyControlUnit.DeleteTank(tankIter);
     mEntities.erase(ECategory::PLAYERTANK);
@@ -466,7 +481,7 @@ void Game::stageRender()
     clock.restart();
   auto noEnemyOnField = mEnemyControlUnit.GetTanksOnFieldCount() == 0;
   auto noEnemyInQueue = mEnemyControlUnit.GetTanksQueueCount() == 0;
-  auto isPlayerAlife = player.getPlayerTank()->IsAlife();
+  auto isPlayerAlife = player.GetPlayerTank()->IsAlife();
   if (noEnemyOnField
       && mapSequence.size() > 1 
       && isPlayerAlife 
@@ -534,17 +549,8 @@ void Game::nextLvlInitialize()
 
   panel.IncrementCurrentLvl();
   mEnemyControlUnit.LoadLevel(panel.GetCurrentLvl());
-  player.getPlayerTank()->SetInitialPosition();
+  player.GetPlayerTank()->SetInitialPosition();
   gameStage = EGamestates::RUNNING;
-}
-
-void Game::render()
-{
-  mWindow.clear();
-  draw();
-  stageRender();
-
-  mWindow.display();
 }
 
 void Game::updateFPS(sf::Time elapsedTime)
@@ -564,6 +570,8 @@ void Game::updateFPS(sf::Time elapsedTime)
 
 void Game::draw()
 {
+  mWindow.clear();
+
   // Draw for All mEntities
   for (auto itr = mEntities.begin(); itr != mEntities.end(); itr++)
   {
@@ -574,8 +582,8 @@ void Game::draw()
   mapSequence.back()->Draw(mWindow);
   mBonusHandler.Draw(mWindow);
   mAnimationHandler.Draw(mWindow);
-  
-
-  // Draw for Right Panel
   panel.Draw(mWindow);
+
+  stageRender();
+  mWindow.display();
 }
