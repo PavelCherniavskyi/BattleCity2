@@ -16,18 +16,19 @@ public:
   void Draw(sf::RenderWindow&) override;
   void Update(const sf::Vector2f&) override;
   const std::vector<sf::Sprite>& GetSprite() const override;
-  void MoveBack(const sf::Vector2f&) override;
+  
   void SetPosition(const sf::Vector2f&) override;
   void Rotate(EActions) override;
   sf::FloatRect GetGlobalBounds() const override;
   sf::FloatRect GetLocalBounds() const override;
-  size_t GetSuperClipSize() const override;
-  EImage GetType() const override;
-  std::shared_ptr<BulletBase> DoFire(ECategory) override;
-  void SetBulletSpeed(const float) override;
-  float GetBulletSpeed() const override;
-  void SuperClipLoad(const size_t) override;
+  size_t GetSuperClipSize() const;
+  EImage GetType() const;
+  std::shared_ptr<BulletBase> DoFire(ECategory);
+  void SetBulletSpeed(const float);
+  float GetBulletSpeed() const;
+  void SuperClipLoad(const size_t);
 
+  void MoveBack(const sf::Vector2f&);
   size_t GetSpritesCount() const;
   void SuperClipPop();
   void SetBulletFrequency(const float);
@@ -41,6 +42,7 @@ protected:
   ECategory mCategory;
   EImage mType;
   std::vector<sf::Sprite> mSprites;
+  int mHP;
 };
 
 class PlayerTank : public BaseTank
@@ -49,7 +51,7 @@ public:
   PlayerTank();
   PlayerTank(const PlayerTank&);
   void SetInitialPosition() override;
-  bool CanIDoFire() const override;
+  bool CanIDoFire() const;
   bool Init() override;
 };
 
@@ -59,7 +61,7 @@ public:
   EnemyBaseTank(ECategory, EImage);
   void Draw(sf::RenderWindow&) override;
   bool Init() override;
-  bool CanIDoFire() const override;
+  bool CanIDoFire() const;
 
 protected:
   std::vector<sf::Sprite> mNumbers;

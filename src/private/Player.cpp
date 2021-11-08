@@ -62,8 +62,8 @@ void Player::HandleBonusEvents()
     }
     else if (bonusIt->second->GetType() == +EImage::BONUSLIFE)
     {
-      mPlayerTank->SetHP(mPlayerTank->GetHP() + static_cast<int>(bonusIt->second->GetPackSize()));
-      panel.SetCurrentLives(static_cast<std::size_t>(mPlayerTank->GetHP()));
+      mPlayerTank->SetHP(mPlayerTank->GetHP() + bonusIt->second->GetPackSize());
+      panel.SetCurrentLives(mPlayerTank->GetHP());
     }
     mBonusHandler.EraseBonus(bonusIt);
   }
@@ -113,10 +113,10 @@ bool Player::Init()
   mKeyboardActions[EActions::RIGHT] = std::make_unique<KeyboardCommand>(+kPlayerStepMove, 0.f, EActions::RIGHT);
   mKeyboardActions[EActions::UP] = std::make_unique<KeyboardCommand>(0.f, -kPlayerStepMove, EActions::UP);
   mKeyboardActions[EActions::DOWN] = std::make_unique<KeyboardCommand>(0.f, +kPlayerStepMove, EActions::DOWN);
-  mMouseActions[EActions::FIRE] =
-    std::make_unique<MouseCommand>([this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::BULLET);
-  mMouseActions[EActions::SUPERFIRE] = std::make_unique<MouseCommand>(
-    [this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::SUPERBULLET);
+  mMouseActions[EActions::FIRE] = std::make_unique<MouseCommand>
+    ([this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::BULLET);
+  mMouseActions[EActions::SUPERFIRE] = std::make_unique<MouseCommand>
+    ([this](const auto& aBullet) { mNewBulletCallback(aBullet); }, ECategory::SUPERBULLET);
 
   return true;
 }

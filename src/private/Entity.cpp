@@ -17,12 +17,16 @@ Entity::Entity(const Entity& rhs)
 
 bool Entity::IsAlife() const
 {
-  return mHP >= 0;
+  return mHP > 0;
 }
 
-void Entity::Kill()
+size_t Entity::MakeDamage()
 {
-  mHP -= 1;
+  if(mHP > 0)
+  {
+    mHP--;
+  }
+  return mHP;
 }
 
 void Entity::SetVelocity(const sf::Vector2f& aVelocity)
@@ -40,29 +44,9 @@ void Entity::SetSpeed(float aSpeed)
   mSpeed = aSpeed;
 }
 
-bool Entity::CanIDoFire() const
-{
-  return false;
-}
-
-size_t Entity::GetSuperClipSize() const
-{
-  return 0u;
-}
-
-EImage Entity::GetType() const
+EImage Entity::GetImageType() const
 {
   return EImage::UNKNOWN;
-}
-
-std::shared_ptr<BulletBase> Entity::DoFire(ECategory)
-{
-  return nullptr;
-}
-
-float Entity::GetBulletSpeed() const
-{
-  return 0.f;
 }
 
 float Entity::GetSpeed() const
@@ -80,12 +64,12 @@ bool Entity::IsMoving() const
   return mMoving;
 }
 
-int Entity::GetHP() const
+size_t Entity::GetHP() const
 {
   return mHP;
 }
 
-void Entity::SetHP(int aHP)
+void Entity::SetHP(size_t aHP)
 {
   mHP = aHP;
 }

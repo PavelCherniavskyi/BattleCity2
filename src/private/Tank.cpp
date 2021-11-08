@@ -87,6 +87,7 @@ std::shared_ptr<BulletBase> setupBullet(std::shared_ptr<BulletBase> aBullet, Bas
 BaseTank::BaseTank(ECategory aCategory, EImage aType)
   : mCategory(aCategory)
   , mType(aType)
+  , mHP(0)
 {
 }
 
@@ -405,9 +406,9 @@ void EnemyBaseTank::Draw(sf::RenderWindow& aWindow)
   }
 
   // drawing lives
-  mNumbers[static_cast<size_t>(GetHP())].setPosition(
+  mNumbers[GetHP()].setPosition(
     { GetGlobalBounds().left + GetGlobalBounds().width, GetGlobalBounds().top + GetGlobalBounds().height });
-  aWindow.draw(mNumbers[static_cast<size_t>(GetHP())]);
+  aWindow.draw(mNumbers[GetHP()]);
 }
 
 EnemyTank_10::EnemyTank_10()

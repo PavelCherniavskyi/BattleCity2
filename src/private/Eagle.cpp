@@ -5,8 +5,8 @@ constexpr std::size_t kEagleSpriteSize = 2u;
 
 Eagle::Eagle()
   : mSprites{}
+  , mHP(0)
 {
-  mHP = 0;
 }
 
 bool Eagle::Init()

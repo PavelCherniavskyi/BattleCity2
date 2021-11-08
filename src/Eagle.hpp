@@ -15,6 +15,7 @@ public:
 
 private:
   std::vector<sf::Sprite> mSprites;
+  int mHP;
 };
 
 

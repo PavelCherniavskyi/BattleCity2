@@ -94,7 +94,7 @@ bool Game::Init()
 
   mWindow.setKeyRepeatEnabled(false);
   panel.SetCurrentMissles(playerTankPtr->GetSuperClipSize());
-  panel.SetCurrentLives(static_cast<std::size_t>(playerTankPtr->GetHP()));
+  panel.SetCurrentLives(playerTankPtr->GetHP());
   panel.IncrementCurrentLvl();
   mAnimationHandler.SetAppearanceFinishCallback([this](){appearanceIsFinished();});
   mEnemyControlUnit.SetNewBulletCallback([this](const auto& aBullet){insertNewBullet(aBullet);});
@@ -175,7 +175,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mEntities.erase(itrBullet);
-      tankIter->get()->Kill();
+      tankIter->get()->MakeDamage();
       if (!tankIter->get()->IsAlife())
       {
         mAnimationHandler.CreateAnimation(tankIter->get()->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -192,7 +192,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mEntities.erase(itrBullet);
-      player.GetPlayerTank()->Kill();
+      player.GetPlayerTank()->MakeDamage();
       if (!player.GetPlayerTank()->IsAlife())
       {
         mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -202,12 +202,7 @@ bool Game::isIntersectsBullet()
       else
       {
         auto lives = player.GetPlayerTank()->GetHP();
-        if (lives < 0)
-        {
-          lives = 0;
-        }
-
-        panel.SetCurrentLives(static_cast<std::size_t>(lives));
+        panel.SetCurrentLives(lives);
       }
 
       return true;
@@ -222,7 +217,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-      eagle->second->Kill();
+      eagle->second->MakeDamage();
       mEntities.erase(itrBullet);
       gameStage = EGamestates::GAME_OVER;
       return true;
@@ -293,7 +288,7 @@ bool Game::isIntersectsSuperBullet()
     {
       mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
       mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-      eagle->second->Kill();
+      eagle->second->MakeDamage();
       mEntities.erase(itrSuperBullet);
       gameStage = EGamestates::GAME_OVER;
       return true;
@@ -331,7 +326,7 @@ bool Game::isIntersectsEnemy()
   if (mEnemyControlUnit.Intersection(eagle->second->GetGlobalBounds(), tankIter))
   {
     mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-    eagle->second->Kill();
+    eagle->second->MakeDamage();
     gameStage = EGamestates::GAME_OVER;
     return true;
   }
