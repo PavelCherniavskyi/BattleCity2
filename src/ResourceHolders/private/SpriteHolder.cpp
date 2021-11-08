@@ -50,11 +50,11 @@ bool SpriteHolder::Init()
 	mTextureHolder.LoadFromFile(EImage::MAINWALL, path, mainWall);
 	insert(EImage::MAINWALL, mTextureHolder.Get(EImage::MAINWALL));
 	std::vector<sf::IntRect> Wall_1 = { { 256, 64, 8, 8 } };
-	mTextureHolder.LoadFromFile(EImage::WALL_1, path, Wall_1);
-	insert(EImage::WALL_1, mTextureHolder.Get(EImage::WALL_1));
+	mTextureHolder.LoadFromFile(EImage::WALL, path, Wall_1);
+	insert(EImage::WALL, mTextureHolder.Get(EImage::WALL));
 	std::vector<sf::IntRect> Wall_2 = { { 256, 72, 8, 8 } };
-	mTextureHolder.LoadFromFile(EImage::WALL_2, path, Wall_2);
-	insert(EImage::WALL_2, mTextureHolder.Get(EImage::WALL_2));
+	mTextureHolder.LoadFromFile(EImage::STEELWALL, path, Wall_2);
+	insert(EImage::STEELWALL, mTextureHolder.Get(EImage::STEELWALL));
 	std::vector<sf::IntRect> GreenWall = { { 264, 72, 8, 8 } };
 	mTextureHolder.LoadFromFile(EImage::GREENWALL, path, GreenWall);
 	insert(EImage::GREENWALL, mTextureHolder.Get(EImage::GREENWALL));

@@ -7,14 +7,16 @@
 
 struct Node
 {
-  Node(const sf::FloatRect& aRect, const sf::Sprite& aSprite)
+  Node(const sf::FloatRect& aRect, const sf::Sprite& aSprite, EMapObjects aType)
     : Rect(aRect)
     , Sprite(aSprite)
+    , Type(aType)
   {
   }
 
   sf::FloatRect Rect;
   sf::Sprite Sprite;
+  EMapObjects Type;
 };
 
 class Map
@@ -23,11 +25,11 @@ public:
   explicit Map(size_t);
   bool Init();
   void Draw(sf::RenderWindow&);
-  void Destroy(const std::unordered_multimap<EImage, Node>::const_iterator& it);
-  const std::unordered_multimap<EImage, Node>& GetMap() const;
+  void DestroyObject(const std::unordered_multimap<EMapObjects, Node>::const_iterator& it);
+  const std::unordered_multimap<EMapObjects, Node>& GetMapObjects() const;
 
 protected:
-  std::unordered_multimap<EImage, Node> mLevelMap;
+  std::unordered_multimap<EMapObjects, Node> mLevelMap;
   size_t mMapIndex;
 };
 

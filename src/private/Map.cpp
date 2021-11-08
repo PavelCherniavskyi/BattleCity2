@@ -163,24 +163,24 @@ const std::vector<std::string> kMap4{
 
 const std::vector<std::vector<std::string>> kMaps{kMap0, kMap1, kMap2, kMap3, kMap4};
 
-bool setUpInit(EImage aImage, const sf::Vector2f& aSpritePos, std::unordered_multimap<EImage, Node>& aLevelMap)
+bool setUpInit(EMapObjects mapObject, const sf::Vector2f& aSpritePos, std::unordered_multimap<EMapObjects, Node>& aLevelMap)
 {
-	auto sprite = SpriteHolder::GetSprite(aImage);
+	auto sprite = SpriteHolder::GetSprite(Utils::MapObject2ImageConverter(mapObject));
 	if(!sprite || sprite->empty())
 	{
 		SPDLOG_ERROR("Sprite is empty");
 		return false;
 	}
 
-	if(aImage != +EImage::MAINWALL)
+	if(mapObject != +EMapObjects::MAINWALL)
 	{
 		sprite->at(0).setScale(kScale, kScale);
 	}
 
 	sprite->at(0).setPosition(aSpritePos);
 	sf::FloatRect pos{aSpritePos.x, aSpritePos.y, kWidthAndHeightTile, kWidthAndHeightTile};
-	Node node(pos, sprite->at(0));
-	aLevelMap.insert(std::make_pair(aImage, node));
+	Node node(pos, sprite->at(0), mapObject);
+	aLevelMap.insert(std::make_pair(mapObject, node));
 
 	return true;
 }
@@ -199,12 +199,12 @@ void Map::Draw(sf::RenderWindow& window)
 	}
 }
 
-void Map::Destroy(const std::unordered_multimap<EImage, Node>::const_iterator& it)
+void Map::DestroyObject(const std::unordered_multimap<EMapObjects, Node>::const_iterator& it)
 {
 	mLevelMap.erase(it);
 }
 
-const std::unordered_multimap<EImage, Node>& Map::GetMap() const
+const std::unordered_multimap<EMapObjects, Node>& Map::GetMapObjects() const
 {
 	return mLevelMap;
 }
@@ -239,32 +239,32 @@ bool Map::Init()
         static_cast<float>(i) * kWidthAndHeightTile };
       if (currentMap[i][j] == '0')
       {
-        if (!setUpInit(EImage::MAINWALL, spritePos, mLevelMap))
+        if (!setUpInit(EMapObjects::MAINWALL, spritePos, mLevelMap))
         {
           return false;
         }
       }
       else if (currentMap[i][j] == '1')
       {
-        if (!setUpInit(EImage::WALL_1, spritePos, mLevelMap))
+        if (!setUpInit(EMapObjects::WALL, spritePos, mLevelMap))
         {
 					return false;
 				}
       }
       else if (currentMap[i][j] == '2'){
-				if(!setUpInit(EImage::WALL_2, spritePos, mLevelMap))
+				if(!setUpInit(EMapObjects::STEELWALL, spritePos, mLevelMap))
 				{
 					return false;
 				}
 			}
 			else if (currentMap[i][j] == '3'){
-				if(!setUpInit(EImage::GREENWALL, spritePos, mLevelMap))
+				if(!setUpInit(EMapObjects::GREENWALL, spritePos, mLevelMap))
 				{
 					return false;
 				}
 			}
 			else if (currentMap[i][j] == '4'){
-				if(!setUpInit(EImage::WATERWALL, spritePos, mLevelMap))
+				if(!setUpInit(EMapObjects::WATERWALL, spritePos, mLevelMap))
 				{
 					return false;
 				}

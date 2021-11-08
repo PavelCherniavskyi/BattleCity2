@@ -146,46 +146,20 @@ void Game::appearanceIsFinished()
 bool Game::isIntersectsBullet()
 {
   auto retBullet = mEntities.equal_range(ECategory::BULLET);
+  const auto map = mapSequence.back();
   
-  // Bullet vs Wall_1
-  auto retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
+  // Bullet vs Walls
   for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
   {
-    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+    for (auto itrMap = map->GetMapObjects().begin(); itrMap != map->GetMapObjects().end(); itrMap++)
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-        mapSequence.back()->Destroy(itrMap);
-        mEntities.erase(itrBullet);
-        return true;
-      }
-    }
-  }
-  
-  // Bullet vs Wall_2
-  auto retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
-  {
-    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
-    {
-      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
-      {
-        mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
-        mEntities.erase(itrBullet);
-        return true;
-      }
-    }
-  }
-  
-  // Bullet vs MainWall
-  auto retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
-  for (auto itrBullet = retBullet.first; itrBullet != retBullet.second; ++itrBullet)
-  {
-    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
-    {
-      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
-      {
+        if(itrMap->second.Type == +EMapObjects::WALL)
+        {
+          map->DestroyObject(itrMap);
+        }
+        
         mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
         mEntities.erase(itrBullet);
         return true;
@@ -261,50 +235,20 @@ bool Game::isIntersectsBullet()
 bool Game::isIntersectsSuperBullet()
 {
   auto retSuperBullet = mEntities.equal_range(ECategory::SUPERBULLET);
-  auto retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
-  
+  const auto map = mapSequence.back();
 
-  // SuperBullet vs Wall_1
+  // SuperBullet vs Walls
   for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
   {
-    for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+    for (auto itrMap = map->GetMapObjects().begin(); itrMap != map->GetMapObjects().end(); itrMap++)
     {
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
       {
-        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.back()->Destroy(itrMap);
-        mEntities.erase(itrSuperBullet);
-        return true;
-      }
-    }
-  }
-
-  auto retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
-  
-  // SuperBullet vs Wall_2
-  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
-  {
-    for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
-    {
-      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
-      {
-        mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
-        mapSequence.back()->Destroy(itrMap);
-        mEntities.erase(itrSuperBullet);
-        return true;
-      }
-    }
-  }
-
-  auto retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
-  
-  // SuperBullet vs MainWall
-  for (auto itrSuperBullet = retSuperBullet.first; itrSuperBullet != retSuperBullet.second; ++itrSuperBullet)
-  {
-    for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
-    {
-      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
-      {
+        const auto type = itrMap->second.Type;
+        if(type == +EMapObjects::WALL || type == +EMapObjects::STEELWALL)
+        {
+          map->DestroyObject(itrMap);
+        }
         mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
         mEntities.erase(itrSuperBullet);
         return true;
@@ -366,45 +310,14 @@ void Game::insertNewBullet(std::shared_ptr<BulletBase> aBullet)
 
 bool Game::isIntersectsEnemy()
 {
-
-  // EnemyTank vs Wall_1
-  auto retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
-  for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+  // EnemyTank vs Walls
+  const auto mapObjects = mapSequence.back()->GetMapObjects();
+  for (auto itrMap = mapObjects.begin(); itrMap != mapObjects.end(); itrMap++)
   {
-    EnemyControlUnit::EnemyTankIter tankIter;
-    if (mEnemyControlUnit.Intersection(itrMap->second.Rect, tankIter))
+    if(itrMap->second.Type == +EMapObjects::GREENWALL)
     {
-      return true;
+      continue;
     }
-  }
-
-  // EnemyTank vs Wall_2
-  auto retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
-
-  for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
-  {
-    EnemyControlUnit::EnemyTankIter tankIter;
-    if (mEnemyControlUnit.Intersection(itrMap->second.Rect, tankIter))
-    {
-      return true;
-    }
-  }
-
-  // EnemyTank vs MainWall
-  auto retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
-  for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
-  {
-    EnemyControlUnit::EnemyTankIter tankIter;
-    if (mEnemyControlUnit.Intersection(itrMap->second.Rect, tankIter))
-    {
-      return true;
-    }
-  }
-
-  // EnemyTank vs WaterWall
-  auto retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
-  for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
-  {
     EnemyControlUnit::EnemyTankIter tankIter;
     if (mEnemyControlUnit.Intersection(itrMap->second.Rect, tankIter))
     {

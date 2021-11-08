@@ -83,41 +83,13 @@ void Player::SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>
 bool Player::IsIntersectsWalls()
 {
   const auto& globalBounds = mPlayerTank->GetGlobalBounds();
-
-  // PlayerTank vs Wall_1
-  auto retWall_1 = mapSequence.back()->GetMap().equal_range(EImage::WALL_1);
-  for (auto itrMap = retWall_1.first; itrMap != retWall_1.second; itrMap++)
+  const auto mapObjects = mapSequence.back()->GetMapObjects();
+  for (auto itrMap = mapObjects.begin(); itrMap != mapObjects.end(); itrMap++)
   {
-    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
+    if(itrMap->second.Type == +EMapObjects::GREENWALL)
     {
-      return true;
+      continue;
     }
-  }
-
-  // PlayerTank vs Wall_2
-  auto retWall_2 = mapSequence.back()->GetMap().equal_range(EImage::WALL_2);
-  for (auto itrMap = retWall_2.first; itrMap != retWall_2.second; itrMap++)
-  {
-    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
-    {
-      return true;
-    }
-  }
-
-  // PlayerTank vs MainWall
-  auto retMainWall = mapSequence.back()->GetMap().equal_range(EImage::MAINWALL);
-  for (auto itrMap = retMainWall.first; itrMap != retMainWall.second; itrMap++)
-  {
-    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
-    {
-      return true;
-    }
-  }
-
-  // PlayerTank vs WaterWall
-  auto retWaterWall = mapSequence.back()->GetMap().equal_range(EImage::WATERWALL);
-  for (auto itrMap = retWaterWall.first; itrMap != retWaterWall.second; itrMap++)
-  {
     if (Utils::Intersection(globalBounds, itrMap->second.Rect))
     {
       return true;

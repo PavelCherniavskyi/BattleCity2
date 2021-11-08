@@ -22,6 +22,36 @@ inline bool IsMovingAction(EActions action)
   }
 }
 
+inline EMapObjects Image2MapObjectConverter(EImage image)
+{
+  switch (image)
+  {
+  case +EImage::WALL:       return EMapObjects::WALL;
+  case +EImage::STEELWALL:  return EMapObjects::STEELWALL;
+  case +EImage::WATERWALL:  return EMapObjects::WATERWALL;
+  case +EImage::GREENWALL:  return EMapObjects::GREENWALL;
+  case +EImage::MAINWALL:   return EMapObjects::MAINWALL;
+
+  default:
+    return EMapObjects::MAINWALL;
+  }
+}
+
+inline EImage MapObject2ImageConverter(EMapObjects mapObject)
+{
+  switch (mapObject)
+  {
+  case +EMapObjects::WALL:       return EImage::WALL;
+  case +EMapObjects::STEELWALL:  return EImage::STEELWALL;
+  case +EMapObjects::WATERWALL:  return EImage::WATERWALL;
+  case +EMapObjects::GREENWALL:  return EImage::GREENWALL;
+  case +EMapObjects::MAINWALL:   return EImage::MAINWALL;
+
+  default:
+    return EImage::MAINWALL;
+  }
+}
+
 inline bool Intersection(const sf::FloatRect& obj1, const sf::FloatRect& obj2)
 {
   if (obj1.left + obj1.width >= obj2.left 
