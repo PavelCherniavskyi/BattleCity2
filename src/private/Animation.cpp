@@ -1,29 +1,34 @@
 #include "../Animation.hpp"
 #include "../ResourceHolders/SpriteHolder.hpp"
 
-constexpr int kMaxSpriteNumber = 4;
+constexpr auto kBulletCollisionSpriteSize = 2u;
+constexpr auto kTankCollisionSpriteSize = 3u;
+constexpr auto kSuperBulletCollisionSpriteSize = 3u;
+constexpr auto kEagleCollisionSpriteSize = 2u;
+constexpr auto kApperanceSpriteSize = 4u;
 
-bool Animation::setInit(Animation& aAnimation, const float aScale, const float aLifeTime)
+
+bool Animation::setInit(const float aScale, const float aLifeTime)
 {
-  auto sprites = SpriteHolder::GetSprite(aAnimation.mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
 
-  if (sprites && sprites->size() == aAnimation.mSpritesCount)
+  if (sprites && sprites->size() == mSpritesCount)
   {
-    aAnimation.mSprites = *sprites;
+    mSprites = *sprites;
 
-    for (size_t i = 0; i < aAnimation.mSprites.size(); i++)
+    for (size_t i = 0; i < mSprites.size(); i++)
     {
-      aAnimation.mSprites[i].setScale(aScale, aScale);
+      mSprites[i].setScale(aScale, aScale);
     }
-    for (size_t i = 0; i < aAnimation.mSprites.size(); i++)
+    for (size_t i = 0; i < mSprites.size(); i++)
     {
-      aAnimation.mSprites[i].setOrigin(aAnimation.mSprites[i].getLocalBounds().height / 2.f,
-        aAnimation.mSprites[i].getLocalBounds().width / 2.f);
+      mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f,
+        mSprites[i].getLocalBounds().width / 2.f);
     }
 
-    aAnimation.mTimeOfLiving = aLifeTime;
-    Animation::mClockForTimeOfLiving.restart();
-    Animation::mClockForDraw.restart();
+    mTimeOfLiving = aLifeTime;
+    mClockForTimeOfLiving.restart();
+    mClockForDraw.restart();
   }
   else
   {
@@ -35,15 +40,16 @@ bool Animation::setInit(Animation& aAnimation, const float aScale, const float a
 }
 
 Animation::Animation(const size_t aSpritesCount, const EImage aType)
-  : mSprites(kMaxSpriteNumber)
+  : Entity(aType)
+  , mClockForTimeOfLiving()
+  , mClockForDraw()
   , mIsLiving(true)
   , mTimeOfLiving(0.f)
   , mSpritesCount(aSpritesCount)
-  , mType(aType)
 {
 }
 
-void Animation::update()
+void Animation::Update(const sf::Vector2f&)
 {
   sf::Time time = mClockForTimeOfLiving.getElapsedTime();
   if (time.asSeconds() > mTimeOfLiving)
@@ -52,31 +58,22 @@ void Animation::update()
   }
 }
 
-bool Animation::IsAlife() const
+bool Animation::IsLiving()
 {
   return mIsLiving;
 }
 
-sf::Vector2f Animation::GetPosition() const
-{
-  if(!mSprites.empty())
-  {
-    return mSprites[0].getPosition();
-  }
-  return sf::Vector2f();
-}
-
 BulletCollision::BulletCollision()
-  : Animation(2u, EImage::BULLETCOLLISION)
+  : Animation(kBulletCollisionSpriteSize, EImage::BULLETCOLLISION)
 {
 }
 
 bool BulletCollision::Init()
 {
-  return setInit(*this, 1.f, 0.05f);
+  return setInit(1.f, 0.05f);
 }
 
-void BulletCollision::Draw(sf::RenderWindow& window)
+void BulletCollision::Draw(sf::RenderWindow& window) const
 {
   sf::Time time = mClockForDraw.getElapsedTime();
   if (time.asSeconds() < mTimeOfLiving / static_cast<float>(mSpritesCount))
@@ -89,25 +86,17 @@ void BulletCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void BulletCollision::SetPosition(const sf::FloatRect& rect)
-{
-  for (size_t i = 0; i < mSpritesCount; i++)
-  {
-    mSprites[i].setPosition(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  }
-}
-
 TankCollision::TankCollision()
-  : Animation(3u, EImage::TANKCOLLISION)
+  : Animation(kTankCollisionSpriteSize, EImage::TANKCOLLISION)
 {
 }
 
 bool TankCollision::Init()
 {
-  return setInit(*this, 2.f, 0.03f);
+  return setInit(2.f, 0.03f);
 }
 
-void TankCollision::Draw(sf::RenderWindow& window)
+void TankCollision::Draw(sf::RenderWindow& window) const
 {
   sf::Time time = mClockForDraw.getElapsedTime();
   auto spritesCount = static_cast<float>(mSpritesCount);
@@ -126,25 +115,17 @@ void TankCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void TankCollision::SetPosition(const sf::FloatRect& rect)
-{
-  for (size_t i = 0; i < mSpritesCount; i++)
-  {
-    mSprites[i].setPosition(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  }
-}
-
 SuperBulletCollision::SuperBulletCollision()
-  : Animation(3u, EImage::SUPERBULLETCOLLISION)
+  : Animation(kSuperBulletCollisionSpriteSize, EImage::SUPERBULLETCOLLISION)
 {
 }
 
 bool SuperBulletCollision::Init()
 {
-  return setInit(*this, 2.f, 0.3f);
+  return setInit(2.f, 0.3f);
 }
 
-void SuperBulletCollision::Draw(sf::RenderWindow& window)
+void SuperBulletCollision::Draw(sf::RenderWindow& window) const
 {
   sf::Time time = mClockForDraw.getElapsedTime();
   auto spritesCount = static_cast<float>(mSpritesCount);
@@ -163,25 +144,17 @@ void SuperBulletCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void SuperBulletCollision::SetPosition(const sf::FloatRect& rect)
-{
-  for (size_t i = 0; i < mSpritesCount; i++)
-  {
-    mSprites[i].setPosition(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  }
-}
-
 EagleCollision::EagleCollision()
-  : Animation(2u, EImage::EAGLECOLLISION)
+  : Animation(kEagleCollisionSpriteSize, EImage::EAGLECOLLISION)
 {
 }
 
 bool EagleCollision::Init()
 {
-  return setInit(*this, 2.f, 0.3f);
+  return setInit(2.f, 0.3f);
 }
 
-void EagleCollision::Draw(sf::RenderWindow& window)
+void EagleCollision::Draw(sf::RenderWindow& window) const
 {
   sf::Time time = mClockForDraw.getElapsedTime();
   if (time.asSeconds() < mTimeOfLiving / static_cast<float>(mSpritesCount))
@@ -194,25 +167,17 @@ void EagleCollision::Draw(sf::RenderWindow& window)
   }
 }
 
-void EagleCollision::SetPosition(const sf::FloatRect& rect)
-{
-  for (size_t i = 0; i < mSpritesCount; i++)
-  {
-    mSprites[i].setPosition(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  }
-}
-
 Apperance::Apperance()
-  : Animation(4u, EImage::APPERANCE)
+  : Animation(kApperanceSpriteSize, EImage::APPERANCE)
 {
 }
 
 bool Apperance::Init()
 {
-  return setInit(*this, 2.f, 0.7f);
+  return setInit(2.f, 0.7f);
 }
 
-void Apperance::Draw(sf::RenderWindow& window)
+void Apperance::Draw(sf::RenderWindow& window) const
 {
   sf::Time time = mClockForDraw.getElapsedTime();
   auto spritesCount = static_cast<float>(mSpritesCount);
@@ -232,13 +197,5 @@ void Apperance::Draw(sf::RenderWindow& window)
   else if (time.asSeconds() < mTimeOfLiving)
   {
     window.draw(mSprites[3]);
-  }
-}
-
-void Apperance::SetPosition(const sf::FloatRect& rect)
-{
-  for (size_t i = 0; i < mSpritesCount; i++)
-  {
-    mSprites[i].setPosition(rect.left + rect.width / 2, rect.top + rect.height / 2);
   }
 }

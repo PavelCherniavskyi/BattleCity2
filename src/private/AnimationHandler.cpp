@@ -5,7 +5,7 @@
 #include <algorithm>
 
 
-void AnimationHandler::Draw(sf::RenderWindow& window)
+void AnimationHandler::Draw(sf::RenderWindow& window) const
 {
   for (const auto& itrAnim : mAnimations)
   {
@@ -17,9 +17,9 @@ void AnimationHandler::Update()
 {
   for (auto itrAnim = mAnimations.begin(); itrAnim != mAnimations.end(); itrAnim++)
   {
-    if (itrAnim->second->IsAlife())
+    if (itrAnim->second->IsLiving())
     {
-      itrAnim->second->update();
+      itrAnim->second->Update();
     }
     else
     {

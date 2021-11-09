@@ -13,14 +13,8 @@ public:
   BaseTank(ECategory, EImage);
   BaseTank(const BaseTank&);
   virtual ~BaseTank() = default;
-  void Draw(sf::RenderWindow&) override;
+  void Draw(sf::RenderWindow&) const override;
   void Update(const sf::Vector2f&) override;
-  const std::vector<sf::Sprite>& GetSprite() const override;
-  
-  void SetPosition(const sf::Vector2f&) override;
-  void Rotate(EActions) override;
-  sf::FloatRect GetGlobalBounds() const override;
-  sf::FloatRect GetLocalBounds() const override;
   size_t GetSuperClipSize() const;
   EImage GetType() const;
   std::shared_ptr<BulletBase> DoFire(ECategory);
@@ -40,9 +34,6 @@ protected:
   float mBulletSpeed;
   float mBulletFrequency;
   ECategory mCategory;
-  EImage mType;
-  std::vector<sf::Sprite> mSprites;
-  int mHP;
 };
 
 class PlayerTank : public BaseTank
@@ -50,7 +41,7 @@ class PlayerTank : public BaseTank
 public:
   PlayerTank();
   PlayerTank(const PlayerTank&);
-  void SetInitialPosition() override;
+  void SetInitialPosition();
   bool CanIDoFire() const;
   bool Init() override;
 };
@@ -59,7 +50,8 @@ class EnemyBaseTank : public BaseTank
 {
 public:
   EnemyBaseTank(ECategory, EImage);
-  void Draw(sf::RenderWindow&) override;
+  void Draw(sf::RenderWindow&) const override;
+  void Update(const sf::Vector2f&) override;
   bool Init() override;
   bool CanIDoFire() const;
 

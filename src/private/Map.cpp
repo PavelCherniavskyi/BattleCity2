@@ -191,7 +191,7 @@ Map::Map(size_t aMapIndex)
 {
 }
 
-void Map::Draw(sf::RenderWindow& window)
+void Map::Draw(sf::RenderWindow& window) const
 {
 	for(const auto& pair: mLevelMap)
 	{

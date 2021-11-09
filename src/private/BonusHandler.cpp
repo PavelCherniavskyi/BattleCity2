@@ -4,7 +4,7 @@
 
 constexpr auto kBonusSpawnTime = 20.f;
 
-void BonusHandler::Draw(sf::RenderWindow& window)
+void BonusHandler::Draw(sf::RenderWindow& window) const
 {
   for (const auto& itrBonus : mBonuses)
   {
@@ -32,19 +32,19 @@ void BonusHandler::Update()
     case 1:
       bonus = std::make_shared<BonusStar>();
       bonus->Init();
-      bonus->SetPosition(x, y);
+      bonus->SetPosition(sf::Vector2f(x, y));
       mBonuses.emplace(EImage::BONUSSTAR, std::move(bonus));
       break;
     case 2:
       bonus = std::make_shared<BonusMissle>();
       bonus->Init();
-      bonus->SetPosition(x, y);
+      bonus->SetPosition(sf::Vector2f(x, y));
       mBonuses.emplace(EImage::BONUSMISSLE, std::move(bonus));
       break;
     case 3:
       bonus = std::make_shared<BonusLife>();
       bonus->Init();
-      bonus->SetPosition(x, y);
+      bonus->SetPosition(sf::Vector2f(x, y));
       mBonuses.emplace(EImage::BONUSLIFE, std::move(bonus));
       break;
     default:

@@ -52,6 +52,20 @@ inline EImage MapObject2ImageConverter(EMapObjects mapObject)
   }
 }
 
+inline EImage Category2ImageConverter(ECategory category)
+{
+  switch (category)
+  {
+  case +ECategory::EAGLE:       return EImage::EAGLE;
+  case +ECategory::PLAYERTANK:  return EImage::T_10;
+  case +ECategory::BULLET:  return EImage::BULLET;
+  case +ECategory::SUPERBULLET:  return EImage::BULLET;
+
+  default:
+    return EImage::UNKNOWN;
+  }
+}
+
 inline bool Intersection(const sf::FloatRect& obj1, const sf::FloatRect& obj2)
 {
   if (obj1.left + obj1.width >= obj2.left 

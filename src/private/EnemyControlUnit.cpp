@@ -6,7 +6,7 @@
 
 constexpr auto KMaxEnemyTanksOnField = 20;
 constexpr auto KSpawnEnemyTanksTime = 2.f;
-constexpr auto KTanksOnFieldLimit = 4u;
+constexpr auto KTanksOnFieldLimit = 10u;
 
 EnemyControlUnit::EnemyControlUnit(AnimationHandler& animationHandler)
   : mTanksQueue{}

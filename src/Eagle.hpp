@@ -8,14 +8,8 @@ class Eagle : public Entity
 public:
   Eagle();
   bool Init() override;
-  void Draw(sf::RenderWindow &window) override;
-  sf::FloatRect GetGlobalBounds() const override;
-  sf::FloatRect GetLocalBounds() const override;
-  const std::vector<sf::Sprite>& GetSprite() const override;
-
-private:
-  std::vector<sf::Sprite> mSprites;
-  int mHP;
+  void Draw(sf::RenderWindow &window) const override;
+  void Update(const sf::Vector2f&) override {};
 };
 
 

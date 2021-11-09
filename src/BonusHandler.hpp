@@ -10,7 +10,7 @@ class BonusHandler
 public:
   using BonusCIterator = std::unordered_multimap<EImage, std::shared_ptr<BaseBonus>>::const_iterator;
 
-  void Draw(sf::RenderWindow&);
+  void Draw(sf::RenderWindow&) const;
   void Update();
   bool CheckIntersection(const sf::FloatRect& obj, BonusCIterator& itOut) const;
   void EraseBonus(BonusCIterator);

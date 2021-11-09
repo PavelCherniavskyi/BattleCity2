@@ -85,9 +85,8 @@ std::shared_ptr<BulletBase> setupBullet(std::shared_ptr<BulletBase> aBullet, Bas
 }
 
 BaseTank::BaseTank(ECategory aCategory, EImage aType)
-  : mCategory(aCategory)
-  , mType(aType)
-  , mHP(0)
+  : Entity(aType)
+  , mCategory(aCategory)
 {
 }
 
@@ -98,8 +97,6 @@ BaseTank::BaseTank(const BaseTank& rhs)
   mBulletSpeed = rhs.mBulletSpeed;
   mBulletFrequency = rhs.mBulletFrequency;
   mCategory = rhs.mCategory;
-  mType = rhs.mType;
-  mSprites = rhs.mSprites;
 }
 
 bool PlayerTank::CanIDoFire() const
@@ -179,7 +176,7 @@ ECategory BaseTank::GetCategory() const
   return mCategory;
 }
 
-void BaseTank::Draw(sf::RenderWindow& aWindow)
+void BaseTank::Draw(sf::RenderWindow& aWindow) const
 {
   if (IsMoving())
   {
@@ -212,11 +209,6 @@ void BaseTank::Update(const sf::Vector2f& aPos)
   }
 }
 
-const std::vector<sf::Sprite>& BaseTank::GetSprite() const
-{
- return mSprites;
-}
-
 void BaseTank::MoveBack(const sf::Vector2f& aPos)
 {
   sf::Vector2f pos = aPos;
@@ -242,30 +234,6 @@ void BaseTank::MoveBack(const sf::Vector2f& aPos)
   }
 }
 
-void BaseTank::Rotate(EActions mAction)
-{
-  switch (mAction)
-  {
-
-  case +EActions::LEFT:
-    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(270.f);
-    break;
-  case +EActions::RIGHT:
-    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(90.f);
-    break;
-  case +EActions::UP:
-    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(0.f);
-    break;
-  case +EActions::DOWN:
-    for (size_t i = 0; i < kTankSpritesCount; i++) mSprites[i].setRotation(180.f);
-    break;
-  case +EActions::FIRE:
-    break;
-  default:
-    break;
-  }
-}
-
 void BaseTank::SuperClipLoad(const size_t mCount)
 {
   for (size_t i = 0; i < mCount; i++)
@@ -276,30 +244,9 @@ void BaseTank::SuperClipLoad(const size_t mCount)
   }
 }
 
-sf::FloatRect BaseTank::GetGlobalBounds() const
-{
-  return mSprites[0].getGlobalBounds();
-}
-
-sf::FloatRect BaseTank::GetLocalBounds() const
-{
-  return mSprites[0].getLocalBounds();
-}
-
 size_t BaseTank::GetSuperClipSize() const
 {
   return mSuperBulletClip.size();
-}
-
-EImage BaseTank::GetType() const
-{
-  return mType;
-}
-
-void BaseTank::SetPosition(const sf::Vector2f& aPos)
-{
-  mSprites[0].setPosition(aPos);
-  mSprites[1].setPosition(aPos);
 }
 
 PlayerTank::PlayerTank()
@@ -314,7 +261,7 @@ PlayerTank::PlayerTank(const PlayerTank& rhs)
 
 bool PlayerTank::Init()
 {
-  auto sprites = SpriteHolder::GetSprite(mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
     SPDLOG_ERROR("Sprites is not correct");
@@ -364,6 +311,17 @@ EnemyBaseTank::EnemyBaseTank(ECategory aCategory, EImage aType)
 {
 }
 
+void EnemyBaseTank::Update(const sf::Vector2f& aPos)
+{
+  for (size_t i = 0; i < kTankSpritesCount; i++)
+  {
+    mSprites[i].move(aPos);
+  }
+
+  mNumbers[GetHP()].setPosition(
+    { GetGlobalBounds().left + GetGlobalBounds().width, GetGlobalBounds().top + GetGlobalBounds().height });
+}
+
 bool EnemyBaseTank::Init()
 {
   auto numbers = SpriteHolder::GetSprite(EImage::DIGITS);
@@ -381,7 +339,7 @@ bool EnemyBaseTank::Init()
   return true;
 }
 
-void EnemyBaseTank::Draw(sf::RenderWindow& aWindow)
+void EnemyBaseTank::Draw(sf::RenderWindow& aWindow) const
 {
   if (IsMoving())
   {
@@ -406,8 +364,6 @@ void EnemyBaseTank::Draw(sf::RenderWindow& aWindow)
   }
 
   // drawing lives
-  mNumbers[GetHP()].setPosition(
-    { GetGlobalBounds().left + GetGlobalBounds().width, GetGlobalBounds().top + GetGlobalBounds().height });
   aWindow.draw(mNumbers[GetHP()]);
 }
 
@@ -418,7 +374,7 @@ EnemyTank_10::EnemyTank_10()
 
 bool EnemyTank_10::Init()
 {
-  auto sprites = SpriteHolder::GetSprite(mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
     SPDLOG_ERROR("Sprites is not correct");
@@ -452,7 +408,7 @@ EnemyTank_20::EnemyTank_20()
 
 bool EnemyTank_20::Init()
 {
-  auto sprites = SpriteHolder::GetSprite(mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
     SPDLOG_ERROR("Sprites is not correct");
@@ -486,7 +442,7 @@ EnemyTank_30::EnemyTank_30()
 
 bool EnemyTank_30::Init()
 {
-  auto sprites = SpriteHolder::GetSprite(mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
     SPDLOG_ERROR("Sprites is not correct");
@@ -520,7 +476,7 @@ EnemyTank_40::EnemyTank_40()
 
 bool EnemyTank_40::Init()
 {
-  auto sprites = SpriteHolder::GetSprite(mType);
+  auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
     SPDLOG_ERROR("Sprites is not correct");

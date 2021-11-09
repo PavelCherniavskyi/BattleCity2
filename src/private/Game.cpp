@@ -175,7 +175,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mEntities.erase(itrBullet);
-      tankIter->get()->MakeDamage();
+      tankIter->get()->MakeDamage(1);
       if (!tankIter->get()->IsAlife())
       {
         mAnimationHandler.CreateAnimation(tankIter->get()->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -192,7 +192,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mEntities.erase(itrBullet);
-      player.GetPlayerTank()->MakeDamage();
+      player.GetPlayerTank()->MakeDamage(1);
       if (!player.GetPlayerTank()->IsAlife())
       {
         mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
@@ -217,7 +217,7 @@ bool Game::isIntersectsBullet()
     {
       mAnimationHandler.CreateAnimation(itrBullet->second->GetGlobalBounds(), EImage::BULLETCOLLISION);
       mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-      eagle->second->MakeDamage();
+      eagle->second->MakeDamage(1);
       mEntities.erase(itrBullet);
       gameStage = EGamestates::GAME_OVER;
       return true;
@@ -288,7 +288,7 @@ bool Game::isIntersectsSuperBullet()
     {
       mAnimationHandler.CreateAnimation(itrSuperBullet->second->GetGlobalBounds(), EImage::SUPERBULLETCOLLISION);
       mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-      eagle->second->MakeDamage();
+      eagle->second->MakeDamage(1);
       mEntities.erase(itrSuperBullet);
       gameStage = EGamestates::GAME_OVER;
       return true;
@@ -326,7 +326,7 @@ bool Game::isIntersectsEnemy()
   if (mEnemyControlUnit.Intersection(eagle->second->GetGlobalBounds(), tankIter))
   {
     mAnimationHandler.CreateAnimation(eagle->second->GetGlobalBounds(), EImage::EAGLECOLLISION);
-    eagle->second->MakeDamage();
+    eagle->second->MakeDamage(1);
     gameStage = EGamestates::GAME_OVER;
     return true;
   }
@@ -395,9 +395,6 @@ void Game::stageRender()
       && isPlayerAlife 
       && noEnemyInQueue)
   {
-    auto enemySize = mEnemyControlUnit.GetTanksOnFieldCount();
-    auto enemyQueue = mEnemyControlUnit.GetTanksQueueCount();
-    SPDLOG_INFO("enemySize: {}, enemyQueue: {}", enemySize, enemyQueue);
     gameStage = EGamestates::NEXT_LVL;
     forClockRestart = false;
   }

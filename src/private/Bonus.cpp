@@ -8,11 +8,11 @@ constexpr size_t kBonusStarPackSize = 1u;
 
 bool BaseBonus::setInit(BaseBonus& aBaseBonus, const float aScale)
 {
-  if (auto spritesPtr = SpriteHolder::GetSprite(aBaseBonus.mType)
+  if (auto spritesPtr = SpriteHolder::GetSprite(aBaseBonus.mImageType)
       ; spritesPtr->size() == kBonusSpriteSize)
   {
-    aBaseBonus.mSprite = spritesPtr->at(0);
-    aBaseBonus.mSprite.setScale(aScale, aScale);
+    aBaseBonus.mSprites = *spritesPtr;
+    aBaseBonus.mSprites[0].setScale(aScale, aScale);
   }
   else
   {
@@ -24,49 +24,24 @@ bool BaseBonus::setInit(BaseBonus& aBaseBonus, const float aScale)
 }
 
 BaseBonus::BaseBonus(EImage aType, size_t aPackSize)
-  : mSprite()
-  , mType(aType)
+  : Entity(aType)
   , mPackSize(aPackSize)
 {
 }
 
 void BaseBonus::Draw(sf::RenderWindow& window) const
 {
-  window.draw(mSprite);
+  window.draw(mSprites[0]);
 }
 
 void BaseBonus::Update(const sf::Vector2f& vector)
 {
-  mSprite.move(vector);
+  mSprites[0].move(vector);
 }
 
-sf::FloatRect BaseBonus::GetGlobalBounds() const
-{
-  return mSprite.getGlobalBounds();
-}
-
-sf::FloatRect BaseBonus::GetLocalBounds() const
-{
-  return mSprite.getLocalBounds();
-}
-
-void BaseBonus::SetPosition(const float x, const float y)
-{
-  mSprite.setPosition(x, y);
-}
-
-const sf::Sprite& BaseBonus::GetSprite() const
-{
-  return mSprite;
-}
 size_t BaseBonus::GetPackSize() const
 {
   return mPackSize;
-}
-
-EImage BaseBonus::GetType() const
-{
-  return mType;
 }
 
 BonusStar::BonusStar()

@@ -51,16 +51,16 @@ void Player::HandleBonusEvents()
   BonusHandler::BonusCIterator bonusIt;
   if (mBonusHandler.CheckIntersection(mPlayerTank->GetGlobalBounds(), bonusIt))
   {
-    if (bonusIt->second->GetType() == +EImage::BONUSSTAR)
+    if (bonusIt->second->GetImageType() == +EImage::BONUSSTAR)
     {
       mPlayerTank->SetBulletSpeed(mPlayerTank->GetBulletSpeed() + static_cast<float>(bonusIt->second->GetPackSize()));
     }
-    else if (bonusIt->second->GetType() == +EImage::BONUSMISSLE)
+    else if (bonusIt->second->GetImageType() == +EImage::BONUSMISSLE)
     {
       mPlayerTank->SuperClipLoad(bonusIt->second->GetPackSize());
       panel.SetCurrentMissles(mPlayerTank->GetSuperClipSize());
     }
-    else if (bonusIt->second->GetType() == +EImage::BONUSLIFE)
+    else if (bonusIt->second->GetImageType() == +EImage::BONUSLIFE)
     {
       mPlayerTank->SetHP(mPlayerTank->GetHP() + bonusIt->second->GetPackSize());
       panel.SetCurrentLives(mPlayerTank->GetHP());

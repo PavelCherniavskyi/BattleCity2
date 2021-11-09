@@ -13,7 +13,7 @@ class AnimationHandler
 public:
   using AnimationCIterator = std::unordered_multimap<EImage, std::shared_ptr<Animation>>::const_iterator;
 
-  void Draw(sf::RenderWindow&);
+  void Draw(sf::RenderWindow&) const;
   void Update();
   void SetAppearanceFinishCallback(const std::function<void()>);
   void CreateAnimation(const sf::FloatRect&, EImage, const std::function<void()> = nullptr);

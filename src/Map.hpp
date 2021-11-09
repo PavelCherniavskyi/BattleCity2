@@ -24,7 +24,7 @@ class Map
 public:
   explicit Map(size_t);
   bool Init();
-  void Draw(sf::RenderWindow&);
+  void Draw(sf::RenderWindow&) const;
   void DestroyObject(const std::unordered_multimap<EMapObjects, Node>::const_iterator& it);
   const std::unordered_multimap<EMapObjects, Node>& GetMapObjects() const;
 

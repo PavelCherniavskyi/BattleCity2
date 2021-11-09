@@ -55,7 +55,7 @@ bool RightPanel::Init()
   return true;
 }
 
-void RightPanel::Draw(sf::RenderWindow& window)
+void RightPanel::Draw(sf::RenderWindow& window) const
 {
   window.draw(mPanel);
 

@@ -3,15 +3,13 @@
 
 constexpr std::size_t kEagleSpriteSize = 2u;
 
-Eagle::Eagle()
-  : mSprites{}
-  , mHP(0)
+Eagle::Eagle() : Entity(EImage::EAGLE)
 {
 }
 
 bool Eagle::Init()
 {
-  auto sprite = SpriteHolder::GetSprite(EImage::EAGLE);
+  auto sprite = SpriteHolder::GetSprite(mImageType);
   if (!sprite || sprite->size() != kEagleSpriteSize)
   {
     SPDLOG_ERROR("Sprite: {}. expected: {}, actual: {}", 
@@ -37,10 +35,12 @@ bool Eagle::Init()
     mSprites[i].setOrigin(mSprites[i].getLocalBounds().height / 2.f, mSprites[i].getLocalBounds().width / 2.f);
   }
 
+  SetHP(1);
+
   return true;
 }
 
-void Eagle::Draw(sf::RenderWindow& window)
+void Eagle::Draw(sf::RenderWindow& window) const
 {
   if (IsAlife())
   {
@@ -51,19 +51,3 @@ void Eagle::Draw(sf::RenderWindow& window)
     window.draw(mSprites[1]);
   }
 }
-
-sf::FloatRect Eagle::GetGlobalBounds() const
-{
-  return mSprites[0].getGlobalBounds();
-}
-
-sf::FloatRect Eagle::GetLocalBounds() const
-{
-  return mSprites[0].getLocalBounds();
-}
-
-const std::vector<sf::Sprite>& Eagle::GetSprite() const
-{
-  return mSprites;
-}
-
