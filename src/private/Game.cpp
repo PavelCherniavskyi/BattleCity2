@@ -126,7 +126,7 @@ void Game::handleInput(sf::Time aTimePerFrame)
     {
       mWindow.close();
     }
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
+    if (event.key.code == sf::Keyboard::Space)
     {
       mIsPaused = !mIsPaused;
     }
@@ -134,7 +134,7 @@ void Game::handleInput(sf::Time aTimePerFrame)
   if (!mIsPaused)
   {
     player.HandleActionEvent(event, aTimePerFrame);
-    player.HandleMovingInput(aTimePerFrame);
+    player.HandleMovingInput(event, aTimePerFrame);
   }
 }
 

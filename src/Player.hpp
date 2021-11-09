@@ -14,21 +14,18 @@
 class Player
 {
 public:
-  Player(
-     std::vector<std::shared_ptr<Map>> &,
-     RightPanel &,
-     BonusHandler &);
+  Player(std::vector<std::shared_ptr<Map>>&, RightPanel&, BonusHandler&);
   bool Init();
-  void HandleActionEvent(const sf::Event &event, sf::Time TimePerFrame);
-  void HandleMovingInput(sf::Time TimePerFrame);
+  void HandleActionEvent(const sf::Event& aEvent, const sf::Time& aTimePerFrame);
+  void HandleMovingInput(const sf::Event& aEvent, const sf::Time& aTimePerFrame);
   void HandleBonusEvents();
   bool IsIntersectsWalls();
   std::shared_ptr<PlayerTank> GetPlayerTank();
   void SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>)>);
 
 private:
-  std::vector<std::shared_ptr<Map>> &mapSequence;
-  RightPanel &panel;
+  std::vector<std::shared_ptr<Map>>& mapSequence;
+  RightPanel& panel;
   BonusHandler& mBonusHandler;
   std::unordered_map<sf::Keyboard::Key, EActions> mKeyboardBinding;
   std::unordered_map<sf::Mouse::Button, EActions> mMousedBinding;
@@ -38,4 +35,4 @@ private:
   std::function<void(std::shared_ptr<BulletBase>)> mNewBulletCallback;
 };
 
-#endif// BATTLECITY_PLAYER_HPP
+#endif // BATTLECITY_PLAYER_HPP

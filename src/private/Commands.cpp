@@ -31,5 +31,5 @@ void MouseCommand::Action(std::shared_ptr<PlayerTank> aPlayerTank)
     return;
   }
   
-  mNewBulletCallback(bullet);
+  mCallback(bullet);
 }

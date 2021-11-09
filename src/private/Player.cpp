@@ -13,11 +13,11 @@ Player::Player(std::vector<std::shared_ptr<Map>>& map, RightPanel& pan, BonusHan
 {
 }
 
-void Player::HandleActionEvent(const sf::Event& event, sf::Time)
+void Player::HandleActionEvent(const sf::Event& aEvent, const sf::Time&)
 {
-  if (event.type == sf::Event::MouseButtonPressed)
+  if (aEvent.type == sf::Event::MouseButtonPressed)
   {
-    if (auto found = mMousedBinding.find(event.mouseButton.button); found != mMousedBinding.end())
+    if (auto found = mMousedBinding.find(aEvent.mouseButton.button); found != mMousedBinding.end())
     {
       if (mPlayerTank && mPlayerTank->CanIDoFire())
       {
@@ -28,16 +28,17 @@ void Player::HandleActionEvent(const sf::Event& event, sf::Time)
   }
 }
 
-void Player::HandleMovingInput(sf::Time TimePerFrame)
+void Player::HandleMovingInput(const sf::Event&, const sf::Time& aTimePerFrame)
 {
+  // if(event.type == sf::Event::KeyPressed) -> works only for Ctrl, Alt, e.t.c ???
   for (auto& pair : mKeyboardBinding)
   {
     if (sf::Keyboard::isKeyPressed(pair.first) && Utils::IsMovingAction(pair.second))
     {
-      mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, false);
+      mKeyboardActions[pair.second].get()->Action(aTimePerFrame, mPlayerTank, false);
       if (IsIntersectsWalls())
       {
-        mKeyboardActions[pair.second].get()->Action(TimePerFrame, mPlayerTank, true);
+        mKeyboardActions[pair.second].get()->Action(aTimePerFrame, mPlayerTank, true);
       }
       mPlayerTank->SetIsMoving(true);
       break;
@@ -107,7 +108,6 @@ bool Player::Init()
   mKeyboardBinding[sf::Keyboard::S] = EActions::DOWN;
   mMousedBinding[sf::Mouse::Left] = EActions::FIRE;
   mMousedBinding[sf::Mouse::Right] = EActions::SUPERFIRE;
-  mMousedBinding[sf::Mouse::Middle] = EActions::PAUSE;
 
   mKeyboardActions[EActions::LEFT] = std::make_unique<KeyboardCommand>(-kPlayerStepMove, 0.f, EActions::LEFT);
   mKeyboardActions[EActions::RIGHT] = std::make_unique<KeyboardCommand>(+kPlayerStepMove, 0.f, EActions::RIGHT);

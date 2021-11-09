@@ -24,16 +24,16 @@ struct KeyboardCommand
 
 struct MouseCommand
 {
-  MouseCommand(std::function<void(std::shared_ptr<BulletBase>)> aBulletCallback, ECategory aCategory)
+  MouseCommand(std::function<void(std::shared_ptr<BulletBase>)> aCallback, ECategory aCategory)
     : type(aCategory)
-    , mNewBulletCallback(aBulletCallback)
+    , mCallback(aCallback)
   {
   }
 
   void Action(std::shared_ptr<PlayerTank>);
 
   ECategory type;
-  std::function<void(std::shared_ptr<BulletBase>)> mNewBulletCallback;
+  std::function<void(std::shared_ptr<BulletBase>)> mCallback;
 };
 
 #endif // BATTLECITY_COMMANDS_HPP

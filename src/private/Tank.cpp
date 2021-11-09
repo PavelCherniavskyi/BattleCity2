@@ -386,7 +386,7 @@ bool EnemyTank_10::Init()
   SetBulletFrequency(kEnemy_10TankBulletFrequency);
   SetSpeed(kEnemy_10TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(true);
+  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -420,7 +420,7 @@ bool EnemyTank_20::Init()
   SetBulletFrequency(kEnemy_20TankBulletFrequency);
   SetSpeed(kEnemy_20TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(true);
+  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -454,7 +454,7 @@ bool EnemyTank_30::Init()
   SetBulletFrequency(kEnemy_30TankBulletFrequency);
   SetSpeed(kEnemy_30TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(true);
+  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -488,7 +488,7 @@ bool EnemyTank_40::Init()
   SetBulletFrequency(kEnemy_40TankBulletFrequency);
   SetSpeed(kEnemy_40TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(true);
+  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
