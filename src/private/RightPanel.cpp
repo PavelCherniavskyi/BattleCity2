@@ -90,9 +90,9 @@ void RightPanel::ResetIcons()
   }
 
   bool set = true;
-  float X1 = (kWidthScreen + kWidthRightPanel) - 20;
-  float X2 = (kWidthScreen + kWidthRightPanel) - 4;
-  float Y = kHeightScreen - 400;
+  float X1 = (kWidthScreen + kWidthRightPanel) - 47;
+  float X2 = (kWidthScreen + kWidthRightPanel) - 27;
+  float Y = kHeightScreen - 420;
 
   mTankIcons.clear();
 
