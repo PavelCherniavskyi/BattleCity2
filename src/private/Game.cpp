@@ -398,14 +398,39 @@ void Game::update(sf::Time elapsedTime)
 
   // EnemyTank vs PlayerTank
   EnemyControlUnit::EnemyTankIter tankIter;
-  if (mEnemyControlUnit.Intersection(player.GetPlayerTank()->GetGlobalBounds(), tankIter))
+  if (auto playerTank = player.GetPlayerTank(); mEnemyControlUnit.Intersection(playerTank->GetGlobalBounds(), tankIter))
   {
-    mAnimationHandler.CreateAnimation(player.GetPlayerTank()->GetGlobalBounds(), EImage::TANKCOLLISION);
+    playerTank->MakeDamage(2u);
     mAnimationHandler.CreateAnimation(tankIter->get()->GetGlobalBounds(), EImage::TANKCOLLISION);
     mEnemyControlUnit.DeleteTank(tankIter);
-    mEntities.erase(ECategory::PLAYERTANK);
-    panel.SetCurrentLives(0);
-    gameStage = EGamestates::GAME_OVER;
+    
+    if(!playerTank->IsAlife())
+    {
+      mAnimationHandler.CreateAnimation(playerTank->GetGlobalBounds(), EImage::TANKCOLLISION);
+      mEntities.erase(ECategory::PLAYERTANK);
+      gameStage = EGamestates::GAME_OVER;
+    }
+    else if(playerTank->IsAlife())
+    {
+      panel.SetCurrentLives(playerTank->GetHP());
+      playerTank->SetInitialPosition();
+      auto lives = playerTank->GetHP();
+      auto missles = playerTank->GetSuperClipSize();
+      mEntities.erase(ECategory::PLAYERTANK);
+      auto playerApperance = [this, lives, missles]() {
+          auto playerTankPtr = player.GetPlayerTank();
+          if(!playerTankPtr || !playerTankPtr->Init())
+          {
+            SPDLOG_ERROR("Something wrong with Player tank");
+          }
+
+          playerTankPtr->SetInitialPosition();
+          mEntities.insert({ECategory::PLAYERTANK, playerTankPtr});
+          panel.SetCurrentLives(lives);
+          panel.SetCurrentMissles(missles);
+        };
+      mAnimationHandler.CreateAnimation(playerTank->GetGlobalBounds(), EImage::APPERANCE, playerApperance);
+    }
   }
 
 

@@ -11,7 +11,7 @@ constexpr auto kPlayerTankSuperBulletClipSize = 5u;
 const auto kPlayerTankVelosity = sf::Vector2f(0.f, -100.f);
 constexpr auto kPlayerTankBulletFrequency = 0.4f;
 constexpr auto kPlayerBulletSpeed = 2.f;
-constexpr auto kPlayerTankHP = 3u;
+constexpr auto kPlayerTankHP = 10u;
 constexpr auto kPlayerTankSpeed = 1.f;
 
 const std::vector<sf::Vector2f> kEnemySpawnPos{ 

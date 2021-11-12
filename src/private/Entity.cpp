@@ -46,6 +46,10 @@ size_t Entity::MakeDamage(size_t aAmount)
   {
     mHP -= aAmount;
   }
+  else
+  {
+    mHP = 0u;
+  }
   return mHP;
 }
 
