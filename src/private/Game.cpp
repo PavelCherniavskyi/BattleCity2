@@ -185,7 +185,7 @@ bool Game::isIntersectsBullet()
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
       {
-        if(itrMap->first == +EMapObjects::GREENWALL)
+        if(itrMap->first == +EMapObjects::GREENWALL || itrMap->first == +EMapObjects::WATERWALL)
         {
           continue;
         }
@@ -274,6 +274,10 @@ bool Game::isIntersectsSuperBullet()
       if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
       {
         const auto type = itrMap->first;
+        if(type == +EMapObjects::WATERWALL)
+        {
+          continue;
+        }
         if(type == +EMapObjects::WALL || type == +EMapObjects::STEELWALL)
         {
           map->DestroyObject(itrMap);

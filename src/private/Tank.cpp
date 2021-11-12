@@ -11,7 +11,7 @@ constexpr auto kPlayerTankSuperBulletClipSize = 5u;
 const auto kPlayerTankVelosity = sf::Vector2f(0.f, -100.f);
 constexpr auto kPlayerTankBulletFrequency = 0.4f;
 constexpr auto kPlayerBulletSpeed = 2.f;
-constexpr auto kPlayerTankHP = 2;
+constexpr auto kPlayerTankHP = 3u;
 constexpr auto kPlayerTankSpeed = 1.f;
 
 const std::vector<sf::Vector2f> kEnemySpawnPos{ 
@@ -22,19 +22,19 @@ const std::vector<sf::Vector2f> kEnemySpawnPos{
 
 constexpr auto kEnemy_10TankSpeed = 1.f;
 constexpr auto kEnemy_10BulletSpeed = 2.f;
-constexpr auto kEnemy_10TankHP = 0;
+constexpr auto kEnemy_10TankHP = 1;
 constexpr auto kEnemy_10TankBulletFrequency = 1.f;
 constexpr auto kEnemy_10TankScale = 1.9f;
 
 constexpr auto kEnemy_20TankSpeed = 1.7f;
 constexpr auto kEnemy_20BulletSpeed = 2.f;
-constexpr auto kEnemy_20TankHP = 0;
+constexpr auto kEnemy_20TankHP = 1;
 constexpr auto kEnemy_20TankBulletFrequency = 1.f;
 constexpr auto kEnemy_20TankScale = 1.8f;
 
 constexpr auto kEnemy_30TankSpeed = 1.2f;
 constexpr auto kEnemy_30BulletSpeed = 4.f;
-constexpr auto kEnemy_30TankHP = 1;
+constexpr auto kEnemy_30TankHP = 2;
 constexpr auto kEnemy_30TankBulletFrequency = 1.f;
 constexpr auto kEnemy_30TankScale = 1.7f;
 
@@ -404,7 +404,7 @@ bool EnemyTank_10::Init()
   }
   mSprites = *sprites;
   mBulletSpeed = kEnemy_10BulletSpeed;
-  mHP = kEnemy_10TankHP;
+  SetHP(kEnemy_10TankHP);
   SetBulletFrequency(kEnemy_10TankBulletFrequency);
   SetSpeed(kEnemy_10TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
@@ -440,7 +440,7 @@ bool EnemyTank_20::Init()
   }
   mSprites = *sprites;
   mBulletSpeed = kEnemy_20BulletSpeed;
-  mHP = kEnemy_20TankHP;
+  SetHP(kEnemy_20TankHP);
   SetBulletFrequency(kEnemy_20TankBulletFrequency);
   SetSpeed(kEnemy_20TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
@@ -473,7 +473,7 @@ bool EnemyTank_30::Init()
   }
   mSprites = *sprites;
   mBulletSpeed = kEnemy_30BulletSpeed;
-  mHP = kEnemy_30TankHP;
+  SetHP(kEnemy_30TankHP);
   SetBulletFrequency(kEnemy_30TankBulletFrequency);
   SetSpeed(kEnemy_30TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
@@ -506,7 +506,7 @@ bool EnemyTank_40::Init()
   }
   mSprites = *sprites;
   mBulletSpeed = kEnemy_40BulletSpeed;
-  mHP = kEnemy_40TankHP;
+  SetHP(kEnemy_40TankHP);
   SetBulletFrequency(kEnemy_40TankBulletFrequency);
   SetSpeed(kEnemy_40TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
