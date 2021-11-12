@@ -112,28 +112,28 @@ void EnemyControlUnit::ResetTanksOnField()
   mTanksOnField.clear();
 }
 
-bool EnemyControlUnit::LoadLevel(size_t aLevel)
+bool EnemyControlUnit::LoadLevel(ELevels aLevel)
 {
   switch (aLevel)
   {
-  case 0: // Debug mode
+  case +ELevels::_0: // Debug mode
     loadLevelHelper<EnemyTank_10>(1);
     break;
-  case 1:
+  case +ELevels::_1:
     loadLevelHelper<EnemyTank_20>(2);
     loadLevelHelper<EnemyTank_10>(18);
     break;
-  case 2:
+  case +ELevels::_2:
     loadLevelHelper<EnemyTank_30>(2);
     loadLevelHelper<EnemyTank_10>(4);
     loadLevelHelper<EnemyTank_10>(14);
     break;
-  case 3:
+  case +ELevels::_3:
     loadLevelHelper<EnemyTank_30>(4);
     loadLevelHelper<EnemyTank_10>(6);
     loadLevelHelper<EnemyTank_10>(10);
     break;
-  case 4:
+  case +ELevels::_4:
     loadLevelHelper<EnemyTank_40>(4);
     loadLevelHelper<EnemyTank_30>(6);
     loadLevelHelper<EnemyTank_10>(8);

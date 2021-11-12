@@ -60,7 +60,7 @@ bool Game::Init()
   if(!SpriteHolder::Init() 
     || !mTextHolder.Init() 
     || !mEnemyControlUnit.Init(this) 
-    || !mEnemyControlUnit.LoadLevel(1) 
+    || !mEnemyControlUnit.LoadLevel(ELevels::_1) 
     || !player.Init() 
     || !panel.Init())
   {
@@ -105,13 +105,34 @@ bool Game::Init()
   mapSequence.emplace_back(std::make_shared<Map2>());
   mapSequence.emplace_back(std::make_shared<Map1>());
 
+  if(auto level = mInputHandlerUPtr->GetOption(EInputOption::LEVEL); !level.empty())
+  {
+    const auto expectedLevel = static_cast<size_t>(stoi(level));
+    auto popedLevel = 1u;
+    while (popedLevel != ELevels::_size() && popedLevel != expectedLevel)
+    {
+      if(popedLevel++ == expectedLevel)
+      {
+        break;
+      }
+      mapSequence.pop_back();
+    }
+
+    auto elevel2Load = Utils::Num2Elevels(expectedLevel);
+
+    mEnemyControlUnit.ResetTanksOnField();
+    mEnemyControlUnit.ResetTanksQueue();
+    mEnemyControlUnit.LoadLevel(elevel2Load);
+    panel.SetCurrentLevel(expectedLevel);
+  }
+
   if(!mInputHandlerUPtr->GetOption(EInputOption::DEBUG).empty())
   {
     mapSequence.emplace_back(std::make_shared<Map0>()); // Test mode
     mEnemyControlUnit.ResetTanksOnField();
     mEnemyControlUnit.ResetTanksQueue();
-    mEnemyControlUnit.LoadLevel(0);
-    panel.SetCurrentLevel(0);
+    mEnemyControlUnit.LoadLevel(ELevels::_0);
+    panel.SetCurrentLevel(0u);
   }
 
   for(auto& map : mapSequence)
@@ -164,7 +185,11 @@ bool Game::isIntersectsBullet()
     {
       if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
       {
-        if(itrMap->first == +EMapObjects::WALL)
+        if(itrMap->first == +EMapObjects::GREENWALL)
+        {
+          continue;
+        }
+        else if(itrMap->first == +EMapObjects::WALL)
         {
           map->DestroyObject(itrMap);
         }
@@ -462,7 +487,7 @@ void Game::nextLvlInitialize()
   panel.ResetIcons();
 
   panel.IncrementCurrentLvl();
-  mEnemyControlUnit.LoadLevel(panel.GetCurrentLvl());
+  mEnemyControlUnit.LoadLevel(Utils::Num2Elevels(panel.GetCurrentLvl()));
   player.GetPlayerTank()->SetInitialPosition();
   gameStage = EGamestates::RUNNING;
 }

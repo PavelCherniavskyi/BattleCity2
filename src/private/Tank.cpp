@@ -321,7 +321,6 @@ void EnemyBaseTank::SetCallbackToRotate(std::function<void(EnemyBaseTank&)> call
 void EnemyBaseTank::UpdateRotationTime()
 {
   mRotationTime = sf::seconds(static_cast<float>(rand() % 5 + 1));
-  SPDLOG_INFO("UpdateRotationTime: {}", mRotationTime.asSeconds());
 }
 
 void EnemyBaseTank::Update(const sf::Vector2f& aPos)
@@ -338,7 +337,6 @@ void EnemyBaseTank::Update(const sf::Vector2f& aPos)
 
   if(rotationTimer.getElapsedTime() > mRotationTime)
   {
-    SPDLOG_INFO("Callback with type: {}", GetImageType()._to_string());
     mCallbackToRotate(*this);
     rotationTimer.restart();
   }

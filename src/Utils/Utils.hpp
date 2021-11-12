@@ -93,6 +93,19 @@ struct is_vector< T, typename std::enable_if_t<std::is_same_v<T, std::vector<typ
     static const bool value = true;
 };
 
+inline ELevels Num2Elevels(size_t aLevel)
+{
+  switch (aLevel)
+  {
+  case 0: return ELevels::_0;
+  case 1: return ELevels::_1;
+  case 2: return ELevels::_2;
+  case 3: return ELevels::_3;
+  case 4: return ELevels::_4;
+  default: return ELevels::_0;
+  }
+}
+
 
 }
 #endif// BATTLECITY_UTILS_UTILS_HPP

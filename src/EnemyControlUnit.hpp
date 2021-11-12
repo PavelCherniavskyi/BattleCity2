@@ -20,7 +20,7 @@ public:
   bool Init(Game*);
   void Update(const sf::Time);
   void Draw(sf::RenderWindow&) const;
-  bool LoadLevel(size_t);
+  bool LoadLevel(ELevels);
   bool Intersection(const sf::FloatRect&, EnemyTankIter&) const;
   void DeleteTank(const EnemyControlUnit::EnemyTankIter&);
   void ResetTanksQueue();
