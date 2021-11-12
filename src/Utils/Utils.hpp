@@ -68,10 +68,11 @@ inline EImage Category2ImageConverter(ECategory category)
 
 inline bool Intersection(const sf::FloatRect& obj1, const sf::FloatRect& obj2)
 {
-  if (obj1.left + obj1.width >= obj2.left 
-      && obj1.top + obj1.height >= obj2.top 
-      && obj1.left <= obj2.left + obj2.width
-      && obj1.top <= obj2.top + obj2.width)
+  // if (obj1.left + obj1.width >= obj2.left 
+  //     && obj1.top + obj1.height >= obj2.top 
+  //     && obj1.left <= obj2.left + obj2.width
+  //     && obj1.top <= obj2.top + obj2.width)
+  if(obj1.intersects(obj2))
   {
     return true;
   }

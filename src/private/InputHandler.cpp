@@ -10,6 +10,7 @@ int InputHandler::Parse(int argc, char **argv)
   desc.add_options()
     ("help", "produce help message")
     ("test", po::value<std::string>(), "test option")
+    ("debug,d", "Debug mode with empty map")
   ;
 
   po::variables_map vm;
@@ -24,7 +25,12 @@ int InputHandler::Parse(int argc, char **argv)
 
   if (vm.count("test"))
   {
-    mOptions.insert({EInputOption::TEST, vm["test"].as<std::string>()});
+    mOptions.emplace(EInputOption::TEST, vm["test"].as<std::string>());
+  }
+  if (vm.count("debug"))
+  {
+    mOptions.emplace(EInputOption::DEBUG, "not empty");
+    SPDLOG_INFO("Debug is here");
   }
 
   return 0;

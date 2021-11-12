@@ -119,13 +119,21 @@ void RightPanel::SetCurrentLives(size_t aLives)
 {
   setNumbers(EPanelWindow::LIVES, aLives);
 }
+
 void RightPanel::SetCurrentMissles(size_t aMissles)
 {
   setNumbers(EPanelWindow::MISSLES, aMissles);
 }
+
 void RightPanel::IncrementCurrentLvl()
 {
   setNumbers(EPanelWindow::LEVEL, mCurrentLvl += 1);
+}
+
+void RightPanel::SetCurrentLevel(size_t aLevel)
+{
+  mCurrentLvl = aLevel;
+  setNumbers(EPanelWindow::LEVEL, mCurrentLvl);
 }
 
 size_t RightPanel::GetCurrentLvl() const

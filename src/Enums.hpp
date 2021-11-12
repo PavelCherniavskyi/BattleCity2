@@ -46,7 +46,7 @@ BETTER_ENUM(EFont, unsigned int, SANSATION)
 
 BETTER_ENUMS_DECLARE_STD_HASH(EFont)
 
-BETTER_ENUM(EInputOption, unsigned int, TEST)
+BETTER_ENUM(EInputOption, unsigned int, TEST, DEBUG)
 
 BETTER_ENUMS_DECLARE_STD_HASH(EInputOption)
 

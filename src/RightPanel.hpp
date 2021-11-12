@@ -13,6 +13,7 @@ public:
   void ResetIcons();
   void SetCurrentLives(size_t aLives);
   void SetCurrentMissles(size_t aMissles);
+  void SetCurrentLevel(size_t aLevel);
   void IncrementCurrentLvl();
   size_t GetCurrentLvl() const;
   bool Init();

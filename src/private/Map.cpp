@@ -18,19 +18,19 @@ const std::vector<std::string> kMap0{
 	"0                          0",
 	"0                          0",
 	"0                          0",
-	"0              111         0",
-	"0              111         0",
-	"022                      220",
-	"0       2222               0",
-	"0            22            0",
 	"0                          0",
 	"0                          0",
-	"0      1111           211110",
-	"0        1111111111        0",
-	"0        11      1111      0",
-	"0111111            1111    0",
-	"01111       2222     11    0",
-	"011         2  2           0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0                          0",
+	"0           2222           0",
+	"0           2  2           0",
 	"0           2  2           0",
 	"0000000000000000000000000000"
 };
@@ -163,7 +163,7 @@ const std::vector<std::string> kMap4{
 
 const std::vector<std::vector<std::string>> kMaps{kMap0, kMap1, kMap2, kMap3, kMap4};
 
-bool setUpInit(EMapObjects mapObject, const sf::Vector2f& aSpritePos, std::unordered_multimap<EMapObjects, Node>& aLevelMap)
+bool setUpInit(EMapObjects mapObject, const sf::Vector2f& aSpritePos, std::unordered_multimap<EMapObjects, sf::Sprite>& aLevelMap)
 {
 	auto sprite = SpriteHolder::GetSprite(Utils::MapObject2ImageConverter(mapObject));
 	if(!sprite || sprite->empty())
@@ -178,9 +178,7 @@ bool setUpInit(EMapObjects mapObject, const sf::Vector2f& aSpritePos, std::unord
 	}
 
 	sprite->at(0).setPosition(aSpritePos);
-	sf::FloatRect pos{aSpritePos.x, aSpritePos.y, kWidthAndHeightTile, kWidthAndHeightTile};
-	Node node(pos, sprite->at(0), mapObject);
-	aLevelMap.insert(std::make_pair(mapObject, node));
+	aLevelMap.insert(std::make_pair(mapObject, sprite->at(0)));
 
 	return true;
 }
@@ -195,16 +193,16 @@ void Map::Draw(sf::RenderWindow& window) const
 {
 	for(const auto& pair: mLevelMap)
 	{
-		window.draw(pair.second.Sprite);
+		window.draw(pair.second);
 	}
 }
 
-void Map::DestroyObject(const std::unordered_multimap<EMapObjects, Node>::const_iterator& it)
+void Map::DestroyObject(const std::unordered_multimap<EMapObjects, sf::Sprite>::const_iterator& it)
 {
 	mLevelMap.erase(it);
 }
 
-const std::unordered_multimap<EMapObjects, Node>& Map::GetMapObjects() const
+const std::unordered_multimap<EMapObjects, sf::Sprite>& Map::GetMapObjects() const
 {
 	return mLevelMap;
 }

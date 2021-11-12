@@ -83,15 +83,14 @@ void Player::SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>
 
 bool Player::IsIntersectsWalls()
 {
-  const auto& globalBounds = mPlayerTank->GetGlobalBounds();
   const auto mapObjects = mapSequence.back()->GetMapObjects();
   for (auto itrMap = mapObjects.begin(); itrMap != mapObjects.end(); itrMap++)
   {
-    if(itrMap->second.Type == +EMapObjects::GREENWALL)
+    if(itrMap->first == +EMapObjects::GREENWALL)
     {
       continue;
     }
-    if (Utils::Intersection(globalBounds, itrMap->second.Rect))
+    if (Utils::Intersection(mPlayerTank->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
     {
       return true;
     }

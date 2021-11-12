@@ -54,9 +54,13 @@ public:
   void Update(const sf::Vector2f&) override;
   bool Init() override;
   bool CanIDoFire() const;
+  void SetCallbackToRotate(std::function<void(EnemyBaseTank&)>);
+  void UpdateRotationTime();
 
 protected:
   std::vector<sf::Sprite> mNumbers;
+  sf::Time mRotationTime;
+  std::function<void(EnemyBaseTank&)> mCallbackToRotate;
 };
 
 class EnemyTank_10 : public EnemyBaseTank

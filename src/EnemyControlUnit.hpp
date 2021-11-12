@@ -23,6 +23,8 @@ public:
   bool LoadLevel(size_t);
   bool Intersection(const sf::FloatRect&, EnemyTankIter&) const;
   void DeleteTank(const EnemyControlUnit::EnemyTankIter&);
+  void ResetTanksQueue();
+  void ResetTanksOnField();
   void Spawn();
   void SetNewBulletCallback(std::function<void(std::shared_ptr<BulletBase>)>);
   size_t GetTanksOnFieldCount() const;
@@ -31,7 +33,7 @@ public:
 private:
   template <typename T>
   void loadLevelHelper(size_t);
-  void setDirectionsForTank(std::shared_ptr<EnemyBaseTank>);
+  void setDirectionsForTank(EnemyBaseTank&);
   void doFire(std::shared_ptr<EnemyBaseTank>);
 
 private:

@@ -18,7 +18,7 @@ EnemyControlUnit::EnemyControlUnit(AnimationHandler& animationHandler)
 
 bool EnemyControlUnit::Init(Game* aGame)
 {
-  if(!aGame)
+  if (!aGame)
   {
     SPDLOG_ERROR("Game is null");
     return false;
@@ -30,7 +30,7 @@ bool EnemyControlUnit::Init(Game* aGame)
 
 bool EnemyControlUnit::Intersection(const sf::FloatRect& obj, EnemyTankIter& itOut) const
 {
-  for(auto it = mTanksOnField.begin(); it != mTanksOnField.end(); ++it)
+  for (auto it = mTanksOnField.begin(); it != mTanksOnField.end(); ++it)
   {
     if (Utils::Intersection(it->get()->GetGlobalBounds(), obj))
     {
@@ -38,7 +38,7 @@ bool EnemyControlUnit::Intersection(const sf::FloatRect& obj, EnemyTankIter& itO
       return true;
     }
   }
-    
+
   return false;
 }
 
@@ -57,11 +57,11 @@ size_t EnemyControlUnit::GetTanksQueueCount() const
   return mTanksQueue.size();
 }
 
-template <typename T>
+template<typename T>
 void EnemyControlUnit::loadLevelHelper(size_t aSize)
 {
   const int delta = KMaxEnemyTanksOnField - static_cast<int>(mTanksQueue.size());
-  if(delta <= 0)
+  if (delta <= 0)
   {
     SPDLOG_WARN("Queue is already full");
     return;
@@ -102,10 +102,23 @@ void EnemyControlUnit::DeleteTank(const EnemyControlUnit::EnemyTankIter& iterato
   mTanksOnField.erase(iterator);
 }
 
+void EnemyControlUnit::ResetTanksQueue()
+{
+  mTanksQueue.clear();
+}
+
+void EnemyControlUnit::ResetTanksOnField()
+{
+  mTanksOnField.clear();
+}
+
 bool EnemyControlUnit::LoadLevel(size_t aLevel)
 {
   switch (aLevel)
   {
+  case 0: // Debug mode
+    loadLevelHelper<EnemyTank_10>(1);
+    break;
   case 1:
     loadLevelHelper<EnemyTank_20>(2);
     loadLevelHelper<EnemyTank_10>(18);
@@ -132,43 +145,44 @@ bool EnemyControlUnit::LoadLevel(size_t aLevel)
     break;
   }
 
-  for(auto& tank : mTanksQueue)
+  for (auto& tank : mTanksQueue)
   {
-    if(!tank->Init())
+    if (!tank->Init())
     {
       SPDLOG_ERROR("Enemy tank init failed");
       return false;
     }
+    tank->SetCallbackToRotate([this](auto& aTank) { setDirectionsForTank(aTank); });
   }
 
   Spawn(); // initial start for check game states wouldn't get
-          // nextLvl because of empty entity field
+           // nextLvl because of empty entity field
 
   return true;
 }
 
-void EnemyControlUnit::setDirectionsForTank(std::shared_ptr<EnemyBaseTank> aTank)
+void EnemyControlUnit::setDirectionsForTank(EnemyBaseTank& aTank)
 {
   const int direction(std::rand() % 4);
   if (direction == 0)
   {
-    aTank->SetVelocity({0.f, +100.f * aTank->GetSpeed()});
-    aTank->Rotate(EActions::DOWN);
+    aTank.SetVelocity({ 0.f, +100.f * aTank.GetSpeed() });
+    aTank.Rotate(EActions::DOWN);
   }
   else if (direction == 1)
   {
-    aTank->SetVelocity({0.f, -100.f * aTank->GetSpeed()});
-    aTank->Rotate(EActions::UP);
+    aTank.SetVelocity({ 0.f, -100.f * aTank.GetSpeed() });
+    aTank.Rotate(EActions::UP);
   }
   else if (direction == 2)
   {
-    aTank->SetVelocity({+100 * aTank->GetSpeed(), 0.f});
-    aTank->Rotate(EActions::RIGHT);
+    aTank.SetVelocity({ +100 * aTank.GetSpeed(), 0.f });
+    aTank.Rotate(EActions::RIGHT);
   }
   else if (direction == 3)
   {
-    aTank->SetVelocity({-100 * aTank->GetSpeed(), 0.f});
-    aTank->Rotate(EActions::LEFT);
+    aTank.SetVelocity({ -100 * aTank.GetSpeed(), 0.f });
+    aTank.Rotate(EActions::LEFT);
   }
 }
 
@@ -193,13 +207,15 @@ void EnemyControlUnit::doFire(std::shared_ptr<EnemyBaseTank> aTank)
 
 void EnemyControlUnit::Update(sf::Time elapsedTime)
 {
-  for(auto& tank : mTanksOnField)
+  for (auto& tank : mTanksOnField)
   {
-    tank->Update(tank->GetVelocity() * elapsedTime.asSeconds());
+    const sf::Vector2f updateCoords = tank->GetVelocity() * elapsedTime.asSeconds();
+    tank->Update(updateCoords);
     if (mGameInstance->isIntersectsEnemy())
     {
-      tank->MoveBack(tank->GetVelocity() * elapsedTime.asSeconds());
-      setDirectionsForTank(tank);
+      tank->MoveBack(updateCoords);
+      setDirectionsForTank(*tank);
+      tank->UpdateRotationTime();
     }
 
     doFire(tank);
@@ -208,9 +224,9 @@ void EnemyControlUnit::Update(sf::Time elapsedTime)
 
 void EnemyControlUnit::Draw(sf::RenderWindow& aWindow) const
 {
-  for(const auto& tank : mTanksOnField)
+  for (const auto& tank : mTanksOnField)
   {
-    if(tank)
+    if (tank)
     {
       tank->Draw(aWindow);
     }

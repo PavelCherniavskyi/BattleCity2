@@ -105,6 +105,15 @@ bool Game::Init()
   mapSequence.emplace_back(std::make_shared<Map2>());
   mapSequence.emplace_back(std::make_shared<Map1>());
 
+  if(!mInputHandlerUPtr->GetOption(EInputOption::DEBUG).empty())
+  {
+    mapSequence.emplace_back(std::make_shared<Map0>()); // Test mode
+    mEnemyControlUnit.ResetTanksOnField();
+    mEnemyControlUnit.ResetTanksQueue();
+    mEnemyControlUnit.LoadLevel(0);
+    panel.SetCurrentLevel(0);
+  }
+
   for(auto& map : mapSequence)
   {
     if(!map->Init())
@@ -153,9 +162,9 @@ bool Game::isIntersectsBullet()
   {
     for (auto itrMap = map->GetMapObjects().begin(); itrMap != map->GetMapObjects().end(); itrMap++)
     {
-      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrBullet->second->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
       {
-        if(itrMap->second.Type == +EMapObjects::WALL)
+        if(itrMap->first == +EMapObjects::WALL)
         {
           map->DestroyObject(itrMap);
         }
@@ -237,9 +246,9 @@ bool Game::isIntersectsSuperBullet()
   {
     for (auto itrMap = map->GetMapObjects().begin(); itrMap != map->GetMapObjects().end(); itrMap++)
     {
-      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.Rect))
+      if (Utils::Intersection(itrSuperBullet->second->GetGlobalBounds(), itrMap->second.getGlobalBounds()))
       {
-        const auto type = itrMap->second.Type;
+        const auto type = itrMap->first;
         if(type == +EMapObjects::WALL || type == +EMapObjects::STEELWALL)
         {
           map->DestroyObject(itrMap);
@@ -309,12 +318,12 @@ bool Game::isIntersectsEnemy()
   const auto mapObjects = mapSequence.back()->GetMapObjects();
   for (auto itrMap = mapObjects.begin(); itrMap != mapObjects.end(); itrMap++)
   {
-    if(itrMap->second.Type == +EMapObjects::GREENWALL)
+    if(itrMap->first == +EMapObjects::GREENWALL)
     {
       continue;
     }
     EnemyControlUnit::EnemyTankIter tankIter;
-    if (mEnemyControlUnit.Intersection(itrMap->second.Rect, tankIter))
+    if (mEnemyControlUnit.Intersection(itrMap->second.getGlobalBounds(), tankIter))
     {
       return true;
     }

@@ -120,21 +120,6 @@ float BaseTank::GetBulletSpeed() const
   return mBulletSpeed;
 }
 
-bool EnemyBaseTank::CanIDoFire() const
-{
-  static sf::Clock clock;
-  static float fireRange = 1;
-
-  if (clock.getElapsedTime().asSeconds() > fireRange)
-  {
-    fireRange = static_cast<float>(rand() % 20 + 10);
-    fireRange /= 10;
-    clock.restart();
-    return true;
-  }
-  return false;
-}
-
 std::shared_ptr<BulletBase> BaseTank::DoFire(ECategory aCategory)
 {
   std::shared_ptr<BulletBase> bullet(nullptr);
@@ -308,11 +293,40 @@ void PlayerTank::SetInitialPosition()
 
 EnemyBaseTank::EnemyBaseTank(ECategory aCategory, EImage aType)
   : BaseTank(aCategory, aType)
+  , mNumbers()
+  , mRotationTime()
 {
+}
+
+bool EnemyBaseTank::CanIDoFire() const
+{
+  static sf::Clock clock;
+  static float fireRange = 1;
+
+  if (clock.getElapsedTime().asSeconds() > fireRange)
+  {
+    fireRange = static_cast<float>(rand() % 20 + 10);
+    fireRange /= 10;
+    clock.restart();
+    return true;
+  }
+  return false;
+}
+
+void EnemyBaseTank::SetCallbackToRotate(std::function<void(EnemyBaseTank&)> callback)
+{
+  mCallbackToRotate = callback;
+}
+
+void EnemyBaseTank::UpdateRotationTime()
+{
+  mRotationTime = sf::seconds(static_cast<float>(rand() % 5 + 1));
+  SPDLOG_INFO("UpdateRotationTime: {}", mRotationTime.asSeconds());
 }
 
 void EnemyBaseTank::Update(const sf::Vector2f& aPos)
 {
+  static sf::Clock rotationTimer;
   for (size_t i = 0; i < kTankSpritesCount; i++)
   {
     mSprites[i].move(aPos);
@@ -320,6 +334,14 @@ void EnemyBaseTank::Update(const sf::Vector2f& aPos)
 
   mNumbers[GetHP()].setPosition(
     { GetGlobalBounds().left + GetGlobalBounds().width, GetGlobalBounds().top + GetGlobalBounds().height });
+
+
+  if(rotationTimer.getElapsedTime() > mRotationTime)
+  {
+    SPDLOG_INFO("Callback with type: {}", GetImageType()._to_string());
+    mCallbackToRotate(*this);
+    rotationTimer.restart();
+  }
 }
 
 bool EnemyBaseTank::Init()
@@ -331,6 +353,8 @@ bool EnemyBaseTank::Init()
     return false;
   }
   mNumbers = *numbers;
+  UpdateRotationTime();
+  SetIsMoving(true);
 
   for (size_t i = 0; i < 10; i++)
   {
@@ -386,7 +410,6 @@ bool EnemyTank_10::Init()
   SetBulletFrequency(kEnemy_10TankBulletFrequency);
   SetSpeed(kEnemy_10TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -411,7 +434,10 @@ bool EnemyTank_20::Init()
   auto sprites = SpriteHolder::GetSprite(mImageType);
   if (!sprites || sprites->size() != kTankSpritesCount)
   {
-    SPDLOG_ERROR("Sprites is not correct");
+    SPDLOG_ERROR("Sprites for type {} is not correct. CurSize: {}, Expected: {}"
+      , mImageType._to_string()
+      , (sprites ? std::to_string(sprites->size()).c_str() : "sprites is NULL")
+      , kTankSpritesCount);
     return false;
   }
   mSprites = *sprites;
@@ -420,7 +446,6 @@ bool EnemyTank_20::Init()
   SetBulletFrequency(kEnemy_20TankBulletFrequency);
   SetSpeed(kEnemy_20TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -454,7 +479,6 @@ bool EnemyTank_30::Init()
   SetBulletFrequency(kEnemy_30TankBulletFrequency);
   SetSpeed(kEnemy_30TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
@@ -488,7 +512,6 @@ bool EnemyTank_40::Init()
   SetBulletFrequency(kEnemy_40TankBulletFrequency);
   SetSpeed(kEnemy_40TankSpeed);
   SetVelocity({0.f, +100.f * GetSpeed()});
-  SetIsMoving(false);
   Rotate(EActions::DOWN);
   CanIDoFire(); // for clock initialization
 
