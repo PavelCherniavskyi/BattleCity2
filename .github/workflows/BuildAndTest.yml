@@ -36,7 +36,7 @@ jobs:
     
     - name: Export DISPLAY
       # run: export DISPLAY=:99.0
-      run: export DISPLAY=:0.0
+      run: echo $DISPLAY && setenv | grep DISPLAY && export DISPLAY=:0.0 && echo $DISPLAY && setenv | grep DISPLAY
 
     - name: Get Conan
       # You may pin to the exact commit or the version.
