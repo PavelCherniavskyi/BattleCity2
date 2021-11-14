@@ -16,5 +16,3 @@ Using GCC
 4. lcov --capture --directory . --output-file=coverage.info
 5. genhtml coverage.info --output-directory=result
 See html file in result folder.
-
-[![Build Status](https://app.travis-ci.com/PavelCherniavskyi/BattleCity2.svg?branch=master)](https://app.travis-ci.com/PavelCherniavskyi/BattleCity2) [![codecov](https://codecov.io/gh/PavelCherniavskyi/BattleCity2/branch/master/graph/badge.svg)](https://codecov.io/gh/PavelCherniavskyi/BattleCity2) [![Documentation](https://codedocs.xyz/PavelCherniavskyi/BattleCity2.svg)](https://codedocs.xyz/PavelCherniavskyi/BattleCity2/)
