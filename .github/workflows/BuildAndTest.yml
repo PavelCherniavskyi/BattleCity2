@@ -34,7 +34,7 @@ jobs:
     - name: Install packages
       run: sudo apt install cmake build-essential ccache python3-pip libgl-dev xorg-dev libx11-xcb-dev libxcb-render0-dev libxcb-render-util0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-util-dev libudev-dev
     
-    - name: Export DISPLAY
+    # - name: Export DISPLAY
       # run: export DISPLAY=:99.0
       # run: echo $DISPLAY && setenv | grep DISPLAY && export DISPLAY=:0.0 && echo $DISPLAY && setenv | grep DISPLAY
 
