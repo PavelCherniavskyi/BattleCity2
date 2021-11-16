@@ -13,13 +13,18 @@ The game was made with SFML library as a pet project.
 
 ![battle city3](https://user-images.githubusercontent.com/29663442/29415687-789c5670-836c-11e7-90d8-97e4d7a550ad.png)
 
-### Install
+### Install Linux
 ```
 sudo apt install cmake build-essential ccache python3-pip libgl-dev xorg-dev libx11-xcb-dev libxcb-render0-dev libxcb-render-util0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-util-dev libudev-dev
 ```
 ```
 pip install conan
 ```
+
+### Install Windows Visual Studio (worked with 2019)
+Go to Extention tab and search for "Conan" extention. Intall it.
+-Configure CMake in project & build.
+!!! Currently have some issue with fonts. Comment out stageRender() call in Game::draw().
 
 ### Using Sanitizers
 Using GCC

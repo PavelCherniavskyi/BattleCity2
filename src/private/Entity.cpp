@@ -42,7 +42,8 @@ sf::FloatRect Entity::GetLocalBounds() const
 
 size_t Entity::MakeDamage(size_t aAmount)
 {
-  if (mHP >= aAmount)
+  auto tmp = mHP;
+  if (aAmount <= mHP)
   {
     mHP -= aAmount;
   }
@@ -50,6 +51,7 @@ size_t Entity::MakeDamage(size_t aAmount)
   {
     mHP = 0u;
   }
+  SPDLOG_INFO("Damage: {}, prev: {}, curr: {}", aAmount, tmp, mHP);
   return mHP;
 }
 

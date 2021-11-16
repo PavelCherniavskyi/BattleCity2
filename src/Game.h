@@ -47,4 +47,5 @@ private:
   std::unique_ptr<InputHandler> mInputHandlerUPtr;
   std::vector<sf::Text> mText;
   EnemyControlUnit mEnemyControlUnit;
+  std::vector<BaseTank::Snapshot> mPlayerBackups;
 };

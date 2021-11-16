@@ -21,6 +21,7 @@ Game::Game(std::unique_ptr<InputHandler> aInputHandlerUPtr)
   , mInputHandlerUPtr(std::move(aInputHandlerUPtr))
   , mText(EText::_size())
   , mEnemyControlUnit(mAnimationHandler)
+  , mPlayerBackups()
 {
 }
 
@@ -414,20 +415,9 @@ void Game::update(sf::Time elapsedTime)
     {
       panel.SetCurrentLives(playerTank->GetHP());
       playerTank->SetInitialPosition();
-      auto lives = playerTank->GetHP();
-      auto missles = playerTank->GetSuperClipSize();
       mEntities.erase(ECategory::PLAYERTANK);
-      auto playerApperance = [this, lives, missles]() {
-          auto playerTankPtr = player.GetPlayerTank();
-          if(!playerTankPtr || !playerTankPtr->Init())
-          {
-            SPDLOG_ERROR("Something wrong with Player tank");
-          }
-
-          playerTankPtr->SetInitialPosition();
-          mEntities.insert({ECategory::PLAYERTANK, playerTankPtr});
-          panel.SetCurrentLives(lives);
-          panel.SetCurrentMissles(missles);
+      auto playerApperance = [this]() {
+          mEntities.insert({ECategory::PLAYERTANK, player.GetPlayerTank()});
         };
       mAnimationHandler.CreateAnimation(playerTank->GetGlobalBounds(), EImage::APPERANCE, playerApperance);
     }

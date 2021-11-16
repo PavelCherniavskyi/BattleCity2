@@ -10,6 +10,37 @@
 class BaseTank : public Entity
 {
 public:
+  class Snapshot
+  {
+  public:
+    Snapshot(BaseTank* aTank,
+      const std::queue<std::shared_ptr<SuperBullet>>& aClip,
+      const float aBulletSpeed,
+      const float aBulletFrequency,
+      const ECategory aCategory,
+      const bool aIsMoving,
+      const sf::Vector2f& aVelocity, 
+      const float aSpeed,
+      const size_t aHP,
+      const std::vector<sf::Sprite>& aSprites,
+      const EImage aImageType);
+
+    void Restore();
+
+  private : 
+    BaseTank* mTank;
+    std::queue<std::shared_ptr<SuperBullet>> mSuperBulletClip;
+    float mBulletSpeed;
+    float mBulletFrequency;
+    ECategory mCategory;
+    bool mIsMoving;
+    sf::Vector2f mVelocity;
+    float mSpeed;
+    size_t mHP;
+    std::vector<sf::Sprite> mSprites;
+    EImage mImageType;
+  };
+
   BaseTank(ECategory, EImage);
   BaseTank(const BaseTank&);
   virtual ~BaseTank() = default;
@@ -28,6 +59,7 @@ public:
   void SetBulletFrequency(const float);
   float GetBulletFrequency() const;
   ECategory GetCategory() const;
+  Snapshot CreateSnapshot();
 
 protected:
   std::queue<std::shared_ptr<SuperBullet>> mSuperBulletClip;
@@ -91,4 +123,4 @@ public:
   bool Init() override;
 };
 
-#endif// BATTLECITY_TANK_HPP
+#endif // BATTLECITY_TANK_HPP

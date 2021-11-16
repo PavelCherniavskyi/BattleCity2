@@ -155,9 +155,6 @@ bool EnemyControlUnit::LoadLevel(ELevels aLevel)
     tank->SetCallbackToRotate([this](auto& aTank) { setDirectionsForTank(aTank); });
   }
 
-  Spawn(); // initial start for check game states wouldn't get
-           // nextLvl because of empty entity field
-
   return true;
 }
 
