@@ -219,12 +219,13 @@ void EnemyControlUnit::Update(sf::Time elapsedTime)
   }
 }
 
-void EnemyControlUnit::Draw(sf::RenderWindow& aWindow) const
+void EnemyControlUnit::Draw(sf::RenderWindow& aWindow, bool aIsPaused) const
 {
   for (const auto& tank : mTanksOnField)
   {
     if (tank)
     {
+      tank->SetIsMoving(!aIsPaused);
       tank->Draw(aWindow);
     }
   }

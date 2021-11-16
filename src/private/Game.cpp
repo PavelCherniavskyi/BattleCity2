@@ -43,12 +43,11 @@ void Game::Run()
       timeSinceLastUpdate -= kTimePerFrame;
       if (gameStage != +EGamestates::GAME_OVER && gameStage != +EGamestates::WIN)
       {
-        if (mIsPaused)
-        {
-          continue;
-        }
         handleInput(kTimePerFrame);
-        update(kTimePerFrame);
+        if (!mIsPaused)
+        {
+          update(kTimePerFrame);
+        }
       }
     }
     updateFPS(elapsedTime);
@@ -157,7 +156,7 @@ void Game::handleInput(sf::Time aTimePerFrame)
     {
       mWindow.close();
     }
-    if (event.key.code == sf::Keyboard::Space)
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space)
     {
       mIsPaused = !mIsPaused;
     }
@@ -165,7 +164,7 @@ void Game::handleInput(sf::Time aTimePerFrame)
   if (!mIsPaused)
   {
     player.HandleActionEvent(event, aTimePerFrame);
-    player.HandleMovingInput(event, aTimePerFrame);
+    player.HandleMovingInput(aTimePerFrame);
   }
 }
 
@@ -536,7 +535,7 @@ void Game::draw()
     itr->second->Draw(mWindow);
   }
 
-  mEnemyControlUnit.Draw(mWindow);
+  mEnemyControlUnit.Draw(mWindow, mIsPaused);
   mapSequence.back()->Draw(mWindow);
   mBonusHandler.Draw(mWindow);
   mAnimationHandler.Draw(mWindow);

@@ -17,7 +17,7 @@ public:
   Player(std::vector<std::shared_ptr<Map>>&, RightPanel&, BonusHandler&);
   bool Init();
   void HandleActionEvent(const sf::Event& aEvent, const sf::Time& aTimePerFrame);
-  void HandleMovingInput(const sf::Event& aEvent, const sf::Time& aTimePerFrame);
+  void HandleMovingInput(const sf::Time& aTimePerFrame);
   void HandleBonusEvents();
   bool IsIntersectsWalls();
   std::shared_ptr<PlayerTank> GetPlayerTank();

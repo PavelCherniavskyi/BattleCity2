@@ -19,7 +19,7 @@ public:
   EnemyControlUnit(AnimationHandler&);
   bool Init(Game*);
   void Update(const sf::Time);
-  void Draw(sf::RenderWindow&) const;
+  void Draw(sf::RenderWindow&, bool) const;
   bool LoadLevel(ELevels);
   bool Intersection(const sf::FloatRect&, EnemyTankIter&) const;
   void DeleteTank(const EnemyControlUnit::EnemyTankIter&);

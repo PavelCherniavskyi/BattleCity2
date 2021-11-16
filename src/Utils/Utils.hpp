@@ -7,21 +7,6 @@
 
 namespace Utils{
 
-inline bool IsMovingAction(EActions action)
-{
-  switch (action)
-  {
-  case +EActions::LEFT:
-  case +EActions::RIGHT:
-  case +EActions::UP:
-  case +EActions::DOWN: 
-    return true;
-
-  default:
-    return false;
-  }
-}
-
 inline EMapObjects Image2MapObjectConverter(EImage image)
 {
   switch (image)

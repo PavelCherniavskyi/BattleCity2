@@ -28,12 +28,11 @@ void Player::HandleActionEvent(const sf::Event& aEvent, const sf::Time&)
   }
 }
 
-void Player::HandleMovingInput(const sf::Event&, const sf::Time& aTimePerFrame)
+void Player::HandleMovingInput(const sf::Time& aTimePerFrame)
 {
-  // if(event.type == sf::Event::KeyPressed) -> works only for Ctrl, Alt, e.t.c ???
   for (auto& pair : mKeyboardBinding)
   {
-    if (sf::Keyboard::isKeyPressed(pair.first) && Utils::IsMovingAction(pair.second))
+    if (sf::Keyboard::isKeyPressed(pair.first))
     {
       mKeyboardActions[pair.second].get()->Action(aTimePerFrame, mPlayerTank, false);
       if (IsIntersectsWalls())
