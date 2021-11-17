@@ -1,5 +1,3 @@
-set(CONAN_EXTRA_REQUIRES ${CONAN_EXTRA_REQUIRES} imgui-sfml/2.1@bincrafters/stable)
-
 macro(run_conan)
     # Download automatically, you can also just copy the conan.cmake file
     if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
@@ -16,7 +14,7 @@ macro(run_conan)
 
     conan_cmake_run(
             REQUIRES
-            ${CONAN_EXTRA_REQUIRES}
+            imgui-sfml/2.1@bincrafters/stable
             gtest/cci.20210126
             fmt/8.0.1
             spdlog/1.9.2

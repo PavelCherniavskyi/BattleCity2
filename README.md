@@ -7,7 +7,7 @@ The game was made with SFML library as a pet project.
 - A,W,S,D 
 - Shot - Left Click, 
 - Big shot - Right Click, 
-- Pause - P.
+- Pause - Space.
 - Main goal - defend Eagle.
 
 ![battle city](https://user-images.githubusercontent.com/29663442/29415430-b696ce8e-836b-11e7-9922-5455a2dd5fe0.png)
@@ -25,7 +25,7 @@ pip install conan
 ### Install Windows Visual Studio (worked with 2019)
 Go to Extention tab and search for "Conan" extention. Intall it.
 -Configure CMake in project & build.
-!!! Currently have some issue with fonts. Comment out stageRender() call in Game::draw().
+***Currently have some issue with fonts. Comment out stageRender() call in Game::draw().***
 
 ### Using Sanitizers
 Using GCC
