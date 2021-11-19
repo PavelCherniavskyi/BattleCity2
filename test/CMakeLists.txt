@@ -7,7 +7,7 @@ add_executable(tests
 target_link_libraries(tests PRIVATE
         project_warnings
         project_options
-        CONAN_PKG::imgui-sfml
+        CONAN_PKG::sfml
         CONAN_PKG::spdlog
         CONAN_PKG::gtest
         CONAN_PKG::boost

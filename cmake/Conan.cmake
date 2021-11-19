@@ -10,11 +10,9 @@ macro(run_conan)
 
     include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-    conan_add_remote(NAME bincrafters URL https://bincrafters.jfrog.io/artifactory/api/conan/public-conan)
-
     conan_cmake_run(
             REQUIRES
-            imgui-sfml/2.1@bincrafters/stable
+            sfml/2.5.1
             gtest/cci.20210126
             fmt/8.0.1
             spdlog/1.9.2
